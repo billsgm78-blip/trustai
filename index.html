@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TruthLens AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: dark forensic workbench; topbar + one content column, tools laid out as scan-first panels */
+  --bg: #080D18;
+  --bg2: #101827;
+  --card: #131F30;
+  --line: #1E2C42;
+  --accent: #38BDF8;
+  --accent2: #8B5CF6;
+  --ok: #22C55E;
+  --warn: #F59E0B;
+  --bad: #EF4444;
+  --text: #F8FAFC;
+  --muted: #94A3B8;
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --r: 12px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4 { font-family: var(--display); line-height: 1.2; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+img, canvas, video { max-width: 100%; }
+.mono { font-family: var(--mono); font-size: 0.9em; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 480px) { .wrap { padding: 0 16px; } }
+
+/* Top bar */
+.top { position: sticky; top: 0; z-index: 20; background: rgba(8,13,24,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-family: var(--display); font-weight: 700; font-size: 17px; white-space: nowrap; }
+.brand b { color: var(--accent); font-weight: 700; }
+.nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { color: var(--muted); text-decoration: none; padding: 7px 12px; border-radius: 8px; font-weight: 600; font-size: 14px; white-space: nowrap; transition: color .15s, background .15s; }
+.nav a:hover { color: var(--text); background: var(--bg2); }
+.nav a.on { color: var(--text); background: var(--card); box-shadow: inset 0 -2px 0 var(--accent); }
+.local-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.local-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); display: inline-block; }
+@media (max-width: 860px) { .local-pill { display: none; } .top .wrap { gap: 12px; } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: none; transition: transform .12s, border-color .15s, background .15s; }
+.btn:hover { border-color: #2E4463; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #04121D; }
+.btn.primary:hover { background: #5CCBFA; }
+.btn.danger { color: #FCA5A5; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.08); }
+.btn.ghost { background: transparent; }
+.btn.sm { padding: 6px 12px; font-size: 13px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* Generic */
+.view { display: none; }
+.view.on { display: block; }
+.page { padding: 36px 0 72px; }
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.page-head h1 { font-size: 28px; }
+.page-head p { color: var(--muted); margin-top: 6px; max-width: 65ch; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+.card h3 { font-size: 15px; margin-bottom: 12px; }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+@media (max-width: 900px) { .g3, .g4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 600px) { .g2, .g3, .g4 { grid-template-columns: 1fr; } }
+.eyebrow { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.chip.low { color: #86EFAC; border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.08); }
+.chip.medium { color: #FCD34D; border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.08); }
+.chip.high { color: #FCA5A5; border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.1); }
+.chip.inconclusive { color: #CBD5E1; border-color: #334155; background: rgba(148,163,184,.08); }
+.chip.info { color: #7DD3FC; border-color: rgba(56,189,248,.35); background: rgba(56,189,248,.08); }
+.chip.ai { color: #C4B5FD; border-color: rgba(139,92,246,.4); background: rgba(139,92,246,.1); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.tbl { overflow-x: auto; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--bg2); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.input, select.input { background: var(--bg2); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; width: 100%; }
+.input:focus { border-color: var(--accent); outline: none; }
+.empty { text-align: center; padding: 48px 20px; }
+.empty h3 { font-size: 18px; margin: 14px 0 6px; }
+.empty p { color: var(--muted); max-width: 46ch; margin: 0 auto 18px; }
+.notice { border-left: 3px solid var(--warn); background: rgba(245,158,11,.06); padding: 12px 16px; border-radius: 0 10px 10px 0; font-size: 14px; color: #FDE7B0; }
+.notice.blue { border-color: var(--accent); background: rgba(56,189,248,.06); color: #CFEFFD; }
+
+/* Landing */
+.hero { padding: 72px 0 56px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -40% -10% auto auto; width: 720px; height: 720px; background: radial-gradient(closest-side, rgba(56,189,248,.14), transparent 70%); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: auto auto -50% -15%; width: 640px; height: 640px; background: radial-gradient(closest-side, rgba(139,92,246,.12), transparent 70%); pointer-events: none; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+@media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
+.hero h1 { font-size: clamp(36px, 5.4vw, 60px); font-weight: 700; margin: 14px 0 18px; }
+.hero h1 span { color: var(--accent); }
+.hero .sub { font-size: 18px; color: #CBD5E1; max-width: 52ch; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.cats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+.lens-panel { background: var(--bg2); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); }
+.lens-panel .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 13px; gap: 12px; }
+.lens-panel .row:last-child { border-bottom: 0; }
+.lens-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+section.band { padding: 64px 0; border-top: 1px solid var(--line); }
+section.band.alt { background: var(--bg2); }
+.band h2 { font-size: clamp(24px, 3vw, 34px); margin: 10px 0 12px; }
+.band .lead { color: var(--muted); max-width: 65ch; font-size: 16px; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; margin-top: 32px; counter-reset: s; }
+@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+.step { border-top: 2px solid var(--line); padding-top: 16px; }
+.step .n { font-family: var(--mono); color: var(--accent); font-size: 13px; }
+.step h4 { font-size: 16px; margin: 8px 0 6px; }
+.step p { color: var(--muted); font-size: 14px; }
+.media-card { display: grid; gap: 10px; }
+.media-card .ic { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; background: rgba(56,189,248,.1); color: var(--accent); }
+.media-card h3 { font-size: 18px; margin: 0; }
+.media-card ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.media-card .fmt { font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
+.feat { display: flex; gap: 14px; }
+.feat .ic { flex: none; width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: rgba(139,92,246,.12); color: #C4B5FD; }
+.feat h4 { font-size: 15px; margin-bottom: 4px; }
+.feat p { color: var(--muted); font-size: 14px; }
+.pipe { display: grid; gap: 0; margin-top: 28px; }
+.pipe .p { display: grid; grid-template-columns: 120px 1fr auto; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
+.pipe .p .k { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.pipe .p p { color: var(--muted); font-size: 14px; }
+.pipe .p strong { display: block; font-size: 15px; }
+@media (max-width: 600px) { .pipe .p { grid-template-columns: 1fr; gap: 4px; } }
+.tech { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+@media (max-width: 760px) { .tech { grid-template-columns: 1fr; } }
+.tech ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.tech li { display: grid; grid-template-columns: 150px 1fr; gap: 12px; font-size: 14px; border-bottom: 1px dashed var(--line); padding-bottom: 10px; }
+.tech li span:first-child { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.tech li span:last-child { color: var(--muted); }
+@media (max-width: 480px) { .tech li { grid-template-columns: 1fr; gap: 2px; } }
+details.faq { border-bottom: 1px solid var(--line); padding: 16px 0; }
+details.faq summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::after { content: "+"; color: var(--accent); font-family: var(--mono); font-size: 18px; line-height: 1; }
+details.faq[open] summary::after { content: "−"; }
+details.faq p { color: var(--muted); margin-top: 10px; max-width: 70ch; }
+footer { border-top: 1px solid var(--line); padding: 32px 0; color: var(--muted); font-size: 13px; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* Dashboard */
+.tile { display: grid; gap: 4px; }
+.tile .lbl { font-size: 13px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.tile .val { font-family: var(--display); font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stack { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--bg2); margin: 6px 0 14px; }
+.stack span { display: block; height: 100%; }
+.legend { display: grid; gap: 8px; font-size: 14px; }
+.legend div { display: flex; justify-content: space-between; gap: 12px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 8px; }
+
+/* Upload */
+.drop { border: 1.5px dashed #2E4463; border-radius: 16px; padding: 44px 20px; text-align: center; background: var(--bg2); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: rgba(56,189,248,.05); }
+.drop h3 { font-size: 18px; margin: 14px 0 6px; }
+.drop p { color: var(--muted); font-size: 14px; }
+.preview { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 700px) { .preview { grid-template-columns: 1fr; } }
+.preview .media { background: #050911; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; place-items: center; min-height: 160px; }
+.preview .media img, .preview .media video { display: block; max-height: 260px; object-fit: contain; }
+.preview .media audio { width: 100%; padding: 12px; }
+.kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; word-break: break-word; }
+.progress { display: grid; gap: 0; margin-top: 8px; }
+.progress .ps { display: flex; gap: 12px; align-items: center; padding: 9px 0; font-size: 14px; color: var(--muted); }
+.progress .ps .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #2E4463; flex: none; display: grid; place-items: center; }
+.progress .ps.run { color: var(--text); }
+.progress .ps.run .dot { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+.progress .ps.done { color: var(--text); }
+.progress .ps.done .dot { border-color: var(--ok); background: var(--ok); }
+.progress .ps.done .dot::after { content: ""; width: 6px; height: 3px; border-left: 2px solid #052e16; border-bottom: 2px solid #052e16; transform: rotate(-45deg) translate(1px,-1px); }
+.progress .ps.skip .dot { border-color: #475569; border-style: dotted; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.err { color: #FCA5A5; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); padding: 10px 14px; border-radius: 10px; font-size: 14px; margin-top: 14px; }
+
+/* Result */
+.res-head { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+@media (max-width: 700px) { .res-head { grid-template-columns: 1fr; } }
+.verdict { border-radius: 14px; padding: 22px; border: 1px solid var(--line); background: var(--card); position: relative; overflow: hidden; }
+.verdict::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--muted); }
+.verdict.low::before { background: var(--ok); }
+.verdict.medium::before { background: var(--warn); }
+.verdict.high::before { background: var(--bad); }
+.verdict .big { font-family: var(--display); font-size: 26px; font-weight: 700; margin: 6px 0; }
+.verdict.low .big { color: #86EFAC; }
+.verdict.medium .big { color: #FCD34D; }
+.verdict.high .big { color: #FCA5A5; }
+.meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 14px 0 10px; max-width: 360px; }
+.meter span { height: 6px; border-radius: 3px; background: var(--line); }
+.verdict.low .meter span:nth-child(1) { background: var(--ok); }
+.verdict.medium .meter span:nth-child(-n+2) { background: var(--warn); }
+.verdict.high .meter span { background: var(--bad); }
+.ind { display: grid; grid-template-columns: 4px 1fr auto; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.ind:last-child { border-bottom: 0; }
+.ind .bar { border-radius: 2px; background: var(--accent); }
+.ind.low .bar { background: #64748B; }
+.ind.medium .bar { background: var(--warn); }
+.ind.high .bar { background: var(--bad); }
+.ind.auth .bar { background: var(--ok); }
+.idx { display: grid; gap: 12px; margin-top: 16px; max-width: 460px; }
+.idx-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; font-size: 14px; }
+.idx-row b { font-family: var(--display); font-size: 18px; font-variant-numeric: tabular-nums; }
+.idx-track { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--bg2); overflow: hidden; }
+.idx-track span { display: block; height: 100%; border-radius: 4px; }
+.big-pct { font-family: var(--display); font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.pbar { height: 8px; background: var(--bg2); border-radius: 4px; overflow: hidden; margin: 14px 0 4px; }
+.pbar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .25s; }
+.type-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.drop:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.preview.audio-mode { grid-template-columns: 1fr; }
+.preview.audio-mode .media { min-height: 0; }
+.ind h4 { font-size: 15px; font-family: var(--body); font-weight: 700; }
+.ind p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.ind .src { font-family: var(--mono); font-size: 11px; color: #64748B; margin-top: 6px; }
+.vis { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+@media (max-width: 700px) { .vis { grid-template-columns: 1fr; } }
+.vis figure { margin: 0; background: #050911; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.vis figure img { display: block; width: 100%; height: auto; image-rendering: auto; }
+.vis figcaption { padding: 10px 12px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+.vis .wide { grid-column: 1 / -1; }
+.film { display: flex; gap: 4px; overflow-x: auto; padding: 8px; }
+.film img { height: 64px; width: auto; border-radius: 4px; flex: none; }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E1; font-size: 14px; }
+.row-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Filters */
+.filters { display: grid; grid-template-columns: 2fr repeat(4, 1fr) 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+@media (max-width: 1000px) { .filters { grid-template-columns: repeat(2, minmax(0,1fr)); } .filters .search { grid-column: 1 / -1; } }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+
+/* Academy */
+.lesson-card { display: grid; gap: 8px; cursor: pointer; text-align: left; transition: border-color .15s, transform .15s; }
+.lesson-card:hover { border-color: #2E4463; transform: translateY(-1px); }
+.lesson-card h3 { margin: 0; font-size: 17px; }
+.lesson-card .foot { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.lesson-body { max-width: 72ch; }
+.lesson-body p { margin-bottom: 14px; color: #CBD5E1; }
+.lesson-body h2 { font-size: 26px; margin: 8px 0 18px; }
+.example { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 6px 0 22px; font-size: 14px; color: #CBD5E1; }
+.example b { color: var(--accent); font-family: var(--mono); font-size: 12px; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
+.quiz { display: grid; gap: 18px; margin-top: 10px; }
+.q { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--card); }
+.q h4 { font-family: var(--body); font-size: 15px; margin-bottom: 10px; }
+.q label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.q label:hover { background: var(--bg2); }
+.q label.right { background: rgba(34,197,94,.1); color: #BBF7D0; }
+.q label.wrong { background: rgba(239,68,68,.1); color: #FECACA; }
+.q .why { font-size: 13px; color: var(--muted); margin-top: 8px; display: none; }
+.q.checked .why { display: block; }
+.progress-bar { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.progress-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+/* Settings */
+.set-row { display: grid; grid-template-columns: 1fr 220px; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.set-row:last-child { border-bottom: 0; }
+.set-row h4 { font-family: var(--body); font-size: 15px; }
+.set-row p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+@media (max-width: 600px) { .set-row { grid-template-columns: 1fr; } }
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; justify-self: end; }
+.switch input { appearance: none; width: 42px; height: 24px; border-radius: 12px; background: #334155; position: relative; cursor: pointer; transition: background .15s; margin: 0; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #F8FAFC; transition: left .15s; }
+.switch input:checked { background: var(--accent); }
+.switch input:checked::after { left: 21px; }
+
+/* Modal + toast */
+.modal { position: fixed; inset: 0; background: rgba(2,6,14,.7); display: none; place-items: center; z-index: 50; padding: 16px; }
+.modal.on { display: grid; }
+.modal .box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; max-width: 460px; width: 100%; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.modal .box h3 { font-size: 18px; margin-bottom: 8px; }
+.modal .box p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+.modal .box textarea { width: 100%; height: 260px; background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: var(--mono); font-size: 12px; margin-bottom: 14px; }
+.modal .box .row-actions { justify-content: flex-end; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card); border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; z-index: 60; pointer-events: none; }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#bosh" aria-label="TruthLens AI bosh sahifa">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9.5" fill="none" stroke="#38BDF8" stroke-width="2.4"/><path d="M21 21l7 7" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round"/><path d="M9 14h2l1.5-3 3 6 1.5-3h2" fill="none" stroke="#F8FAFC" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      TruthLens <b>AI</b>
+    </a>
+    <nav class="nav" aria-label="Asosiy menyu">
+      <a href="#bosh" data-nav="bosh">Bosh sahifa</a>
+      <a href="#panel" data-nav="panel">Boshqaruv paneli</a>
+      <a href="#tahlil" data-nav="tahlil">Yangi tahlil</a>
+      <a href="#tarix" data-nav="tarix">Tarix</a>
+      <a href="#akademiya" data-nav="akademiya">Kiber akademiya</a>
+      <a href="#sozlamalar" data-nav="sozlamalar">Sozlamalar</a>
+    </nav>
+    <span class="local-pill" title="Fayllar qurilmangizdan tashqariga yuborilmaydi"><i></i>Mahalliy tahlil</span>
+  </div>
+</header>
+
+<main>
+<!-- ============ LANDING ============ -->
+<section class="view" data-view="bosh">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <div class="eyebrow">Raqamli kriminalistika · Deepfake skriningi</div>
+        <h1>Sirtdan narigini <span>koʻring.</span></h1>
+        <p class="sub">Raqamli mediani tahlil qiling, shubhali oʻzgartirishlarni tekshiring va sunʼiy intellekt yaratgan kontentni TruthLens AI bilan tushuning.</p>
+        <div class="cta">
+          <a class="btn primary" href="#tahlil">Bepul tahlilni boshlash</a>
+          <a class="btn" href="#panel">Platformani koʻrish</a>
+        </div>
+        <div class="cats">
+          <span class="chip info">Rasm kriminalistikasi</span>
+          <span class="chip ai">Video tahlili</span>
+          <span class="chip low">Audio tekshiruvi</span>
+        </div>
+      </div>
+      <div class="lens-panel" aria-label="Tahlil hisobotining tuzilishi">
+        <div class="lens-head"><span class="eyebrow">Hisobot tuzilishi</span><span class="mono muted">TL-YYYYMMDD-XXXXXX</span></div>
+        <div class="row"><span>Fayl yaxlitligi va haqiqiy format</span><span class="mono muted">magic bytes · SHA-256</span></div>
+        <div class="row"><span>Metamaʼlumotlar va generator izlari</span><span class="mono muted">EXIF · XMP · C2PA</span></div>
+        <div class="row"><span>Siqish xatolari tahlili</span><span class="mono muted">ELA · JPEG DQT</span></div>
+        <div class="row"><span>Spektrogramma va akustik belgilar</span><span class="mono muted">FFT · dBFS</span></div>
+        <div class="row"><span>Kadrlararo izchillik</span><span class="mono muted">Δ kadr · keskinlik</span></div>
+        <div class="row"><span>Neyron tarmoq klassifikatori</span><span class="chip inconclusive">ulanmagan</span></div>
+        <div class="row"><span>Yakuniy baho</span><span class="mono muted">past · oʻrta · yuqori · noaniq</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="eyebrow">Mahsulot haqida</div>
+      <h2>Shubhali media uchun shaffof tekshiruv</h2>
+      <p class="lead">TruthLens AI rasm, video va audio fayllarni texnik belgilar boʻyicha tekshiradi va har bir topilmani oddiy tilda tushuntiradi. U “haqiqiy” yoki “soxta” degan hukm chiqarmaydi: qaysi tekshiruv nimani koʻrsatgani, qaysi biri bajarilmagani va natija qanchalik ishonchli ekanini ochiq koʻrsatadi. Bu sahifadagi versiya barcha tahlilni brauzeringizning oʻzida bajaradi.</p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow">Qanday ishlaydi</div>
+      <h2>Toʻrt bosqichda tahlil</h2>
+      <div class="steps">
+        <div class="step"><div class="n">01 · Yuklash</div><h4>Faylni tanlang</h4><p>Rasm, video yoki audio faylni tashlang. Fayl qurilmangizda qoladi.</p></div>
+        <div class="step"><div class="n">02 · Tekshirish</div><h4>Format va yaxlitlik</h4><p>Kengaytmaga emas, fayl baytlariga qarab haqiqiy format aniqlanadi, SHA-256 xesh hisoblanadi.</p></div>
+        <div class="step"><div class="n">03 · Tahlil</div><h4>Mustaqil modullar</h4><p>Har bir media turi uchun alohida tekshiruvlar ishlaydi. Har bir modul oʻz holatini qaytaradi.</p></div>
+        <div class="step"><div class="n">04 · Hisobot</div><h4>Tushunarli xulosa</h4><p>Xavf bahosi, dalillar, cheklovlar va keyingi qadamlar bitta hisobotda.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="eyebrow">Qoʻllab-quvvatlanadigan media</div>
+      <h2>Uch turdagi tahlil</h2>
+      <div class="grid g3" style="margin-top:28px">
+        <div class="card media-card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <h3>Rasm kriminalistikasi</h3>
+          <ul><li>EXIF, XMP, PNG matn bloklari</li><li>AI generator va C2PA izlari</li><li>Xato darajasi tahlili (ELA)</li><li>JPEG sifat jadvali bahosi</li></ul>
+          <div class="fmt">JPG · JPEG · PNG · WEBP</div>
+        </div>
+        <div class="card media-card">
+          <div class="ic" style="background:rgba(139,92,246,.12);color:#C4B5FD"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg></div>
+          <h3>Video tahlili</h3>
+          <ul><li>Konteyner metamaʼlumotlari</li><li>Kadrlarni oraliq bilan ajratish</li><li>Qoʻshni kadrlar farqi</li><li>Keskinlik izchilligi</li></ul>
+          <div class="fmt">MP4 · MOV · WEBM</div>
+        </div>
+        <div class="card media-card">
+          <div class="ic" style="background:rgba(34,197,94,.1);color:#86EFAC"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2M6 8v8M10 4v16M14 7v10M18 10v4M22 12h-2"/></svg></div>
+          <h3>Audio tekshiruvi</h3>
+          <ul><li>Toʻlqin shakli va spektrogramma</li><li>Chastota chegarasi, qayta namunalash</li><li>Klipping va raqamli sukunat</li><li>Sarlavha metamaʼlumotlari</li></ul>
+          <div class="fmt">WAV · MP3 · OGG · FLAC · M4A</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow">Asosiy imkoniyatlar</div>
+      <h2>Ekspert uchun tafsilot, hamma uchun tushuntirish</h2>
+      <div class="grid g3" style="margin-top:28px">
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg></div><div><h4>Maxfiylik birinchi oʻrinda</h4><p>Fayllar serverga yuklanmaydi. Tarixda faqat natijalar saqlanadi, media emas.</p></div></div>
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div><div><h4>Ochiq holatlar</h4><p>Bajarilmagan yoki mavjud boʻlmagan har bir tekshiruv aniq belgilanadi.</p></div></div>
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg></div><div><h4>Haqiqiy statistika</h4><p>Panel faqat siz bajargan tahlillar asosida hisoblanadi.</p></div></div>
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div><div><h4>Kriminalistik hisobot</h4><p>Fayl xeshi, usullar, topilmalar va cheklovlar bitta matnli hisobotda.</p></div></div>
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg></div><div><h4>Qidiruv va filtrlar</h4><p>Tarixni tur, holat, xavf va sana boʻyicha saralang.</p></div></div>
+        <div class="feat"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 4 2 10l10 6 10-6z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></div><div><h4>Kiber akademiya</h4><p>Qisqa darslar va testlar orqali shubhali mediani tanishni oʻrganing.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="eyebrow">Tahlil jarayoni sxemasi</div>
+      <h2>Rasm faylida nima sodir boʻladi</h2>
+      <p class="lead">Quyidagi ketma-ketlik har bir rasm uchun aynan shu tartibda bajariladi. Har bir bosqich natija beradi yoki “mavjud emas” holatini qaytaradi.</p>
+      <div class="pipe">
+        <div class="p"><span class="k">01 validate</span><div><strong>Format va hajm</strong><p>Kengaytma, birinchi baytlar (magic bytes) va hajm chegarasi solishtiriladi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">02 hash</span><div><strong>SHA-256 barmoq izi</strong><p>Fayl oʻzgarmaganini keyinchalik isbotlash uchun kriptografik xesh hisoblanadi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">03 metadata</span><div><strong>EXIF, XMP, PNG matnlari</strong><p>Kamera, dastur, sana, GPS, generator parametrlari va IPTC “trainedAlgorithmicMedia” belgisi izlanadi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">04 ela</span><div><strong>Xato darajasi tahlili</strong><p>Rasm qayta siqiladi va farq xaritasi quriladi; notekis hududlar ajratiladi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">05 model</span><div><strong>Neyron tarmoq klassifikatori</strong><p>Brauzer versiyasida ulanmagan. Natijada “mavjud emas” deb koʻrsatiladi va bahoga taʼsir qilmaydi.</p></div><span class="chip inconclusive">ulanmagan</span></div>
+        <div class="p"><span class="k">06 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow">Texnologiyalar</div>
+      <h2>Bugun nima ishlaydi va nima rejalashtirilgan</h2>
+      <div class="tech">
+        <div class="card">
+          <h3>Ushbu brauzer versiyasi <span class="chip low" style="margin-left:6px">ishlaydi</span></h3>
+          <ul>
+            <li><span>Web Crypto</span><span>SHA-256 xesh</span></li>
+            <li><span>Canvas 2D</span><span>ELA, kadrlarni ajratish, keskinlik</span></li>
+            <li><span>Web Audio</span><span>Dekodlash, FFT spektrogramma</span></li>
+            <li><span>Bayt tahlili</span><span>EXIF/TIFF, PNG, MP4 mvhd, WAV/FLAC/MP3 sarlavhalari</span></li>
+            <li><span>localStorage</span><span>Natijalar tarixi (media saqlanmaydi)</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Toʻliq platforma <span class="chip inconclusive" style="margin-left:6px">ishlab chiqilmoqda</span></h3>
+          <ul>
+            <li><span>Next.js · TS</span><span>Veb ilova, autentifikatsiya</span></li>
+            <li><span>Django REST</span><span>API v1, ruxsatlar, OpenAPI</span></li>
+            <li><span>Celery · Redis</span><span>Video va audio uchun fon vazifalari</span></li>
+            <li><span>PostgreSQL</span><span>Tahlillar, natijalar, hisobotlar</span></li>
+            <li><span>PyTorch · HF</span><span>Tekshirilgan, litsenziyasi aniq modellar</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap" style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center">
+      <div>
+        <div class="eyebrow">Taʼlim</div>
+        <h2>Deepfakeni tanishni oʻrganing</h2>
+        <p class="lead">Kiber akademiyada oltita qisqa dars bor: deepfake nima, ovoz klonlash qanday ishlaydi, shubhali mediani qanday tekshirish va firibgarlikdan qanday himoyalanish. Har bir dars oxirida test bor.</p>
+      </div>
+      <a class="btn" href="#akademiya">Darslarni ochish</a>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap" style="max-width:860px">
+      <div class="eyebrow">Savol-javob</div>
+      <h2>Koʻp beriladigan savollar</h2>
+      <details class="faq"><summary>TruthLens fayl soxta ekanini aniq aytib bera oladimi?</summary><p>Yoʻq. Hech bir tizim 100% aniqlik bermaydi. TruthLens skrining bahosini beradi: qaysi belgilar topilgani va ular nimani anglatishi mumkinligini koʻrsatadi. Muhim qarorlar uchun mustaqil ekspert tekshiruvi kerak.</p></details>
+      <details class="faq"><summary>Fayllarim qayerga yuboriladi?</summary><p>Hech qayerga. Bu versiyada barcha tahlil brauzeringizda bajariladi. Tarixda faqat fayl nomi, hajmi, xeshi va topilmalar saqlanadi; media faylning oʻzi saqlanmaydi.</p></details>
+      <details class="faq"><summary>Nega neyron tarmoq modeli “ulanmagan” deb koʻrsatiladi?</summary><p>Ishonchli deepfake detektori litsenziyasi, oʻqitilgan maʼlumotlari va mustaqil oʻlchangan natijalari tekshirilgan boʻlishi kerak. Bunday model integratsiya qilinmaguncha, TruthLens uning natijasini oʻylab topmaydi va bahoni faqat haqiqatda bajarilgan tekshiruvlar asosida beradi.</p></details>
+      <details class="faq"><summary>“Past xavf” fayl haqiqiy degani emasmi?</summary><p>Yoʻq. Bu faqat mavjud tekshiruvlar sezilarli belgi topmaganini bildiradi. Yaxshi tayyorlangan soxta kontent hech qanday iz qoldirmasligi mumkin.</p></details>
+      <details class="faq"><summary>Audio tahlili gapirayotgan odamni aniqlaydimi?</summary><p>Yoʻq. Sintetik nutq belgilarini izlash va spikerni identifikatsiya qilish butunlay boshqa vazifalar. TruthLens hech kimning shaxsini aniqlamaydi va hech kimni firibgar deb belgilamaydi.</p></details>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 TruthLens AI · Raqamli media skrining vositasi</span>
+      <span>Natijalar skrining bahosi boʻlib, haqiqiylik yoki manipulyatsiya isboti emas.</span>
+    </div>
+  </footer>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="view" data-view="panel"><div class="wrap page" id="panelRoot"></div></section>
+
+<!-- ============ NEW ANALYSIS ============ -->
+<section class="view" data-view="tahlil">
+  <div class="wrap page">
+    <div class="page-head">
+      <div><h1>Yangi tahlil</h1><p>Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.</p></div>
+    </div>
+    <div id="uploadRoot"></div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section class="view" data-view="tarix">
+  <div class="wrap page">
+    <div class="page-head"><div><h1>Tahlillar tarixi</h1><p>Shu brauzerda bajarilgan tahlillar. Media fayllar saqlanmaydi, faqat natijalar.</p></div><a class="btn primary" href="#tahlil">Yangi tahlil</a></div>
+    <div class="filters">
+      <input class="input search" id="fq" type="search" placeholder="Fayl nomi yoki ID boʻyicha qidirish" aria-label="Qidirish">
+      <select class="input" id="ftype" aria-label="Media turi"><option value="">Barcha turlar</option><option value="image">Rasm</option><option value="video">Video</option><option value="audio">Audio</option></select>
+      <select class="input" id="fstatus" aria-label="Holat"><option value="">Barcha holatlar</option><option value="completed">Yakunlandi</option><option value="unsupported">Qoʻllab-quvvatlanmaydi</option><option value="failed">Xatolik</option></select>
+      <select class="input" id="frisk" aria-label="Xavf"><option value="">Barcha xavflar</option><option value="low">Past</option><option value="medium">Oʻrta</option><option value="high">Yuqori</option><option value="inconclusive">Noaniq</option></select>
+      <select class="input" id="fsort" aria-label="Saralash"><option value="new">Avval yangilari</option><option value="old">Avval eskilari</option><option value="name">Nomi (A–Z)</option><option value="risk">Xavf darajasi</option></select>
+      <input class="input" id="ffrom" type="date" aria-label="Sanadan">
+      <input class="input" id="fto" type="date" aria-label="Sanagacha">
+    </div>
+    <div id="histRoot"></div>
+  </div>
+</section>
+
+<!-- ============ RESULT ============ -->
+<section class="view" data-view="natija"><div class="wrap page" id="resRoot"></div></section>
+
+<!-- ============ ACADEMY ============ -->
+<section class="view" data-view="akademiya"><div class="wrap page" id="eduRoot"></div></section>
+
+<!-- ============ SETTINGS ============ -->
+<section class="view" data-view="sozlamalar"><div class="wrap page" id="setRoot"></div></section>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="box"><h3 id="mTitle"></h3><p id="mText"></p><div id="mExtra"></div><div class="row-actions" id="mBtns"></div></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ================= Utilities ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const store = {
+  ok: (() => { try { localStorage.setItem("tl_t", "1"); localStorage.removeItem("tl_t"); return true; } catch (e) { return false; } })(),
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+};
+const MONTHS = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"];
+const pad = n => String(n).padStart(2, "0");
+function fmtDate(ts, withTime = true) {
+  const d = new Date(ts);
+  return `${d.getDate()}-${MONTHS[d.getMonth()]} ${d.getFullYear()}` + (withTime ? `, ${pad(d.getHours())}:${pad(d.getMinutes())}` : "");
+}
+function fmtBytes(n) { if (n < 1024) return n + " B"; if (n < 1048576) return (n / 1024).toFixed(1) + " KB"; if (n < 1073741824) return (n / 1048576).toFixed(1) + " MB"; return (n / 1073741824).toFixed(2) + " GB"; }
+function fmtDur(s) { if (!isFinite(s)) return "nomaʼlum"; const m = Math.floor(s / 60), r = s - m * 60; return m ? `${m} daq ${r.toFixed(0)} s` : `${r.toFixed(1)} s`; }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("on"), 2600); }
+function modal({ title, text, extra = "", buttons }) {
+  $("#mTitle").textContent = title; $("#mText").textContent = text; $("#mExtra").innerHTML = extra;
+  const b = $("#mBtns"); b.innerHTML = "";
+  buttons.forEach(bt => { const el = document.createElement("button"); el.className = "btn " + (bt.cls || ""); el.textContent = bt.label; el.addEventListener("click", () => { if (bt.onClick) bt.onClick(); if (!bt.keep) closeModal(); }); b.appendChild(el); });
+  $("#modal").classList.add("on"); const first = b.querySelector("button"); if (first) first.focus();
+}
+function closeModal() { $("#modal").classList.remove("on"); }
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+/* ================= State ================= */
+const LS = { hist: "tl_history_v1", set: "tl_settings_v1", edu: "tl_edu_v1" };
+const DEF = { maxMB: 200, frames: 16, elaQ: 90, retention: 30, saveHistory: true };
+let settings = Object.assign({}, DEF, store.get(LS.set, {}));
+let history = store.get(LS.hist, []); if (!Array.isArray(history)) history = [];
+let edu = store.get(LS.edu, {}); if (typeof edu !== "object" || !edu) edu = {};
+const visuals = {};      // in-memory visual panels for analyses run in this session
+let currentId = null;
+let pendingFile = null;
+let busy = false;
+
+function persistHistory() { if (settings.saveHistory) store.set(LS.hist, history); }
+function applyRetention() {
+  if (!settings.retention) return;
+  const cut = Date.now() - settings.retention * 86400000;
+  const before = history.length;
+  history = history.filter(r => r.createdAt >= cut);
+  if (history.length !== before) persistHistory();
+}
+applyRetention();
+
+const TYPE_UZ = { image: "Rasm", video: "Video", audio: "Audio" };
+const STATUS_UZ = { completed: "Yakunlandi", failed: "Xatolik", unsupported: "Qoʻllab-quvvatlanmaydi" };
+const RISK = {
+  low: { label: "Past xavf", text: "Mavjud tekshiruvlar sezilarli manipulyatsiya belgilarini aniqlamadi." },
+  medium: { label: "Oʻrta xavf", text: "Ayrim shubhali belgilar topildi. Qoʻshimcha tekshiruv tavsiya etiladi." },
+  high: { label: "Yuqori xavf", text: "Bir nechta jiddiy manipulyatsiya belgilari aniqlandi." },
+  inconclusive: { label: "Noaniq natija", text: "Xulosa chiqarish uchun dalillar yetarli emas yoki asosiy tekshiruvlar bajarilmadi." }
+};
+const SEV_UZ = { info: "Maʼlumot", low: "Past", medium: "Oʻrta", high: "Yuqori", auth: "Haqiqiylik belgisi" };
+const RISK_ORDER = { high: 3, medium: 2, low: 1, inconclusive: 0 };
+
+/* Treat everything read from localStorage as untrusted: coerce types, drop malformed records */
+(function sanitizeStored() {
+  const ALLOWED_NUM = { maxMB: [25, 50, 100, 200, 500], frames: [8, 16, 32, 48], elaQ: [75, 85, 90, 95], retention: [0, 7, 30, 90] };
+  for (const k in ALLOWED_NUM) { const n = Number(settings[k]); settings[k] = ALLOWED_NUM[k].includes(n) ? n : DEF[k]; }
+  settings.saveHistory = settings.saveHistory !== false;
+  const str = (v, max = 500) => typeof v === "string" ? v.slice(0, max) : "";
+  const num = v => (typeof v === "number" && isFinite(v) ? v : null);
+  const okCheck = c => c && typeof c === "object" && ["ok", "unavailable", "failed"].includes(c.status);
+  history = history.filter(r => r && typeof r === "object" && /^TL-[A-Z0-9-]{4,40}$/.test(r.id) && RISK[r.risk] && TYPE_UZ[r.mediaType] && STATUS_UZ[r.status] && num(r.createdAt)).slice(0, 2000).map(r => ({
+    id: r.id, name: str(r.name, 255), size: num(r.size) || 0, clientMime: str(r.clientMime, 100), mime: str(r.mime, 100), format: str(r.format, 60),
+    mediaType: r.mediaType, createdAt: r.createdAt, status: r.status, risk: r.risk, hash: /^[0-9a-f]{64}$/.test(r.hash) ? r.hash : null,
+    index: num(r.index), aiIndex: num(r.aiIndex), manipIndex: num(r.manipIndex), durationMs: num(r.durationMs) || 0, error: str(r.error),
+    indicators: (Array.isArray(r.indicators) ? r.indicators : []).filter(i => i && SEV_UZ[i.sev]).slice(0, 100).map(i => ({ sev: i.sev, pts: num(i.pts) || 0, group: ["ai", "manip", "auth"].includes(i.group) ? i.group : "manip", title: str(i.title), detail: str(i.detail, 1500), src: str(i.src, 40) })),
+    checks: (Array.isArray(r.checks) ? r.checks : []).filter(okCheck).slice(0, 50).map(c => ({ name: str(c.name, 120), version: str(c.version, 80), status: c.status, summary: str(c.summary) })),
+    models: (Array.isArray(r.models) ? r.models : []).filter(okCheck).slice(0, 20).map(c => ({ name: str(c.name, 120), version: str(c.version, 80), status: c.status, summary: str(c.summary) })),
+    meta: Object.fromEntries(Object.entries(r.meta && typeof r.meta === "object" ? r.meta : {}).slice(0, 60).map(([k, v]) => [str(k, 80), str(String(v), 300)])),
+    limitations: (Array.isArray(r.limitations) ? r.limitations : []).map(l => str(l)).slice(0, 30),
+    recs: (Array.isArray(r.recs) ? r.recs : []).map(l => str(l)).slice(0, 30)
+  }));
+  for (const k of Object.keys(edu)) { const e = edu[k]; if (!e || typeof e !== "object" || !num(e.score) && e.score !== 0) delete edu[k]; else edu[k] = { done: !!e.done, score: e.score, total: num(e.total) || 0, at: num(e.at) || 0 }; }
+})();
+
+/* ================= Format detection ================= */
+const ALLOWED = {
+  jpg: "image", jpeg: "image", png: "image", webp: "image",
+  mp4: "video", mov: "video", webm: "video",
+  wav: "audio", mp3: "audio", ogg: "audio", flac: "audio", m4a: "audio"
+};
+const ACCEPT = Object.keys(ALLOWED).map(e => "." + e).join(",");
+function ascii(b, i, n) { let s = ""; for (let k = 0; k < n && i + k < b.length; k++) s += String.fromCharCode(b[i + k]); return s; }
+function latin1(b, s, e) { let out = ""; for (let i = s; i < e && i < b.length; i++) out += String.fromCharCode(b[i]); return out; }
+function u32be(b, o) { return ((b[o] << 24) | (b[o + 1] << 16) | (b[o + 2] << 8) | b[o + 3]) >>> 0; }
+function sniff(b) {
+  const h = (i, arr) => arr.every((v, j) => b[i + j] === v);
+  if (h(0, [0xFF, 0xD8, 0xFF])) return { mime: "image/jpeg", type: "image", label: "JPEG", exts: ["jpg", "jpeg"] };
+  if (h(0, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) return { mime: "image/png", type: "image", label: "PNG", exts: ["png"] };
+  if (ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 4) === "WEBP") return { mime: "image/webp", type: "image", label: "WebP", exts: ["webp"] };
+  if (ascii(b, 0, 4) === "RIFF" && ascii(b, 8, 4) === "WAVE") return { mime: "audio/wav", type: "audio", label: "WAV", exts: ["wav"] };
+  if (ascii(b, 0, 4) === "OggS") return { mime: "audio/ogg", type: "audio", label: "Ogg", exts: ["ogg"] };
+  if (ascii(b, 0, 4) === "fLaC") return { mime: "audio/flac", type: "audio", label: "FLAC", exts: ["flac"] };
+  if (ascii(b, 0, 3) === "ID3" || (b[0] === 0xFF && (b[1] & 0xE6) === 0xE2)) return { mime: "audio/mpeg", type: "audio", label: "MP3", exts: ["mp3"] };
+  if (ascii(b, 4, 4) === "ftyp") {
+    const brand = ascii(b, 8, 4);
+    if (/^M4A|^M4B/.test(brand)) return { mime: "audio/mp4", type: "audio", label: "M4A (" + brand.trim() + ")", exts: ["m4a"] };
+    if (/^qt/.test(brand)) return { mime: "video/quicktime", type: "video", label: "QuickTime (" + brand.trim() + ")", exts: ["mov", "mp4"] };
+    return { mime: "video/mp4", type: "video", label: "MP4 (" + brand.trim() + ")", exts: ["mp4", "mov", "m4a"] };
+  }
+  if (h(0, [0x1A, 0x45, 0xDF, 0xA3])) return { mime: "video/webm", type: "video", label: "WebM/Matroska", exts: ["webm"] };
+  return null;
+}
+function extOf(name) { const m = /\.([a-z0-9]+)$/i.exec(name || ""); return m ? m[1].toLowerCase() : ""; }
+
+function validateFile(file, bytes) {
+  const ext = extOf(file.name);
+  if (!ALLOWED[ext]) return { error: `“.${esc(ext || "?")}” kengaytmasi qoʻllab-quvvatlanmaydi. Ruxsat etilgan: ${Object.keys(ALLOWED).join(", ")}.` };
+  if (file.size === 0) return { error: "Fayl boʻsh (0 bayt)." };
+  if (file.size > settings.maxMB * 1048576) return { error: `Fayl hajmi ${fmtBytes(file.size)}. Chegara ${settings.maxMB} MB — uni Sozlamalarda oʻzgartirish mumkin.` };
+  const fmt = sniff(bytes);
+  if (!fmt) return { error: "Fayl baytlari maʼlum media formatiga mos kelmadi. Fayl buzilgan yoki kengaytma notoʻgʻri boʻlishi mumkin." };
+  if (fmt.type !== ALLOWED[ext]) return { error: `Kengaytma .${ext} (${TYPE_UZ[ALLOWED[ext]]}), lekin fayl ichidagi haqiqiy format — ${fmt.label} (${TYPE_UZ[fmt.type]}). Bunday fayl qabul qilinmaydi.` };
+  return { fmt, ext };
+}
+
+async function sha256(bytes) {
+  try {
+    if (!(window.crypto && crypto.subtle)) return null;
+    const d = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(d)).map(x => x.toString(16).padStart(2, "0")).join("");
+  } catch (e) { return null; }
+}
+
+/* Printable ASCII runs from head and tail of the file */
+function scanStrings(b, span = 1 << 20) {
+  const ranges = b.length <= span * 2 ? [[0, b.length]] : [[0, span], [b.length - span, b.length]];
+  const parts = [];
+  for (const [s, e] of ranges) {
+    let cur = [];
+    for (let i = s; i < e; i++) {
+      const c = b[i];
+      if (c >= 32 && c < 127) { cur.push(c); if (cur.length > 4000) { parts.push(String.fromCharCode.apply(null, cur)); cur = []; } }
+      else { if (cur.length >= 4) parts.push(String.fromCharCode.apply(null, cur)); cur = []; }
+    }
+    if (cur.length >= 4) parts.push(String.fromCharCode.apply(null, cur));
+  }
+  return parts.join("\n");
+}
+const AI_SIGS = [
+  [/trainedAlgorithmicMedia/, "IPTC “trainedAlgorithmicMedia” — fayl generativ AI tomonidan yaratilgan deb belgilangan", "high"],
+  [/compositeWithTrainedAlgorithmicMedia/, "IPTC “compositeWithTrainedAlgorithmicMedia” — AI yordamida tahrirlangan deb belgilangan", "high"],
+  [/Steps: \d+, Sampler: /, "Stable Diffusion (AUTOMATIC1111) generatsiya parametrlari", "high"],
+  [/stable[ _-]?diffusion/i, "“Stable Diffusion” nomi", "high"],
+  [/midjourney/i, "“Midjourney” nomi", "high"],
+  [/DALL[·\-]?E/, "“DALL·E” nomi", "high"],
+  [/adobe firefly/i, "“Adobe Firefly” nomi", "high"],
+  [/novelai/i, "“NovelAI” nomi", "high"],
+  [/comfyui|"class_type"\s*:/i, "ComfyUI ish jarayoni maʼlumotlari", "high"],
+  [/invokeai/i, "“InvokeAI” nomi", "high"],
+  [/leonardo\.ai/i, "“Leonardo.ai” nomi", "high"],
+  [/ideogram/i, "“Ideogram” nomi", "high"],
+  [/black forest labs|FLUX\.1/, "FLUX / Black Forest Labs nomi", "high"],
+  [/runwayml|runway gen-\d/i, "Runway nomi", "high"],
+  [/pika labs/i, "“Pika Labs” nomi", "high"],
+  [/elevenlabs/i, "“ElevenLabs” nomi", "high"],
+  [/SynthID/, "Google SynthID belgisi haqida yozuv", "high"]
+];
+const EDITOR_RE = /(Adobe Photoshop|GIMP|Affinity Photo|Pixelmator|Snapseed|PicsArt|FaceApp|Facetune|Remini|Canva|Photopea|Lensa)/i;
+const VIDEO_EDITOR_RE = /(Adobe Premiere|After Effects|DaVinci Resolve|CapCut|InShot|Final Cut|Filmora|VN Video)/i;
+
+/* ================= Image parsing ================= */
+function parseTiff(b, base, end) {
+  const tags = {};
+  if (base + 8 > end) return tags;
+  const le = b[base] === 0x49;
+  const u16 = o => le ? b[o] | (b[o + 1] << 8) : (b[o] << 8) | b[o + 1];
+  const u32 = o => le ? (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0 : u32be(b, o);
+  const names = { 0x010E: "ImageDescription", 0x010F: "Make", 0x0110: "Model", 0x0131: "Software", 0x0132: "DateTime", 0x013B: "Artist", 0x8298: "Copyright", 0x9003: "DateTimeOriginal", 0x9004: "DateTimeDigitized", 0xA002: "PixelXDimension", 0xA003: "PixelYDimension" };
+  const seen = new Set();
+  function readIFD(off, depth) {
+    const p = base + off;
+    if (depth > 3 || seen.has(p) || p + 2 > end) return;
+    seen.add(p);
+    const n = u16(p);
+    for (let k = 0; k < n && k < 500; k++) {
+      const e = p + 2 + k * 12; if (e + 12 > end) break;
+      const tag = u16(e), type = u16(e + 2), cnt = u32(e + 4), vo = e + 8;
+      if (tag === 0x8769) { readIFD(u32(vo), depth + 1); continue; }
+      if (tag === 0x8825) { tags.GPS = true; continue; }
+      const name = names[tag]; if (!name) continue;
+      if (type === 2) { const o = cnt > 4 ? base + u32(vo) : vo; if (o < end) tags[name] = latin1(b, o, Math.min(o + cnt, end, o + 300)).replace(/\0+$/, "").trim(); }
+      else if (type === 3) tags[name] = u16(vo);
+      else if (type === 4) tags[name] = u32(vo);
+    }
+  }
+  if (u16(base + 2) !== 42) return tags;
+  readIFD(u32(base + 4), 0);
+  return tags;
+}
+const STD_LUMA_SUM = [16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,14,13,16,24,40,57,69,56,14,17,22,29,51,87,80,62,18,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99].reduce((a, c) => a + c, 0);
+function parseJpeg(b) {
+  const out = { exif: {}, xmp: "", comments: [], quality: null, eoi: false, trailing: 0, app: [] };
+  let i = 2;
+  while (i + 4 <= b.length) {
+    if (b[i] !== 0xFF) break;
+    const m = b[i + 1];
+    if (m === 0xFF) { i++; continue; }
+    if (m === 0xDA) break;
+    if ((m >= 0xD0 && m <= 0xD7) || m === 0x01) { i += 2; continue; }
+    const len = (b[i + 2] << 8) | b[i + 3];
+    const s = i + 4, e = Math.min(i + 2 + len, b.length);
+    if (m >= 0xE0 && m <= 0xEF) out.app.push("APP" + (m - 0xE0));
+    if (m === 0xE1 && ascii(b, s, 6) === "Exif\0\0") out.exif = parseTiff(b, s + 6, e);
+    else if (m === 0xE1 && ascii(b, s, 28) === "http://ns.adobe.com/xap/1.0/") out.xmp = latin1(b, s + 29, e);
+    else if (m === 0xFE) out.comments.push(latin1(b, s, Math.min(e, s + 200)));
+    else if (m === 0xDB && out.quality === null) {
+      let p = s;
+      while (p < e) {
+        const pq = b[p] >> 4, tq = b[p] & 15; p++;
+        let sum = 0;
+        for (let k = 0; k < 64; k++) { sum += pq ? (b[p + 2 * k] << 8) | b[p + 2 * k + 1] : b[p + k]; }
+        if (tq === 0) {
+          const S = sum * 100 / STD_LUMA_SUM;
+          let q = S <= 100 ? (200 - S) / 2 : 5000 / S;
+          out.quality = Math.max(1, Math.min(100, Math.round(q)));
+        }
+        p += pq ? 128 : 64;
+      }
+    }
+    i = i + 2 + len;
+  }
+  // EOI marker
+  for (let k = b.length - 2; k >= Math.max(0, b.length - 65536); k--) { if (b[k] === 0xFF && b[k + 1] === 0xD9) { out.eoi = true; out.trailing = b.length - (k + 2); break; } }
+  return out;
+}
+function parsePng(b) {
+  const out = { text: {}, chunks: [], ihdr: null };
+  let i = 8, guard = 0;
+  while (i + 8 <= b.length && guard++ < 5000) {
+    const len = u32be(b, i), type = ascii(b, i + 4, 4), s = i + 8, e = Math.min(s + len, b.length);
+    out.chunks.push(type);
+    if (type === "IHDR") out.ihdr = { w: u32be(b, s), h: u32be(b, s + 4), depth: b[s + 8], color: b[s + 9] };
+    if (type === "tEXt") { const raw = latin1(b, s, Math.min(e, s + 20000)); const z = raw.indexOf("\0"); if (z > 0) out.text[raw.slice(0, z)] = raw.slice(z + 1); }
+    if (type === "iTXt") { const raw = latin1(b, s, Math.min(e, s + 20000)); const z = raw.indexOf("\0"); if (z > 0 && raw.charCodeAt(z + 1) === 0) { const rest = raw.slice(z + 3); const p1 = rest.indexOf("\0"); const p2 = rest.indexOf("\0", p1 + 1); out.text[raw.slice(0, z)] = rest.slice(p2 + 1); } }
+    if (type === "eXIf") out.exif = parseTiff(b, s, e);
+    if (type === "IEND") break;
+    i = s + len + 4;
+  }
+  return out;
+}
+function parseWebp(b) {
+  const out = { chunks: [], exif: {} };
+  let i = 12, guard = 0;
+  while (i + 8 <= b.length && guard++ < 1000) {
+    const type = ascii(b, i, 4), len = (b[i + 4] | (b[i + 5] << 8) | (b[i + 6] << 16) | (b[i + 7] << 24)) >>> 0, s = i + 8;
+    out.chunks.push(type.trim());
+    if (type === "EXIF") { const off = ascii(b, s, 6) === "Exif\0\0" ? 6 : 0; out.exif = parseTiff(b, s + off, s + len); }
+    i = s + len + (len & 1);
+  }
+  return out;
+}
+
+/* ================= Image pipeline ================= */
+async function canvasOf(src, w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(src, 0, 0, w, h); return { c, x }; }
+function percentile(arr, p) { if (!arr.length) return 0; const s = Float64Array.from(arr).sort(); return s[Math.min(s.length - 1, Math.floor(p * (s.length - 1)))]; }
+
+async function runELA(bitmap, quality) {
+  const W0 = bitmap.width, H0 = bitmap.height;
+  const scale = Math.min(1, 2048 / Math.max(W0, H0));
+  const W = Math.max(1, Math.round(W0 * scale)), H = Math.max(1, Math.round(H0 * scale));
+  const a = await canvasOf(bitmap, W, H);
+  const blob = await new Promise(r => a.c.toBlob(r, "image/jpeg", quality));
+  if (!blob) throw new Error("JPEG qayta kodlash imkoni yoʻq");
+  const bm2 = await createImageBitmap(blob);
+  const b2 = await canvasOf(bm2, W, H);
+  const d1 = a.x.getImageData(0, 0, W, H).data, d2 = b2.x.getImageData(0, 0, W, H).data;
+  const out = document.createElement("canvas"); out.width = W; out.height = H;
+  const ox = out.getContext("2d"); const od = ox.createImageData(W, H);
+  const G = 16, cw = W / G, ch = H / G; const cells = new Float64Array(G * G), cnt = new Float64Array(G * G);
+  let total = 0;
+  for (let y = 0; y < H; y++) {
+    const gy = Math.min(G - 1, Math.floor(y / ch));
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const e = (Math.abs(d1[i] - d2[i]) + Math.abs(d1[i + 1] - d2[i + 1]) + Math.abs(d1[i + 2] - d2[i + 2])) / 3;
+      total += e;
+      const gi = gy * G + Math.min(G - 1, Math.floor(x / cw)); cells[gi] += e; cnt[gi]++;
+      const v = Math.min(1, e * 18 / 255);
+      const [r, g, bb] = cmap(v);
+      od.data[i] = r; od.data[i + 1] = g; od.data[i + 2] = bb; od.data[i + 3] = 255;
+    }
+  }
+  ox.putImageData(od, 0, 0);
+  const means = Array.from(cells, (s, k) => cnt[k] ? s / cnt[k] : 0);
+  const med = percentile(means, 0.5), p98 = percentile(means, 0.98);
+  return { url: out.toDataURL("image/jpeg", 0.85), origUrl: a.c.toDataURL("image/jpeg", 0.85), mean: total / (W * H), med, p98, ratio: med > 0 ? p98 / med : 0, W, H, scaled: scale < 1 };
+}
+
+const AI_DIMS = new Set(["512x512","768x768","1024x1024","1024x1792","1792x1024","1344x768","768x1344","832x1216","1216x832","896x1152","1152x896","1536x1024","1024x1536","2048x2048"]);
+
+async function analyzeImage(file, bytes, fmt, rec, step) {
+  await step("meta");
+  let exif = {}, textBlob = "";
+  if (fmt.label === "JPEG") {
+    const j = parseJpeg(bytes);
+    exif = j.exif; textBlob += j.xmp + "\n" + j.comments.join("\n");
+    rec.meta["JPEG sifati (DQT bahosi)"] = j.quality != null ? j.quality + " / 100" : "aniqlanmadi";
+    rec.meta["APP segmentlar"] = j.app.join(", ") || "yoʻq";
+    if (!j.eoi) rec.indicators.push({ sev: "low", title: "JPEG yakunlovchi belgisi (EOI) topilmadi", detail: "Fayl toʻliq saqlanmagan yoki kesilgan boʻlishi mumkin. Bu manipulyatsiya isboti emas, lekin yaxlitlik shubhali.", src: "integrity" });
+    else if (j.trailing > 4096) rec.indicators.push({ sev: "info", title: `Fayl oxirida ${fmtBytes(j.trailing)} qoʻshimcha maʼlumot bor`, detail: "Koʻp telefonlar bu joyga qoʻshimcha rasm (MPF, chuqurlik xaritasi) yozadi. Odatiy hol, lekin yashirin maʼlumot ham boʻlishi mumkin.", src: "integrity" });
+    if (j.quality != null && j.quality < 70) rec.indicators.push({ sev: "info", title: `Kuchli siqish (sifat ≈ ${j.quality})`, detail: "Fayl bir necha marta qayta saqlangan yoki messenjer orqali yuborilgan boʻlishi mumkin. Kuchli siqish izlarni yoʻqotadi va tahlil aniqligini pasaytiradi.", src: "jpeg-dqt" });
+    if (!Object.keys(exif).length) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: "EXIF metamaʼlumotlari yoʻq", detail: "Ijtimoiy tarmoqlar va messenjerlar EXIFni odatda oʻchiradi, shuning uchun bu yolgʻiz oʻzi shubha belgisi emas. Kameradan olingan asl fayllarda EXIF odatda boʻladi.", src: "metadata" });
+  } else if (fmt.label === "PNG") {
+    const p = parsePng(bytes);
+    exif = p.exif || {};
+    const keys = Object.keys(p.text);
+    rec.meta["PNG matn kalitlari"] = keys.length ? keys.join(", ") : "yoʻq";
+    if (p.ihdr) rec.meta["Bit chuqurligi"] = p.ihdr.depth;
+    keys.forEach(k => { textBlob += "\n" + k + ": " + p.text[k]; });
+    if (p.text.parameters) rec.indicators.push({ sev: "high", title: "PNG ichida “parameters” bloki bor", detail: "Bu blokka Stable Diffusion interfeyslari prompt, sampler va seed qiymatlarini yozadi. Kuchli generatsiya belgisi.", src: "png-text" });
+    if (p.text.prompt || p.text.workflow) rec.indicators.push({ sev: "high", title: "PNG ichida “prompt/workflow” bloki bor", detail: "ComfyUI generatsiya grafigini shu kalitlarga yozadi. Kuchli generatsiya belgisi.", src: "png-text" });
+    if (p.chunks.includes("caBX")) textBlob += "\nc2pa";
+  } else if (fmt.label === "WebP") {
+    const w = parseWebp(bytes); exif = w.exif;
+    rec.meta["WebP bloklari"] = w.chunks.slice(0, 8).join(", ");
+  }
+  rec.meta["Kamera"] = [exif.Make, exif.Model].filter(Boolean).join(" ") || "koʻrsatilmagan";
+  if (exif.Software) rec.meta["Dastur (EXIF)"] = exif.Software;
+  if (exif.DateTimeOriginal) rec.meta["Suratga olingan"] = exif.DateTimeOriginal;
+  if (exif.DateTime) rec.meta["Oʻzgartirilgan (EXIF)"] = exif.DateTime;
+  if (exif.Software && /Lightroom/i.test(exif.Software)) rec.indicators.push({ sev: "info", pts: 0.5, group: "manip", title: `Fotografik ishlov dasturi: ${exif.Software}`, detail: "Lightroom asosan rang va yorugʻlikni tuzatish uchun ishlatiladi. Bu kontent oʻzgartirilganini bildirmaydi.", src: "metadata" });
+  else if (exif.Software && EDITOR_RE.test(exif.Software)) rec.indicators.push({ sev: "medium", pts: 2, group: "manip", title: `Tahrirlash dasturi izi: ${exif.Software}`, detail: "Fayl rasm tahrirlovchida saqlangan. Rang tuzatish kabi odatiy tahrir ham shunday iz qoldiradi, shuning uchun bu faqat kontent oʻzgartirilganini tekshirishga sabab boʻladi.", src: "metadata" });
+  if (exif.DateTime && exif.DateTimeOriginal && exif.DateTime !== exif.DateTimeOriginal) rec.indicators.push({ sev: "low", pts: 0.5, group: "manip", title: "Oʻzgartirish sanasi suratga olish sanasidan farq qiladi", detail: `Olingan: ${exif.DateTimeOriginal}, oʻzgartirilgan: ${exif.DateTime}. Fayl keyinroq qayta saqlangan.`, src: "metadata" });
+  const hasCamera = !!(exif.Make && exif.Model);
+  rec._hasCamera = hasCamera;
+  if (hasCamera) rec.indicators.push({ sev: "auth", pts: -2, group: "auth", title: `Kamera qurilmasi maʼlumoti bor: ${[exif.Make, exif.Model].join(" ")}`, detail: "Kamera ishlab chiqaruvchisi va modeli yozilgan. Generativ AI rasmlarida bu maʼlumot odatda boʻlmaydi, lekin uni qoʻlda qoʻshish mumkin.", src: "provenance" });
+  if (exif.DateTimeOriginal) rec.indicators.push({ sev: "auth", pts: -1, group: "auth", title: "Asl suratga olish sanasi bor", detail: `DateTimeOriginal: ${exif.DateTimeOriginal}. Kameradan olingan fayllarga xos.`, src: "provenance" });
+  if (!hasCamera && fmt.label !== "JPEG") rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: `${fmt.label} faylda kamera maʼlumoti yoʻq`, detail: "Kameralar odatda JPEG/HEIC saqlaydi. Kamera izisiz PNG/WebP — skrinshot, grafika yoki AI generatsiya boʻlishi mumkin.", src: "provenance" });
+  if (exif.GPS) rec.indicators.push({ sev: "info", title: "Faylda GPS joylashuv maʼlumoti bor", detail: "Bu manipulyatsiya belgisi emas, lekin maxfiylik uchun muhim: faylni ulashsangiz, joylashuv ham ulashiladi.", src: "metadata" });
+  scanSignatures(textBlob + "\n" + scanStrings(bytes), rec, "image");
+  rec.checks.push({ name: "Metamaʼlumot tahlilchisi", version: "tl-meta 1.0", status: "ok", summary: "EXIF/TIFF, XMP, PNG matn bloklari va bayt satrlari oʻqildi." });
+
+  await step("decode");
+  let bitmap;
+  try { bitmap = await createImageBitmap(file); }
+  catch (e) { throw new Error("Rasmni dekodlab boʻlmadi. Fayl buzilgan yoki brauzer bu variantni qoʻllab-quvvatlamaydi."); }
+  rec.meta["Oʻlcham"] = `${bitmap.width} × ${bitmap.height} px`;
+  if (exif.PixelXDimension && exif.PixelYDimension && (exif.PixelXDimension !== bitmap.width || exif.PixelYDimension !== bitmap.height) && !(exif.PixelXDimension === bitmap.height && exif.PixelYDimension === bitmap.width))
+    rec.indicators.push({ sev: "low", title: "EXIFdagi oʻlcham haqiqiy oʻlchamdan farq qiladi", detail: `EXIF: ${exif.PixelXDimension}×${exif.PixelYDimension}, haqiqiy: ${bitmap.width}×${bitmap.height}. Rasm kesilgan yoki oʻlchami oʻzgartirilgan, metamaʼlumot esa yangilanmagan.`, src: "metadata" });
+  if (!rec._hasCamera) {
+    if (AI_DIMS.has(`${bitmap.width}x${bitmap.height}`)) rec.indicators.push({ sev: "medium", pts: 2, group: "ai", title: `Oʻlcham ${bitmap.width}×${bitmap.height} AI generatorlarning standart chiqishi`, detail: "Bu aniq oʻlcham Stable Diffusion, Midjourney, DALL·E kabi generatorlarda keng tarqalgan, kamera maʼlumoti esa yoʻq. Oddiy rasm ham shu oʻlchamga kesilgan boʻlishi mumkin.", src: "dimensions" });
+    else if (bitmap.width % 64 === 0 && bitmap.height % 64 === 0) rec.indicators.push({ sev: "low", pts: 0.5, group: "ai", title: "Ikkala tomon ham 64 ga karrali", detail: "Diffuziya modellari odatda 64 ga karrali oʻlchamda ishlaydi. Kuchsiz belgi.", src: "dimensions" });
+  }
+  if (Math.max(bitmap.width, bitmap.height) < 300) rec.limitations.push("Rasm juda kichik (300 px dan kam); piksel darajasidagi tahlil ishonchsiz.");
+  rec.checks.push({ name: "Dekodlash va yaxlitlik", version: "tl-decode 1.0", status: "ok", summary: "Rasm muvaffaqiyatli dekodlandi." });
+
+  await step("ela");
+  try {
+    const e = await runELA(bitmap, settings.elaQ / 100);
+    rec.meta["ELA oʻrtacha xato"] = e.mean.toFixed(2);
+    rec.meta["ELA notekislik (p98/median)"] = e.ratio ? e.ratio.toFixed(2) : "—";
+    visuals[rec.tmpKey] = { kind: "image", orig: e.origUrl, ela: e.url };
+    if (e.scaled) rec.limitations.push(`ELA tezlik uchun ${e.W}×${e.H} px ga kichraytirilgan nusxada bajarildi; mayda tafsilotlar yoʻqolishi mumkin.`);
+    if (fmt.label !== "JPEG") rec.limitations.push("ELA asosan JPEG uchun moʻljallangan. PNG/WebP fayllarda farq xaritasi kamroq maʼno beradi.");
+    if (fmt.label === "JPEG" && e.med > 0.4 && e.ratio > 4) rec.indicators.push({ sev: e.ratio > 7 ? "medium" : "low", pts: e.ratio > 7 ? 2 : 0.75, group: "manip", title: "ELA xaritasida notekis hududlar", detail: `Ayrim hududlarning qayta siqish xatosi medianadan ${e.ratio.toFixed(1)} barobar yuqori. Bu boshqa manbadan qoʻshilgan yoki qayta ishlangan qism belgisi boʻlishi mumkin, lekin keskin qirralar va matn ham shunday koʻrinadi. Xaritani koʻz bilan tekshiring.`, src: "ela" });
+    rec.checks.push({ name: "Xato darajasi tahlili (ELA)", version: `tl-ela 1.0 · q=${settings.elaQ}`, status: "ok", summary: `Oʻrtacha xato ${e.mean.toFixed(2)}, notekislik ${e.ratio.toFixed(2)}.` });
+  } catch (err) {
+    rec.checks.push({ name: "Xato darajasi tahlili (ELA)", version: "tl-ela 1.0", status: "failed", summary: "Bajarilmadi: " + err.message });
+  }
+
+  await step("model");
+  await faceCheck(bitmap, rec);
+  rec.models.push({ name: "AI-generatsiya / manipulyatsiya klassifikatori", version: "—", status: "unavailable", summary: "Bu versiyada neyron tarmoq modeli ulanmagan. Natijada hech qanday model bashorati yoʻq va baho faqat yuqoridagi tekshiruvlarga asoslangan." });
+  if (bitmap.close) bitmap.close();
+}
+
+async function faceCheck(src, rec) {
+  if (!("FaceDetector" in window)) { rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "unavailable", summary: "Brauzer yuz aniqlash API’sini qoʻllab-quvvatlamaydi." }); return null; }
+  try { const faces = await new window.FaceDetector({ maxDetectedFaces: 10 }).detect(src); rec.meta["Aniqlangan yuzlar"] = faces.length; rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "ok", summary: `${faces.length} ta yuz topildi.` }); return faces.length; }
+  catch (e) { rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "failed", summary: "Bajarilmadi." }); return null; }
+}
+
+function scanSignatures(text, rec, type) {
+  const found = new Set();
+  for (const [re, label, sev] of AI_SIGS) {
+    if (re.test(text) && !found.has(label)) {
+      found.add(label);
+      rec.indicators.push({ sev, title: "Generativ AI izi: " + label, detail: "Fayl ichida AI generator yoki generatsiya belgisiga tegishli matn topildi. Bu kuchli belgi, lekin metamaʼlumotni qoʻlda qoʻshish yoki oʻchirish ham mumkin.", src: "signatures" });
+    }
+  }
+  if (/c2pa|jumbf/i.test(text)) rec.indicators.push({ sev: "info", title: "C2PA (Content Credentials) manifesti mavjud", detail: "Manifest kontent qanday yaratilgani va tahrirlangani haqida imzolangan maʼlumot saqlaydi. Imzo bu yerda tekshirilmaydi: uni contentcredentials.org/verify sahifasida tekshiring.", src: "signatures" });
+  if (type === "video") { const m = VIDEO_EDITOR_RE.exec(text); if (m) rec.indicators.push({ sev: "low", title: "Video tahrirlash dasturi izi: " + m[1], detail: "Video montaj dasturida qayta eksport qilingan. Bu odatiy hol, lekin kontent oʻzgartirilgan boʻlishi mumkinligini bildiradi.", src: "signatures" }); }
+  const enc = /(Lavf\d+[\d.]*|LAME\d[\d.]*|HandBrake[\w .-]*|x264 - core \d+|x265)/.exec(text);
+  if (enc) rec.meta["Kodlovchi izi"] = enc[1].slice(0, 40);
+}
+
+/* ================= Audio pipeline ================= */
+function makeFFT(n) {
+  const lev = Math.log2(n), rev = new Uint32Array(n);
+  for (let i = 0; i < n; i++) { let r = 0, x = i; for (let j = 0; j < lev; j++) { r = (r << 1) | (x & 1); x >>= 1; } rev[i] = r; }
+  const cos = new Float64Array(n / 2), sin = new Float64Array(n / 2);
+  for (let i = 0; i < n / 2; i++) { cos[i] = Math.cos(2 * Math.PI * i / n); sin[i] = Math.sin(2 * Math.PI * i / n); }
+  return (re, im) => {
+    for (let i = 0; i < n; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let size = 2; size <= n; size <<= 1) {
+      const half = size >> 1, st = n / size;
+      for (let i = 0; i < n; i += size) for (let j = 0, k = 0; j < half; j++, k += st) {
+        const l = i + j + half, tre = re[l] * cos[k] + im[l] * sin[k], tim = -re[l] * sin[k] + im[l] * cos[k];
+        re[l] = re[i + j] - tre; im[l] = im[i + j] - tim; re[i + j] += tre; im[i + j] += tim;
+      }
+    }
+  };
+}
+function cmap(t) {
+  const st = [[8, 13, 24], [30, 58, 138], [139, 92, 246], [56, 189, 248], [248, 250, 252]];
+  t = Math.max(0, Math.min(1, t)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(t)), f = t - i;
+  return [0, 1, 2].map(k => Math.round(st[i][k] + (st[i + 1][k] - st[i][k]) * f));
+}
+function headerSampleRate(b, fmt) {
+  try {
+    if (fmt.label === "WAV" && ascii(b, 12, 4) === "fmt ") return (b[24] | (b[25] << 8) | (b[26] << 16) | (b[27] << 24)) >>> 0;
+    if (fmt.label === "FLAC") return (b[18] << 12) | (b[19] << 4) | (b[20] >> 4);
+    if (fmt.label === "MP3") {
+      let i = 0;
+      if (ascii(b, 0, 3) === "ID3") i = 10 + ((b[6] & 127) << 21 | (b[7] & 127) << 14 | (b[8] & 127) << 7 | (b[9] & 127));
+      for (let k = i; k < Math.min(b.length - 4, i + 65536); k++) {
+        if (b[k] === 0xFF && (b[k + 1] & 0xE0) === 0xE0) {
+          const ver = (b[k + 1] >> 3) & 3, sri = (b[k + 2] >> 2) & 3; if (sri === 3 || ver === 1) continue;
+          const base = [44100, 48000, 32000][sri]; return ver === 3 ? base : ver === 2 ? base / 2 : base / 4;
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+async function analyzeAudio(file, bytes, fmt, rec, step) {
+  await step("meta");
+  const origSR = headerSampleRate(bytes, fmt);
+  rec.meta["Sarlavhadagi namunalash chastotasi"] = origSR ? origSR + " Hz" : "aniqlanmadi";
+  scanSignatures(scanStrings(bytes, 262144), rec, "audio");
+  rec.checks.push({ name: "Sarlavha va metamaʼlumot", version: "tl-meta 1.0", status: "ok", summary: "Format sarlavhasi va matn satrlari oʻqildi." });
+
+  await step("decode");
+  const SR = 48000;
+  let buf;
+  try {
+    const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Ctx) throw new Error("no ctx");
+    const ctx = new Ctx(1, SR, SR);
+    buf = await ctx.decodeAudioData(await file.arrayBuffer());
+  } catch (e) {
+    rec.status = "unsupported";
+    rec.checks.push({ name: "Audio dekodlash", version: "Web Audio", status: "failed", summary: "Brauzer bu audio kodekni ochib bera olmadi." });
+    rec.limitations.push("Audio dekodlanmadi, shuning uchun akustik tahlil bajarilmadi. Faylni WAV yoki MP3 formatiga oʻtkazib qayta urinib koʻring.");
+    return;
+  }
+  rec.meta["Davomiylik"] = fmtDur(buf.duration);
+  rec.meta["Kanallar"] = buf.numberOfChannels;
+  rec.checks.push({ name: "Audio dekodlash", version: "Web Audio · 48 kHz", status: "ok", summary: `${fmtDur(buf.duration)}, ${buf.numberOfChannels} kanal.` });
+
+  await step("features");
+  const maxN = Math.min(buf.length, SR * 120);
+  const x = new Float32Array(maxN);
+  for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < maxN; i++) x[i] += d[i] / buf.numberOfChannels; }
+  if (buf.length > maxN) rec.limitations.push("Akustik tahlil faylning birinchi 120 soniyasida bajarildi.");
+  if (buf.duration < 2) rec.limitations.push("Yozuv 2 soniyadan qisqa; statistik belgilar ishonchsiz.");
+  let peak = 0, sumSq = 0, clip = 0;
+  for (let i = 0; i < maxN; i++) { const a = Math.abs(x[i]); if (a > peak) peak = a; sumSq += x[i] * x[i]; if (a >= 0.999) clip++; }
+  const rmsDb = 20 * Math.log10(Math.sqrt(sumSq / maxN) + 1e-12);
+  let zeroRuns = 0, run = 0, firstNZ = -1, lastNZ = -1;
+  for (let i = 0; i < maxN; i++) if (x[i] !== 0) { if (firstNZ < 0) firstNZ = i; lastNZ = i; }
+  for (let i = Math.max(0, firstNZ); i <= lastNZ; i++) { if (x[i] === 0) run++; else { if (run >= SR * 0.05) zeroRuns++; run = 0; } }
+  let silent = 0, frames = 0;
+  for (let i = 0; i + 2048 <= maxN; i += 2048) { let s = 0; for (let k = 0; k < 2048; k++) s += x[i + k] * x[i + k]; frames++; if (10 * Math.log10(s / 2048 + 1e-12) < -60) silent++; }
+  rec.meta["Choʻqqi (peak)"] = (20 * Math.log10(peak + 1e-12)).toFixed(1) + " dBFS";
+  rec.meta["Oʻrtacha daraja (RMS)"] = rmsDb.toFixed(1) + " dBFS";
+  rec.meta["Sukunat ulushi"] = frames ? Math.round(silent / frames * 100) + "%" : "—";
+  const clipPct = clip / maxN * 100;
+  if (clipPct > 0.5) rec.indicators.push({ sev: "low", title: `Klipping: namunalarning ${clipPct.toFixed(2)}% maksimal darajada`, detail: "Signal yozish yoki qayta ishlashda kesilgan. Sifat muammosi; manipulyatsiya belgisi boʻlishi shart emas.", src: "acoustic" });
+  if (zeroRuns > 0) rec.indicators.push({ sev: "low", title: `${zeroRuns} ta ichki “raqamli sukunat” boʻlagi`, detail: "Yozuv ichida mutlaq nol qiymatli 50 ms dan uzun boʻlaklar bor. Tabiiy mikrofon yozuvida fon shovqini boʻladi; bunday boʻlaklar audio tahrirlovchida kesish yoki qoʻshish izi boʻlishi mumkin.", src: "acoustic" });
+  if (peak === 0) { rec.indicators.push({ sev: "info", title: "Yozuv butunlay jim", detail: "Signal topilmadi.", src: "acoustic" }); }
+
+  await step("spectrum");
+  const N = 2048;
+  if (maxN < N * 2) { rec.checks.push({ name: "Spektral tahlil", version: "tl-fft 1.0", status: "failed", summary: "Yozuv spektrogramma uchun juda qisqa." }); }
+  else {
+    const fft = makeFFT(N), win = new Float64Array(N);
+    for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
+    const cols = Math.min(720, Math.floor((maxN - N) / 256) + 1);
+    const hop = Math.max(1, Math.floor((maxN - N) / Math.max(1, cols - 1)));
+    const bins = N / 2, avg = new Float64Array(bins), H = 256;
+    const spec = new Float32Array(cols * H);
+    const re = new Float64Array(N), im = new Float64Array(N);
+    for (let c = 0; c < cols; c++) {
+      const off = c * hop;
+      for (let i = 0; i < N; i++) { re[i] = (x[off + i] || 0) * win[i]; im[i] = 0; }
+      fft(re, im);
+      for (let k = 0; k < bins; k++) { const p = re[k] * re[k] + im[k] * im[k]; avg[k] += p; }
+      for (let r = 0; r < H; r++) { const k0 = Math.floor(r * bins / H), k1 = Math.floor((r + 1) * bins / H); let m = 0; for (let k = k0; k < k1; k++) { const p = re[k] * re[k] + im[k] * im[k]; if (p > m) m = p; } spec[c * H + (H - 1 - r)] = 10 * Math.log10(m + 1e-12); }
+      if (c % 60 === 0) await sleep(0);
+    }
+    let smax = -Infinity; for (let i = 0; i < spec.length; i++) if (spec[i] > smax) smax = spec[i];
+    const sc = document.createElement("canvas"); sc.width = cols; sc.height = H; const sx = sc.getContext("2d"); const sd = sx.createImageData(cols, H);
+    for (let c = 0; c < cols; c++) for (let r = 0; r < H; r++) { const v = (spec[c * H + r] - (smax - 90)) / 90; const [R, G, B] = cmap(v); const i = (r * cols + c) * 4; sd.data[i] = R; sd.data[i + 1] = G; sd.data[i + 2] = B; sd.data[i + 3] = 255; }
+    sx.putImageData(sd, 0, 0);
+    // average spectrum -> cutoff
+    const db = Array.from(avg, p => 10 * Math.log10(p / cols + 1e-14));
+    const sm = db.map((_, k) => { let s = 0, n = 0; for (let j = Math.max(0, k - 3); j <= Math.min(bins - 1, k + 3); j++) { s += db[j]; n++; } return s / n; });
+    let pk = -Infinity; for (let k = 3; k < bins; k++) if (sm[k] > pk) pk = sm[k];
+    let cut = 0; for (let k = bins - 1; k > 3; k--) if (sm[k] > pk - 55) { cut = k; break; }
+    const hzPerBin = SR / N, cutHz = Math.round(cut * hzPerBin);
+    const after = Math.min(bins - 1, cut + Math.round(1000 / hzPerBin));
+    const sharp = (sm[cut] - sm[after]) > 25;
+    rec.meta["Samarali chastota chegarasi"] = (cutHz / 1000).toFixed(1) + " kHz" + (sharp ? " (keskin)" : "");
+    if (cutHz < 4500) rec.indicators.push({ sev: "info", title: `Tor polosali audio (~${(cutHz / 1000).toFixed(1)} kHz gacha)`, detail: "Telefon yoki messenjer qoʻngʻirogʻi sifatiga xos. Bunday yozuvlarda tahlil imkoniyatlari cheklangan.", src: "spectrum" });
+    else if (origSR && origSR >= 32000 && cutHz < origSR * 0.35) rec.indicators.push({ sev: "low", title: "Qayta namunalash (upsampling) belgisi", detail: `Fayl ${origSR} Hz deb belgilangan, lekin ${(cutHz / 1000).toFixed(1)} kHz dan yuqorida mazmun deyarli yoʻq. Audio pastroq chastotada yaratilib, keyin oshirilgan boʻlishi mumkin. Koʻp nutq sintezi tizimlari 16–24 kHz da ishlaydi, lekin oddiy siqish ham shunday iz qoldiradi.`, src: "spectrum" });
+    else if (cutHz < 15000 && sharp) rec.indicators.push({ sev: "low", title: `Keskin chastota chegarasi ~${(cutHz / 1000).toFixed(1)} kHz`, detail: "Spektr shu chastotadan keyin keskin uziladi. Bu MP3/AAC siqish, qayta namunalash yoki sintez tizimi chiqishi bilan bogʻliq boʻlishi mumkin. Yolgʻiz oʻzi sintetik nutq belgisi emas.", src: "spectrum" });
+    // waveform
+    const wc = document.createElement("canvas"); wc.width = 720; wc.height = 120; const wx = wc.getContext("2d");
+    wx.fillStyle = "#050911"; wx.fillRect(0, 0, 720, 120); wx.strokeStyle = "#1E2C42"; wx.beginPath(); wx.moveTo(0, 60); wx.lineTo(720, 60); wx.stroke();
+    wx.fillStyle = "#38BDF8"; const per = maxN / 720;
+    for (let c = 0; c < 720; c++) { let mn = 1, mx = -1; const s = Math.floor(c * per), e = Math.floor((c + 1) * per); for (let i = s; i < e; i++) { if (x[i] < mn) mn = x[i]; if (x[i] > mx) mx = x[i]; } if (mx < mn) continue; wx.fillRect(c, 60 - mx * 56, 1, Math.max(1, (mx - mn) * 56)); }
+    visuals[rec.tmpKey] = { kind: "audio", spec: sc.toDataURL("image/png"), wave: wc.toDataURL("image/png"), specMaxHz: SR / 2, secs: maxN / SR };
+    rec.checks.push({ name: "Spektral tahlil", version: "tl-fft 1.0 · N=2048 Hann", status: "ok", summary: `Chegara ${(cutHz / 1000).toFixed(1)} kHz, ${cols} ustunli spektrogramma.` });
+  }
+  rec.checks.push({ name: "Akustik belgilar", version: "tl-acoustic 1.0", status: "ok", summary: `RMS ${rmsDb.toFixed(1)} dBFS, klipping ${clipPct.toFixed(2)}%, ichki sukunat ${zeroRuns}.` });
+
+  await step("model");
+  rec.models.push({ name: "Sintetik nutq detektori (ASVspoof uslubida)", version: "—", status: "unavailable", summary: "Bu versiyada sintetik nutqni aniqlovchi model ulanmagan. Natijada model bashorati yoʻq." });
+  rec.limitations.push("Spiker identifikatsiyasi bajarilmaydi: tahlil gapirayotgan shaxsni aniqlamaydi va tasdiqlamaydi.");
+}
+
+/* ================= Video pipeline ================= */
+function findAscii(b, needle, from, to) {
+  const n = needle.split("").map(c => c.charCodeAt(0));
+  for (let i = from; i < to - n.length; i++) { let ok = true; for (let j = 0; j < n.length; j++) if (b[i + j] !== n[j]) { ok = false; break; } if (ok) return i; }
+  return -1;
+}
+function mp4Creation(b) {
+  const span = 4 << 20;
+  let idx = findAscii(b, "mvhd", 0, Math.min(b.length, span));
+  if (idx < 0 && b.length > span) idx = findAscii(b, "mvhd", b.length - span, b.length);
+  if (idx < 0) return undefined;
+  const v = b[idx + 4]; const ct = v === 1 ? u32be(b, idx + 8) * 4294967296 + u32be(b, idx + 12) : u32be(b, idx + 8);
+  if (!ct) return null;
+  const d = new Date((ct - 2082844800) * 1000);
+  return isNaN(d) ? null : d;
+}
+function seekTo(v, t) {
+  return new Promise((res, rej) => {
+    const to = setTimeout(() => { v.removeEventListener("seeked", on); rej(new Error("seek")); }, 8000);
+    const on = () => { clearTimeout(to); v.removeEventListener("seeked", on); res(); };
+    v.addEventListener("seeked", on); v.currentTime = t;
+  });
+}
+function grayOf(x, w, h) { const d = x.getImageData(0, 0, w, h).data, g = new Float32Array(w * h); for (let i = 0; i < w * h; i++) g[i] = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]; return g; }
+function lapVar(g, w, h) { let s = 0, s2 = 0, n = 0; for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) { const i = y * w + x; const l = 4 * g[i] - g[i - 1] - g[i + 1] - g[i - w] - g[i + w]; s += l; s2 += l * l; n++; } const m = s / n; return s2 / n - m * m; }
+function meanAbs(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - b[i]); return s / a.length; }
+
+async function analyzeVideo(file, bytes, fmt, rec, step) {
+  await step("meta");
+  if (/MP4|QuickTime/.test(fmt.label)) { const c = mp4Creation(bytes); rec.meta["Yaratilgan (mvhd)"] = c === undefined ? "mvhd topilmadi" : c === null ? "koʻrsatilmagan (0)" : fmtDate(c.getTime()); }
+  const vtext = scanStrings(bytes);
+  scanSignatures(vtext, rec, "video");
+  const cam = /com\.apple\.quicktime\.(?:make|model)|com\.android\.(?:version|capture\.fps)|\b(?:samsung|xiaomi|huawei|GoPro|DJI)\b/i.exec(vtext);
+  if (cam) rec.indicators.push({ sev: "auth", pts: -1.5, group: "auth", title: "Kamera/telefon yozuv izi bor", detail: `Konteynerda qurilma yozuviga xos maydon topildi (${cam[0].slice(0, 40)}). Bu video telefon yoki kamerada yozilganini koʻrsatadi, lekin keyingi tahrirni istisno qilmaydi.`, src: "provenance" });
+  rec.checks.push({ name: "Konteyner metamaʼlumotlari", version: "tl-meta 1.0", status: "ok", summary: "Konteyner sarlavhalari va matn satrlari oʻqildi." });
+
+  await step("decode");
+  const url = URL.createObjectURL(file);
+  const v = document.createElement("video"); v.muted = true; v.preload = "auto"; v.playsInline = true; v.src = url;
+  try {
+    await new Promise((res, rej) => { const t = setTimeout(() => rej(new Error("timeout")), 20000); v.onloadeddata = () => { clearTimeout(t); res(); }; v.onerror = () => { clearTimeout(t); rej(new Error("decode")); }; });
+  } catch (e) {
+    URL.revokeObjectURL(url);
+    rec.status = "unsupported";
+    rec.checks.push({ name: "Video dekodlash", version: "HTMLVideoElement", status: "failed", summary: "Brauzer bu video kodekini ochib bera olmadi (masalan, HEVC/H.265)." });
+    rec.limitations.push("Kadrlar ajratilmadi, shuning uchun vizual va vaqt boʻyicha tahlil bajarilmadi. Videoni H.264 MP4 formatiga oʻtkazib qayta urinib koʻring.");
+    return;
+  }
+  const dur = v.duration, vw = v.videoWidth, vh = v.videoHeight;
+  rec.meta["Davomiylik"] = fmtDur(dur);
+  rec.meta["Oʻlcham"] = `${vw} × ${vh} px`;
+  rec.checks.push({ name: "Video dekodlash", version: "HTMLVideoElement", status: "ok", summary: `${vw}×${vh}, ${fmtDur(dur)}.` });
+  if (!vw || !isFinite(dur) || dur <= 0) {
+    URL.revokeObjectURL(url);
+    rec.checks.push({ name: "Kadrlarni ajratish", version: "tl-frames 1.0", status: "failed", summary: "Davomiylik yoki oʻlcham nomaʼlum; kadrlarni ajratib boʻlmadi." });
+    rec.limitations.push("Video davomiyligi aniqlanmadi (masalan, ekran yozuvidan olingan WebM). Vaqt boʻyicha tahlil bajarilmadi.");
+    return;
+  }
+
+  await step("frames");
+  const n = Math.max(4, Math.min(64, settings.frames));
+  const W = 256, H = Math.max(8, Math.round(256 * vh / vw));
+  const work = document.createElement("canvas"); work.width = W; work.height = H; const wx = work.getContext("2d", { willReadFrequently: true });
+  const tw = 112, th = Math.round(112 * vh / vw); const thumb = document.createElement("canvas"); thumb.width = tw; thumb.height = th; const tx = thumb.getContext("2d");
+  const thumbs = [], sharp = [], adj = [], times = [];
+  let fails = 0;
+  for (let i = 0; i < n; i++) {
+    const t = Math.min(dur - 0.1, (i + 0.5) * dur / n);
+    try {
+      await seekTo(v, Math.max(0, t)); wx.drawImage(v, 0, 0, W, H); const g1 = grayOf(wx, W, H);
+      tx.drawImage(v, 0, 0, tw, th); thumbs.push(thumb.toDataURL("image/jpeg", 0.6));
+      sharp.push(lapVar(g1, W, H));
+      await seekTo(v, Math.min(dur - 0.01, t + 0.034)); wx.drawImage(v, 0, 0, W, H); const g2 = grayOf(wx, W, H);
+      adj.push(meanAbs(g1, g2)); times.push(t);
+    } catch (e) { fails++; }
+    rec._progress && rec._progress(`${i + 1} / ${n} kadr`);
+  }
+  URL.revokeObjectURL(url);
+  if (sharp.length < 3) {
+    rec.checks.push({ name: "Kadrlarni ajratish", version: "tl-frames 1.0", status: "failed", summary: "Yetarli kadr ajratilmadi." });
+    return;
+  }
+  rec.meta["Tahlil qilingan kadrlar"] = `${sharp.length} ta (har ${(dur / n).toFixed(1)} s da, + qoʻshni kadr)`;
+  rec.checks.push({ name: "Kadrlarni ajratish", version: `tl-frames 1.0 · n=${n}`, status: fails ? "ok" : "ok", summary: `${sharp.length} ta namuna ajratildi${fails ? `, ${fails} tasi oʻtkazib yuborildi` : ""}.` });
+
+  await step("temporal");
+  const medAdj = percentile(adj, 0.5);
+  const spikes = adj.map((d, i) => ({ d, t: times[i] })).filter(o => o.d > Math.max(6 * medAdj, 10));
+  const ms = sharp.reduce((a, c) => a + c, 0) / sharp.length;
+  const cv = Math.sqrt(sharp.reduce((a, c) => a + (c - ms) * (c - ms), 0) / sharp.length) / (ms || 1);
+  rec.meta["Qoʻshni kadr farqi (median)"] = medAdj.toFixed(2);
+  rec.meta["Keskinlik oʻzgaruvchanligi (CV)"] = cv.toFixed(2);
+  const ratio = spikes.length / adj.length;
+  if (spikes.length && ratio >= 0.15) rec.indicators.push({ sev: "medium", title: `${spikes.length} ta namunada qoʻshni kadrlar orasida gʻayrioddiy sakrash`, detail: `Namunalarning ${Math.round(ratio * 100)}% ida bir-biriga yaqin (≈33 ms) kadrlar keskin farq qiladi (vaqtlar: ${spikes.slice(0, 5).map(s => s.t.toFixed(1) + " s").join(", ")}). Bu montaj kesimi, kadr almashtirish yoki miltillash belgisi boʻlishi mumkin.`, src: "temporal" });
+  else if (spikes.length) rec.indicators.push({ sev: "low", title: `${spikes.length} ta namunada qoʻshni kadrlar keskin farq qiladi`, detail: `Vaqtlar: ${spikes.slice(0, 5).map(s => s.t.toFixed(1) + " s").join(", ")}. Yakka holatlar odatda oddiy sahna almashinuvi; bitta kadr butun video haqida xulosa uchun yetarli emas.`, src: "temporal" });
+  if (cv > 0.9) rec.indicators.push({ sev: "low", title: "Kadrlar keskinligi notekis", detail: `Keskinlik koeffitsiyenti ${cv.toFixed(2)}. Turli manbalardan yigʻilgan yoki qayta kodlangan qismlar, shuningdek kamera fokusi oʻzgarishi ham sabab boʻlishi mumkin.`, src: "temporal" });
+  rec.checks.push({ name: "Vaqt boʻyicha izchillik", version: "tl-temporal 1.0", status: "ok", summary: `Median farq ${medAdj.toFixed(2)}, sakrashlar ${spikes.length}/${adj.length}.` });
+  visuals[rec.tmpKey] = { kind: "video", thumbs, adj, sharp, times, dur };
+
+  await step("model");
+  if ("FaceDetector" in window) { try { const img = await createImageBitmap(work); await faceCheck(img, rec); } catch (e) {} }
+  else rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "unavailable", summary: "Brauzer yuz aniqlash API’sini qoʻllab-quvvatlamaydi." });
+  rec.models.push({ name: "Deepfake video detektori (FaceForensics++ uslubida)", version: "—", status: "unavailable", summary: "Bu versiyada video deepfake modeli ulanmagan. Natijada model bashorati yoʻq." });
+  rec.limitations.push("Kadrlar oraliq bilan tanlanadi; namunalar orasidagi qisqa oʻzgarishlar koʻrinmasligi mumkin.");
+  rec.limitations.push("Audio yoʻlagi bu tahlilda tekshirilmaydi.");
+}
+
+/* ================= Risk assessment ================= */
+/* Rule (documented): weights info=0, low=1, medium=2, high=4.
+   HIGH: at least one high-severity indicator AND at least one more medium/high, or total ≥ 6.
+   MEDIUM: any high-severity indicator, or total ≥ 2.
+   LOW: total < 2 with all core checks completed.
+   INCONCLUSIVE: no analysis check completed, or the file could not be decoded. */
+/* Index rule (documented, uncalibrated heuristic):
+   every indicator has points and a group: ai (generation signs), manip (editing/splicing signs), auth (camera provenance, negative points).
+   Default points: info=0, low=1, medium=2, high=6.
+   AI index    = 100·(1 − e^(−max(0, ai − auth)/4))
+   Edit index  = 100·(1 − e^(−max(0, manip − auth/2)/4))
+   Overall     = max(AI, Edit). Risk: < 35 low, 35–64 medium, ≥ 65 high.
+   The index measures the weight of found signs. It is NOT the probability that the file is fake. */
+const WEIGHT = { info: 0, low: 1, medium: 2, high: 6, auth: -1 };
+const AI_SRC = new Set(["signatures", "png-text", "dimensions"]);
+const toIndex = s => Math.round(100 * (1 - Math.exp(-Math.max(0, s) / 4)));
+function assess(rec) {
+  let ai = 0, man = 0, auth = 0;
+  rec.indicators.forEach(i => {
+    const p = typeof i.pts === "number" ? i.pts : WEIGHT[i.sev] || 0;
+    const g = i.group || (i.sev === "auth" ? "auth" : AI_SRC.has(i.src) ? "ai" : "manip");
+    i.pts = p; i.group = g;
+    if (g === "auth") auth += -p; else if (g === "ai") ai += p; else man += p;
+  });
+  const okChecks = rec.checks.filter(c => c.status === "ok").length;
+  if (rec.status !== "completed" || okChecks < 2) { rec.aiIndex = null; rec.manipIndex = null; rec.index = null; return "inconclusive"; }
+  rec.aiIndex = toIndex(ai - auth);
+  rec.manipIndex = toIndex(man - auth / 2);
+  rec.index = Math.max(rec.aiIndex, rec.manipIndex);
+  if (rec.index >= 65) return "high";
+  if (rec.index >= 35) return "medium";
+  return "low";
+}
+function recommendations(rec) {
+  const r = [];
+  if (rec.mediaType === "image") { r.push("Rasmni teskari qidiruvda tekshiring (Google Lens, TinEye, Yandex) va eng birinchi eʼlon qilingan manbani toping."); }
+  if (rec.mediaType === "video") { r.push("Videodan bir nechta kadrni teskari qidiruvda tekshiring; asl, uzunroq versiyani izlang."); r.push("Lab harakati, koʻz qisish, yuz chegaralari va yorugʻlik izchilligini sekin tezlikda koʻrib chiqing."); }
+  if (rec.mediaType === "audio") { r.push("Agar yozuv tanish odamdan pul yoki maʼlumot soʻrasa, unga oʻzingiz bilgan raqam orqali qayta qoʻngʻiroq qiling."); r.push("Oila yoki hamkasblar bilan oldindan kelishilgan maxfiy soʻzdan foydalaning."); }
+  if (rec.indicators.some(i => /C2PA/.test(i.title))) r.push("C2PA manifestini contentcredentials.org/verify sahifasida tekshiring.");
+  if (rec.risk === "high" || rec.risk === "medium") r.push("Muhim qaror qabul qilishdan oldin faylni mustaqil kriminalistik ekspertga koʻrsating.");
+  if (rec.risk === "low") r.push("Past xavf haqiqiylik kafolati emas: manba va kontekstni baribir tekshiring.");
+  if (rec.risk === "inconclusive") r.push("Faylning asl, siqilmagan nusxasini soʻrang va tahlilni qayta bajaring.");
+  r.push("Shaxs haqida xulosa chiqarishdan saqlaning: bu natija hech kimni aybdor deb koʻrsatmaydi.");
+  return r;
+}
+
+/* ================= Orchestration ================= */
+const STEPS = {
+  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA)"], ["model", "Model va yuz aniqlash holati"], ["assess", "Xavfni baholash"]],
+  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["model", "Model holati"], ["assess", "Xavfni baholash"]],
+  audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["model", "Model holati"], ["assess", "Xavfni baholash"]]
+};
+
+async function runAnalysis(file, bytes, fmt) {
+  busy = true;
+  const type = fmt.type;
+  const steps = STEPS[type];
+  const box = $("#progressBox");
+  box.innerHTML = `<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Tahlil jarayoni"><span id="pbarFill"></span></div><div class="muted num" style="font-size:13px" id="pbarTxt">0%</div><div class="progress">${steps.map(([k, l]) => `<div class="ps" data-s="${k}"><span class="dot"></span><span>${esc(l)}</span><span class="muted mono" data-extra style="margin-left:auto"></span></div>`).join("")}</div>`;
+  const t0 = performance.now();
+  let active = null;
+  const step = async (k) => {
+    if (active) { const el = box.querySelector(`[data-s="${active}"]`); if (el) el.className = "ps done"; }
+    active = k; const el = box.querySelector(`[data-s="${k}"]`); if (el) el.className = "ps run";
+    const pct = Math.round(steps.findIndex(s => s[0] === k) / steps.length * 100);
+    const f = $("#pbarFill"), t = $("#pbarTxt"); if (f) f.style.width = pct + "%"; if (t) t.textContent = pct + "%";
+    await sleep(30);
+  };
+  const rec = {
+    id: "", tmpKey: "k" + Math.random().toString(36).slice(2), name: file.name, size: file.size, clientMime: file.type || "—", mime: fmt.mime, format: fmt.label,
+    mediaType: type, createdAt: Date.now(), status: "completed", risk: "inconclusive", hash: null, indicators: [], checks: [], models: [], meta: {}, limitations: []
+  };
+  rec._progress = (txt) => { const el = box.querySelector(`[data-s="${active}"] [data-extra]`); if (el) el.textContent = txt; };
+  try {
+    await step("validate");
+    const ext = extOf(file.name);
+    if (!fmt.exts.includes(ext)) rec.indicators.push({ sev: "medium", title: `Kengaytma (.${ext}) haqiqiy formatga (${fmt.label}) mos emas`, detail: "Fayl nomi oʻzgartirilgan yoki notoʻgʻri saqlangan. Fayl turini yashirish urinishi ham boʻlishi mumkin.", src: "validate" });
+    if (file.type && file.type !== fmt.mime && !(fmt.mime === "audio/mpeg" && file.type === "audio/mp3") && !(fmt.mime === "audio/wav" && /wav/.test(file.type)))
+      rec.meta["Brauzer bergan MIME"] = file.type + " (eʼtiborga olinmadi)";
+    rec.checks.push({ name: "Format tekshiruvi", version: "tl-validate 1.0", status: "ok", summary: `Haqiqiy format: ${fmt.label}.` });
+    await step("hash");
+    rec.hash = await sha256(bytes);
+    rec.checks.push({ name: "SHA-256 xesh", version: "Web Crypto", status: rec.hash ? "ok" : "unavailable", summary: rec.hash ? "Hisoblandi." : "Brauzerda Web Crypto mavjud emas." });
+    const d = new Date(rec.createdAt);
+    rec.id = `TL-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${(rec.hash ? rec.hash.slice(0, 6) : Math.random().toString(16).slice(2, 8)).toUpperCase()}`;
+    if (history.some(h => h.id === rec.id)) rec.id += "-" + pad(d.getMinutes()) + pad(d.getSeconds());
+    if (type === "image") await analyzeImage(file, bytes, fmt, rec, step);
+    else if (type === "video") await analyzeVideo(file, bytes, fmt, rec, step);
+    else await analyzeAudio(file, bytes, fmt, rec, step);
+    await step("assess");
+  } catch (err) {
+    rec.status = "failed";
+    rec.error = err && err.message ? err.message : "Nomaʼlum xatolik";
+    rec.limitations.push("Tahlil xatolik bilan toʻxtadi: " + rec.error);
+    if (!rec.id) rec.id = "TL-ERR-" + Math.random().toString(16).slice(2, 8).toUpperCase();
+  }
+  rec.risk = assess(rec);
+  rec.recs = recommendations(rec);
+  rec.durationMs = Math.round(performance.now() - t0);
+  if (active) { const el = box.querySelector(`[data-s="${active}"]`); if (el) el.className = "ps done"; }
+  if (visuals[rec.tmpKey]) { visuals[rec.id] = visuals[rec.tmpKey]; delete visuals[rec.tmpKey]; }
+  delete rec.tmpKey; delete rec._progress; delete rec._hasCamera;
+  history.unshift(rec);
+  persistHistory();
+  busy = false;
+  pendingFile = null;
+  currentId = rec.id;
+  location.hash = "#natija";
+  route();
+}
+
+/* ================= Views ================= */
+function riskChip(r) { return `<span class="chip ${r}">${esc(RISK[r].label)}</span>`; }
+function statusChip(s) { const cls = s === "completed" ? "info" : s === "failed" ? "high" : "inconclusive"; return `<span class="chip ${cls}">${esc(STATUS_UZ[s])}</span>`; }
+const ICON = {
+  image: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>',
+  video: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg>',
+  audio: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2M6 8v8M10 4v16M14 7v10M18 10v4M22 12h-2"/></svg>',
+  all: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
+};
+function emptyState(title, text, cta = true) {
+  return `<div class="card empty"><svg width="44" height="44" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9.5" fill="none" stroke="#38BDF8" stroke-width="2"/><path d="M21 21l7 7" stroke="#8B5CF6" stroke-width="2.6" stroke-linecap="round"/></svg><h3>${esc(title)}</h3><p>${esc(text)}</p>${cta ? '<a class="btn primary" href="#tahlil">Birinchi tahlilni boshlash</a>' : ""}</div>`;
+}
+function histTable(rows) {
+  return `<div class="tbl"><table><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>Indeks</th></tr></thead><tbody>${rows.map(r => `
+    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono">${esc(r.id)}</td><td style="max-width:260px;word-break:break-all">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num">${fmtDate(r.createdAt)}</td><td>${statusChip(r.status)}</td><td>${riskChip(r.risk)}</td><td class="num" style="font-weight:700;color:${typeof r.index === "number" ? idxColor(r.index) : "#94A3B8"}">${typeof r.index === "number" ? r.index + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function bindOpen(root) {
+  $$("[data-open]", root).forEach(el => {
+    const go = () => { currentId = el.dataset.open; location.hash = "#natija"; route(); };
+    el.addEventListener("click", go);
+    el.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  });
+}
+
+function renderPanel() {
+  const root = $("#panelRoot");
+  const n = history.length;
+  const by = t => history.filter(h => h.mediaType === t).length;
+  let html = `<div class="page-head"><div><h1>Boshqaruv paneli</h1><p>Barcha koʻrsatkichlar shu brauzerda bajarilgan haqiqiy tahlillardan hisoblanadi.</p></div><a class="btn primary" href="#tahlil">Yangi tahlil</a></div>`;
+  html += `<div class="grid g4">
+    <div class="card tile"><span class="lbl">${ICON.all}Jami tahlillar</span><span class="val">${n}</span></div>
+    <div class="card tile"><span class="lbl">${ICON.image}Rasm</span><span class="val">${by("image")}</span></div>
+    <div class="card tile"><span class="lbl">${ICON.video}Video</span><span class="val">${by("video")}</span></div>
+    <div class="card tile"><span class="lbl">${ICON.audio}Audio</span><span class="val">${by("audio")}</span></div></div>`;
+  if (!n) { root.innerHTML = html + `<div style="margin-top:16px">${emptyState("Hali tahlil yoʻq", "Birinchi faylni tahlil qilganingizdan keyin bu yerda xavf taqsimoti, faollik va soʻnggi natijalar paydo boʻladi.")}</div>`; return; }
+  const rc = { high: 0, medium: 0, low: 0, inconclusive: 0 }; history.forEach(h => rc[h.risk]++);
+  const sc = { completed: 0, unsupported: 0, failed: 0 }; history.forEach(h => sc[h.status]++);
+  const col = { high: "#EF4444", medium: "#F59E0B", low: "#22C55E", inconclusive: "#64748B" };
+  // 14-day activity
+  const days = []; const today = new Date(); today.setHours(0, 0, 0, 0);
+  for (let i = 13; i >= 0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); days.push({ d, c: 0 }); }
+  history.forEach(h => { const d = new Date(h.createdAt); d.setHours(0, 0, 0, 0); const k = days.find(x => x.d.getTime() === d.getTime()); if (k) k.c++; });
+  const mx = Math.max(1, ...days.map(d => d.c));
+  const cw = 560, chh = 150, bw = cw / 14;
+  const bars = days.map((d, i) => { const h = d.c / mx * (chh - 30); return `<rect x="${i * bw + 4}" y="${chh - 20 - h}" width="${bw - 8}" height="${Math.max(h, d.c ? 2 : 0)}" rx="3" fill="${i === 13 ? "#38BDF8" : "#2B5F86"}"><title>${fmtDate(d.d, false)}: ${d.c}</title></rect>${i % 3 === 1 || i === 13 ? `<text x="${i * bw + bw / 2}" y="${chh - 4}" fill="#94A3B8" font-size="10" text-anchor="middle">${d.d.getDate()}.${pad(d.d.getMonth() + 1)}</text>` : ""}`; }).join("");
+  const grid = [0.5, 1].map(f => `<line x1="0" x2="${cw}" y1="${chh - 20 - f * (chh - 30)}" y2="${chh - 20 - f * (chh - 30)}" stroke="#1E2C42"/><text x="${cw}" y="${chh - 24 - f * (chh - 30)}" fill="#94A3B8" font-size="10" text-anchor="end">${Math.round(f * mx * 10) / 10}</text>`).join("");
+  html += `<div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>Xavf taqsimoti</h3>
+      <div class="stack">${Object.keys(rc).filter(k => rc[k]).map(k => `<span style="width:${rc[k] / n * 100}%;background:${col[k]}" title="${RISK[k].label}: ${rc[k]}"></span>`).join("")}</div>
+      <div class="legend">${Object.keys(rc).map(k => `<div><span><i style="background:${col[k]}"></i>${RISK[k].label}</span><span class="num">${rc[k]} · ${Math.round(rc[k] / n * 100)}%</span></div>`).join("")}</div>
+    </div>
+    <div class="card"><h3>Soʻnggi 14 kunlik faollik</h3><svg viewBox="0 0 ${cw} ${chh}" width="100%" role="img" aria-label="Kunlik tahlillar soni">${grid}${bars}</svg></div>
+  </div>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card tile"><span class="lbl">Yakunlangan</span><span class="val" style="font-size:24px">${sc.completed}</span></div>
+    <div class="card tile"><span class="lbl">Qoʻllab-quvvatlanmagan</span><span class="val" style="font-size:24px">${sc.unsupported}</span></div>
+    <div class="card tile"><span class="lbl">Xatolik bilan</span><span class="val" style="font-size:24px">${sc.failed}</span></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3 style="margin:0">Soʻnggi tahlillar</h3><a href="#tarix" style="font-size:14px">Barchasi →</a></div>${histTable(history.slice(0, 5))}</div>`;
+  root.innerHTML = html;
+  bindOpen(root);
+}
+
+function renderUpload() {
+  const root = $("#uploadRoot");
+  if (busy) return;
+  if (!pendingFile) {
+    root.innerHTML = `<div class="drop" id="drop" role="button" tabindex="0" aria-label="Fayl tanlash">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+        <h3>Faylni shu yerga tashlang yoki tanlash uchun bosing</h3>
+        <p>Bitta fayl · maksimal hajm <span class="num">${Number(settings.maxMB)}</span> MB</p>
+        <div class="type-pills"><span class="chip info">${ICON.image} JPG · PNG · WEBP</span><span class="chip ai">${ICON.video} MP4 · MOV · WEBM</span><span class="chip low">${ICON.audio} WAV · MP3 · OGG · FLAC · M4A</span></div>
+      </div>
+      <input type="file" id="fileIn" accept="${ACCEPT}" hidden>
+      <div id="upErr"></div>
+      <div class="grid g3" style="margin-top:20px">
+        <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Format va yaxlitlik, metamaʼlumotlar, generator izlari, siqish xatolari, spektr va kadrlararo izchillik.</p></div>
+        <div class="card"><h3>Nima tekshirilmaydi</h3><p class="muted" style="font-size:14px">Neyron tarmoq klassifikatori bu versiyada ulanmagan. Shaxsni aniqlash hech qachon bajarilmaydi.</p></div>
+        <div class="card"><h3>Maxfiylik</h3><p class="muted" style="font-size:14px">Fayl brauzerdan chiqmaydi. Tarixga faqat natija va SHA-256 xesh yoziladi.</p></div>
+      </div>`;
+    const drop = $("#drop"), inp = $("#fileIn");
+    inp.addEventListener("change", () => { if (inp.files[0]) pick(inp.files[0]); inp.value = ""; });
+    drop.addEventListener("click", () => inp.click());
+    drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inp.click(); } });
+    ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+    drop.addEventListener("drop", e => { const f = e.dataTransfer.files; if (f.length > 1) toast("Faqat bitta fayl tahlil qilinadi — birinchisi olindi"); if (f[0]) pick(f[0]); });
+    return;
+  }
+  const { file, fmt, url } = pendingFile;
+  const media = fmt.type === "image" ? `<img src="${url}" alt="Tanlangan rasm">` : fmt.type === "video" ? `<video src="${url}" controls muted playsinline></video>` : `<audio src="${url}" controls></audio>`;
+  root.innerHTML = `<div class="card"><div class="preview${fmt.type === "audio" ? " audio-mode" : ""}">
+      <div class="media">${media}</div>
+      <div>
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap"><h3 style="font-size:18px;word-break:break-all;margin:0">${esc(file.name)}</h3><span class="chip info">${TYPE_UZ[fmt.type]}</span></div>
+        <dl class="kv" style="margin:16px 0">
+          <dt>Hajm</dt><dd class="num">${fmtBytes(file.size)}</dd>
+          <dt>Haqiqiy format</dt><dd>${esc(fmt.label)} <span class="muted">(baytlar boʻyicha)</span></dd>
+          <dt>Brauzer MIME</dt><dd class="mono">${esc(file.type || "—")}</dd>
+          <dt>Oxirgi oʻzgarish</dt><dd>${file.lastModified ? fmtDate(file.lastModified) : "—"}</dd>
+        </dl>
+        <div class="row-actions" id="upBtns"><button class="btn primary" id="startBtn">Tahlilni boshlash</button><button class="btn ghost" id="removeBtn">Faylni olib tashlash</button></div>
+        <div id="progressBox"></div>
+      </div>
+    </div></div>`;
+  $("#removeBtn").addEventListener("click", () => { URL.revokeObjectURL(url); pendingFile = null; renderUpload(); });
+  $("#startBtn").addEventListener("click", async () => {
+    $("#upBtns").style.display = "none";
+    try { await runAnalysis(file, pendingFile.bytes, fmt); }
+    catch (e) { busy = false; $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; }
+    finally { URL.revokeObjectURL(url); }
+  });
+}
+function showUpErr(msg) { const el = $("#upErr"); if (el) el.innerHTML = `<div class="err" role="alert">${msg}</div>`; }
+async function pick(file) {
+  const ext = extOf(file.name);
+  if (file.size > settings.maxMB * 1048576) { showUpErr(`Fayl hajmi ${fmtBytes(file.size)}. Chegara ${settings.maxMB} MB — uni Sozlamalarda oʻzgartirish mumkin.`); return; }
+  let bytes;
+  try { bytes = new Uint8Array(await file.arrayBuffer()); } catch (e) { showUpErr("Faylni oʻqib boʻlmadi."); return; }
+  const v = validateFile(file, bytes);
+  if (v.error) { showUpErr(v.error); return; }
+  pendingFile = { file, bytes, fmt: v.fmt, ext, url: URL.createObjectURL(file) };
+  renderUpload();
+}
+
+/* ---------- History ---------- */
+let page = 1;
+const PER = 10;
+function renderHistory() {
+  const q = $("#fq").value.trim().toLowerCase(), t = $("#ftype").value, s = $("#fstatus").value, rk = $("#frisk").value, so = $("#fsort").value;
+  const from = $("#ffrom").value ? new Date($("#ffrom").value + "T00:00:00").getTime() : null;
+  const to = $("#fto").value ? new Date($("#fto").value + "T23:59:59").getTime() : null;
+  let rows = history.filter(r => (!q || r.name.toLowerCase().includes(q) || r.id.toLowerCase().includes(q)) && (!t || r.mediaType === t) && (!s || r.status === s) && (!rk || r.risk === rk) && (!from || r.createdAt >= from) && (!to || r.createdAt <= to));
+  const sorters = { new: (a, b) => b.createdAt - a.createdAt, old: (a, b) => a.createdAt - b.createdAt, name: (a, b) => a.name.localeCompare(b.name), risk: (a, b) => RISK_ORDER[b.risk] - RISK_ORDER[a.risk] || b.createdAt - a.createdAt };
+  rows.sort(sorters[so]);
+  const root = $("#histRoot");
+  if (!history.length) { root.innerHTML = emptyState("Tarix boʻsh", "Siz bajargan har bir tahlil shu yerda saqlanadi. Media fayllar saqlanmaydi, faqat natijalar."); return; }
+  if (!rows.length) { root.innerHTML = `<div class="card empty"><h3>Mos natija topilmadi</h3><p>Filtrlarni oʻzgartiring yoki tozalang.</p><button class="btn" id="clearF">Filtrlarni tozalash</button></div>`; $("#clearF").addEventListener("click", () => { ["fq", "ftype", "fstatus", "frisk", "ffrom", "fto"].forEach(id => $("#" + id).value = ""); page = 1; renderHistory(); }); return; }
+  const pages = Math.max(1, Math.ceil(rows.length / PER)); if (page > pages) page = pages;
+  root.innerHTML = `<div class="card" style="padding:8px 8px 14px">${histTable(rows.slice((page - 1) * PER, page * PER))}
+    <div class="pager" style="padding:0 8px"><span class="num">${rows.length} ta natijadan ${(page - 1) * PER + 1}–${Math.min(page * PER, rows.length)}</span>
+    <span class="row-actions"><button class="btn sm" id="pPrev" ${page <= 1 ? "disabled" : ""}>← Oldingi</button><span class="num" style="align-self:center">${page} / ${pages}</span><button class="btn sm" id="pNext" ${page >= pages ? "disabled" : ""}>Keyingi →</button></span></div></div>`;
+  $("#pPrev").addEventListener("click", () => { page--; renderHistory(); });
+  $("#pNext").addEventListener("click", () => { page++; renderHistory(); });
+  bindOpen(root);
+}
+["fq", "ftype", "fstatus", "frisk", "fsort", "ffrom", "fto"].forEach(id => $("#" + id).addEventListener("input", () => { page = 1; renderHistory(); }));
+
+/* ---------- Result ---------- */
+function sparkSVG(vals, times, dur, color, label) {
+  const w = 560, h = 120, pd = 22; const mx = Math.max(1e-6, ...vals);
+  const pts = vals.map((v, i) => [pd + (times[i] / dur) * (w - pd * 2), h - pd - (v / mx) * (h - pd * 2)]);
+  const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const area = line + ` L${pts[pts.length - 1][0].toFixed(1)} ${h - pd} L${pts[0][0].toFixed(1)} ${h - pd} Z`;
+  const last = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="${esc(label)}"><line x1="${pd}" x2="${w - pd}" y1="${h - pd}" y2="${h - pd}" stroke="#1E2C42"/><line x1="${pd}" x2="${w - pd}" y1="${pd}" y2="${pd}" stroke="#1E2C42" stroke-dasharray="3 4"/><text x="${pd}" y="${pd - 6}" fill="#94A3B8" font-size="10">${mx.toFixed(1)}</text><text x="${pd}" y="${h - 6}" fill="#94A3B8" font-size="10">0 s</text><text x="${w - pd}" y="${h - 6}" fill="#94A3B8" font-size="10" text-anchor="end">${dur.toFixed(1)} s</text><path d="${area}" fill="${color}" opacity=".12"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2"/><circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="${color}"/></svg>`;
+}
+function idxColor(v) { return v >= 65 ? "#EF4444" : v >= 35 ? "#F59E0B" : "#22C55E"; }
+function idxRow(label, v) { return `<div class="idx-row"><span>${esc(label)}</span><b style="color:${idxColor(v)}">${v}%</b><div class="idx-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v}" aria-label="${esc(label)}"><span style="width:${Math.max(2, v)}%;background:${idxColor(v)}"></span></div></div>`; }
+function renderResult() {
+  const root = $("#resRoot");
+  const r = history.find(h => h.id === currentId);
+  if (!r) { root.innerHTML = emptyState("Tahlil topilmadi", "Bu tahlil oʻchirilgan yoki saqlanmagan boʻlishi mumkin.", false); return; }
+  const v = visuals[r.id];
+  const sevOrder = { high: 0, medium: 1, low: 2, info: 3, auth: 4 };
+  const inds = r.indicators.slice().sort((a, b) => sevOrder[a.sev] - sevOrder[b.sev]);
+  let vis = "";
+  if (v && v.kind === "image") vis = `<div class="vis"><figure><img src="${v.orig}" alt="Asl rasm"><figcaption>Tahlil qilingan rasm</figcaption></figure><figure><img src="${v.ela}" alt="ELA xaritasi"><figcaption>ELA xaritasi: yorqin joylar qayta siqishda koʻproq oʻzgargan hududlar. Qirralar va matn tabiiy ravishda yorqin koʻrinadi.</figcaption></figure></div>`;
+  if (v && v.kind === "audio") vis = `<div class="vis"><figure class="wide"><img src="${v.wave}" alt="Toʻlqin shakli"><figcaption>Toʻlqin shakli (birinchi ${v.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.spec}" alt="Spektrogramma" style="height:220px;object-fit:fill"><figcaption>Spektrogramma: vertikal oʻq 0–${(v.specMaxHz / 1000).toFixed(0)} kHz, gorizontal oʻq vaqt. Yorqinlik energiyani bildiradi.</figcaption></figure></div>`;
+  if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#38BDF8", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#8B5CF6", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure></div>`;
+  if (!v && r.status === "completed") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;
+  const statusRow = c => `<tr><td>${esc(c.name)}</td><td class="mono muted">${esc(c.version)}</td><td>${c.status === "ok" ? '<span class="chip low">bajarildi</span>' : c.status === "unavailable" ? '<span class="chip inconclusive">mavjud emas</span>' : '<span class="chip high">bajarilmadi</span>'}</td><td class="muted" style="font-size:14px">${esc(c.summary)}</td></tr>`;
+  root.innerHTML = `
+    <div class="page-head"><div><div class="eyebrow">${esc(r.id)}</div><h1 style="word-break:break-all">${esc(r.name)}</h1><p>${TYPE_UZ[r.mediaType]} · ${fmtDate(r.createdAt)} · ${statusChip(r.status)}</p></div>
+      <div class="row-actions"><button class="btn" id="copyRep">Hisobotni nusxalash</button><button class="btn danger" id="delRep">Oʻchirish</button><a class="btn primary" href="#tahlil">Yangi tahlil</a></div></div>
+    <div class="res-head">
+      <div class="verdict ${r.risk}">
+        <div class="eyebrow" style="color:var(--muted)">Skrining bahosi</div>
+        <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap">
+          <div class="big" style="margin:6px 0 0">${esc(RISK[r.risk].label)}</div>
+          ${typeof r.index === "number" ? `<div><span class="big-pct">${r.index}%</span><div class="muted" style="font-size:12px">umumiy shubha indeksi</div></div>` : ""}
+        </div>
+        <div class="meter" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p style="color:#CBD5E1">${esc(RISK[r.risk].text)}</p>
+        ${typeof r.aiIndex === "number" ? `<div class="idx">
+          ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
+          ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
+        </div>` : ""}
+        <p class="muted" style="font-size:13px;margin-top:14px">Foiz topilgan belgilarning ogʻirligini koʻrsatadi (kamera maʼlumoti kabi haqiqiylik belgilari uni pasaytiradi). Bu fayl soxta boʻlish ehtimoli emas: neyron tarmoq modeli ulanmagan, shuning uchun metamaʼlumoti tozalangan AI rasm past foiz olishi mumkin. 0–34% past, 35–64% oʻrta, 65–100% yuqori.${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
+      </div>
+      <div class="card" style="min-width:280px"><h3>Fayl maʼlumotlari</h3><dl class="kv" style="grid-template-columns:120px 1fr">
+        <dt>Hajm</dt><dd class="num">${fmtBytes(r.size)}</dd>
+        <dt>Format</dt><dd>${esc(r.format)}</dd>
+        <dt>SHA-256</dt><dd class="mono" style="font-size:11px;word-break:break-all">${esc(r.hash || "mavjud emas")}</dd>
+        <dt>Davomiyligi</dt><dd class="num">${(r.durationMs / 1000).toFixed(1)} s tahlil</dd></dl></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px;align-items:start">
+      <div class="card"><h3>Topilgan belgilar (${inds.length})</h3>${inds.length ? inds.map(i => `<div class="ind ${i.sev}"><span class="bar"></span><div><h4>${esc(i.title)}</h4><p>${esc(i.detail)}</p><div class="src">manba: ${esc(i.src)} · ${i.pts > 0 ? "+" : ""}${Number(i.pts || 0)} ball (${i.group === "ai" ? "AI" : i.group === "auth" ? "haqiqiylik" : "tahrir"})</div></div><span class="chip ${i.sev === "auth" ? "low" : i.sev}">${SEV_UZ[i.sev]}</span></div>`).join("") : '<p class="muted">Mavjud tekshiruvlar hech qanday belgi topmadi.</p>'}</div>
+      <div class="card"><h3>Texnik koʻrsatkichlar</h3><dl class="kv">${Object.entries(r.meta).map(([k, val]) => `<dt>${esc(k)}</dt><dd class="mono" style="font-size:13px">${esc(val)}</dd>`).join("") || "<dd class='muted'>—</dd>"}</dl></div>
+    </div>
+    <div style="margin-top:16px">${vis}</div>
+    <div class="card" style="margin-top:16px"><h3>Tekshiruvlar va modellar</h3><div class="tbl"><table><thead><tr><th>Modul</th><th>Versiya</th><th>Holat</th><th>Natija</th></tr></thead><tbody>${r.checks.map(statusRow).join("")}${r.models.map(m => statusRow(m)).join("")}</tbody></table></div></div>
+    <div class="grid g2" style="margin-top:16px;align-items:start">
+      <div class="card"><h3>Cheklovlar</h3><ul class="plain">${["Natija ishonch darajasi emas: neyron tarmoq modeli ulanmaganligi sababli hech qanday model ishonchi (confidence) hisoblanmagan.", "Evristik chegara qiymatlar etalon maʼlumotlar toʻplamida kalibrlanmagan.", ...r.limitations].map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>
+      <div class="card"><h3>Tavsiya etilgan keyingi qadamlar</h3><ul class="plain">${(r.recs || []).map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>
+    </div>`;
+  $("#copyRep").addEventListener("click", () => copyReport(r));
+  $("#delRep").addEventListener("click", () => modal({ title: "Tahlilni oʻchirish", text: `${r.id} natijasi tarixdan butunlay oʻchiriladi. Buni qaytarib boʻlmaydi.`, buttons: [{ label: "Bekor qilish", cls: "ghost" }, { label: "Oʻchirish", cls: "danger", onClick: () => { history = history.filter(h => h.id !== r.id); delete visuals[r.id]; persistHistory(); currentId = null; toast("Tahlil oʻchirildi"); location.hash = "#tarix"; route(); } }] }));
+}
+function reportText(r) {
+  const L = [];
+  L.push("TRUTHLENS AI — KRIMINALISTIK TAHLIL HISOBOTI", "=".repeat(46));
+  L.push(`Tahlil ID:      ${r.id}`, `Sana:           ${fmtDate(r.createdAt)}`, `Fayl:           ${r.name}`, `Hajm:           ${fmtBytes(r.size)} (${r.size} bayt)`, `Media turi:     ${TYPE_UZ[r.mediaType]}`, `Haqiqiy format: ${r.format}`, `SHA-256:        ${r.hash || "mavjud emas"}`, `Holat:          ${STATUS_UZ[r.status]}`, "");
+  L.push("XAVF BAHOSI", "-".repeat(46), `${RISK[r.risk].label.toUpperCase()} — ${RISK[r.risk].text}`, ...(typeof r.index === "number" ? [`Umumiy shubha indeksi: ${r.index}%`, `AI-generatsiya belgilari: ${r.aiIndex}%`, `Tahrir/montaj belgilari: ${r.manipIndex}%`] : []), "Bu skrining bahosi, haqiqiylik yoki manipulyatsiya isboti emas. Foiz — topilgan belgilar ogʻirligi, soxtalik ehtimoli emas.", "Qoida: indeks = 100·(1 − e^(−ball/4)); haqiqiylik belgilari ballni kamaytiradi. 0–34% past, 35–64% oʻrta, 65–100% yuqori.", "");
+  L.push("TEKSHIRUV USULLARI VA MODELLAR", "-".repeat(46));
+  [...r.checks, ...r.models].forEach(c => L.push(`[${c.status === "ok" ? "BAJARILDI" : c.status === "unavailable" ? "MAVJUD EMAS" : "BAJARILMADI"}] ${c.name} (${c.version}) — ${c.summary}`));
+  L.push("", "TOPILGAN BELGILAR", "-".repeat(46));
+  if (!r.indicators.length) L.push("Belgilar topilmadi.");
+  r.indicators.forEach((i, k) => L.push(`${k + 1}. [${SEV_UZ[i.sev]} · ${Number(i.pts || 0)} ball] ${i.title}`, `   ${i.detail}`));
+  L.push("", "TEXNIK KOʻRSATKICHLAR", "-".repeat(46));
+  Object.entries(r.meta).forEach(([k, v]) => L.push(`${k}: ${v}`));
+  L.push("", "CHEKLOVLAR", "-".repeat(46), "- Neyron tarmoq modeli ulanmagan; model ishonchi hisoblanmagan.", "- Evristik chegaralar kalibrlanmagan.", ...r.limitations.map(l => "- " + l));
+  L.push("", "TAVSIYALAR", "-".repeat(46), ...(r.recs || []).map(l => "- " + l));
+  L.push("", "Hisobot TruthLens AI brauzer versiyasida avtomatik yaratildi. Media fayl qurilmadan tashqariga yuborilmagan.");
+  return L.join("\n");
+}
+async function copyReport(r) {
+  const txt = reportText(r);
+  try { await navigator.clipboard.writeText(txt); toast("Hisobot nusxalandi"); }
+  catch (e) { modal({ title: "Hisobot matni", text: "Nusxalash ruxsat etilmadi. Matnni belgilab, qoʻlda nusxalang.", extra: `<textarea readonly aria-label="Hisobot matni">${esc(txt)}</textarea>`, buttons: [{ label: "Yopish" }] }); }
+}
+
+/* ---------- Academy ---------- */
+const LESSONS = [
+  { id: "deepfake", title: "Deepfake nima?", min: 4, body: [
+    "Deepfake — sunʼiy intellekt yordamida yaratilgan yoki oʻzgartirilgan rasm, video yoki audio boʻlib, unda odam hech qachon qilmagan ishni qilayotgandek yoki aytmagan gapini aytayotgandek koʻrinadi.",
+    "Atama “deep learning” (chuqur oʻrganish) va “fake” (soxta) soʻzlaridan olingan. Bugun bunday kontentni yaratish uchun qimmat uskuna shart emas: koʻp vositalar telefon yoki brauzerda ishlaydi.",
+    "Har qanday tahrir deepfake emas. Rangni tuzatish yoki rasmni kesish odatiy ishlov. Deepfake haqida gap ketganda, kontent maʼnosini oʻzgartirish — yuzni almashtirish, soʻzlarni qoʻshish yoki mavjud boʻlmagan voqeani yaratish nazarda tutiladi."],
+    ex: "Mashhur shaxsning “yangi investitsiya platformasini” reklama qilayotgan videosi tarqaladi. Aslida uning eski intervyusiga sintetik ovoz va lab harakati qoʻshilgan.",
+    quiz: [
+      { q: "Quyidagilardan qaysi biri deepfake hisoblanadi?", o: ["Rasmning yorqinligini oshirish", "Videoda bir odamning yuzini boshqasiniki bilan almashtirish", "Rasmni kvadrat shaklida kesish"], a: 1, why: "Yuz almashtirish kontent maʼnosini oʻzgartiradi. Yorqinlik va kesish odatiy ishlov." },
+      { q: "Deepfake yaratish uchun nima shart?", o: ["Kuchli superkompyuter", "Hech narsa: koʻp vositalar oddiy qurilmada ishlaydi", "Kino studiyasi"], a: 1, why: "Bugun koʻp vositalar telefon va brauzerda mavjud, shuning uchun xavf keng tarqalgan." }] },
+  { id: "ai-images", title: "AI rasmlar qanday yaratiladi", min: 5, body: [
+    "Zamonaviy rasm generatorlarining aksariyati diffuziya modellaridir. Ular tasodifiy shovqindan boshlab, matnli soʻrov (prompt) asosida uni bosqichma-bosqich tozalab, rasmga aylantiradi.",
+    "Model millionlab rasmlardan naqshlarni oʻrganadi, lekin dunyoning fizik qoidalarini “tushunmaydi”. Shuning uchun xatolar koʻpincha mayda tafsilotlarda chiqadi: barmoqlar soni, matn, soat raqamlari, aks-sadolar, simmetrik zargarlik buyumlari, fon dagi chiziqlar.",
+    "Yangi modellar bunday xatolarni kamroq qiladi, shuning uchun faqat koʻz bilan qarashga tayanish xavfli. Metamaʼlumot (masalan, C2PA yoki IPTC “trainedAlgorithmicMedia”) foydali, lekin uni oʻchirish oson."],
+    ex: "Rasmdagi doʻkon peshtaxtasidagi yozuvlar harfga oʻxshaydi, lekin oʻqib boʻlmaydi. Bu generatsiya belgisi boʻlishi mumkin.",
+    quiz: [
+      { q: "Diffuziya modeli rasmni nimadan boshlab yaratadi?", o: ["Tasodifiy shovqindan", "Internetdagi tayyor rasmdan nusxa olib", "Kamera sensoridan"], a: 0, why: "Diffuziya modeli shovqinni qadam-baqadam tozalab rasm hosil qiladi." },
+      { q: "Metamaʼlumotda AI belgisi yoʻqligi nimani anglatadi?", o: ["Rasm albatta haqiqiy", "Hech narsani kafolatlamaydi: metamaʼlumotni oʻchirish oson", "Rasm albatta soxta"], a: 1, why: "Metamaʼlumot ijtimoiy tarmoqlarda koʻpincha avtomatik oʻchiriladi." }] },
+  { id: "voice", title: "Ovoz klonlash qanday ishlaydi", min: 4, body: [
+    "Ovoz klonlash tizimlari odam ovozining bir necha soniyalik yoki daqiqalik namunasidan uning tembri, intonatsiyasi va talaffuzini oʻrganadi, keyin istalgan matnni shu ovozda “gapiradi”.",
+    "Firibgarlar bu usulni telefon qoʻngʻiroqlarida qoʻllaydi: “farzandingiz” yoki “rahbaringiz” shoshilinch pul soʻraydi. Qoʻngʻiroq sifati past boʻlgani uchun sintez kamchiliklari bilinmay qoladi.",
+    "Sintetik nutqni aniqlash va spikerni aniqlash — ikki xil vazifa. Birinchisi “bu ovoz sunʼiymi?” degan savolga, ikkinchisi “bu kimning ovozi?” degan savolga javob beradi. TruthLens faqat birinchisi bilan shugʻullanadi."],
+    ex: "Kechqurun “ukangiz” qoʻngʻiroq qilib, avariyaga tushganini va darhol pul kerakligini aytadi. Ovoz tanish, lekin raqam notanish.",
+    quiz: [
+      { q: "Ovoz klonlash uchun qancha namuna kerak boʻlishi mumkin?", o: ["Kamida 100 soatlik yozuv", "Baʼzan bir necha soniya yoki daqiqa", "Faqat studiya yozuvi"], a: 1, why: "Zamonaviy tizimlar juda qisqa namunalar bilan ishlay oladi." },
+      { q: "Tanish ovoz shoshilinch pul soʻrasa, eng toʻgʻri qadam qaysi?", o: ["Darhol pul yuborish", "Oʻzingiz bilgan raqamga qayta qoʻngʻiroq qilib tekshirish", "Qoʻngʻiroq qilgan raqamga qayta qoʻngʻiroq qilish"], a: 1, why: "Mustaqil kanal orqali tekshirish firibgarlikni toʻxtatishning eng ishonchli usuli." }] },
+  { id: "video", title: "Video manipulyatsiyasi turlari", min: 5, body: [
+    "Yuz almashtirish (face swap) — bir odamning yuzi boshqasining tanasiga joylashtiriladi. Lab sinxronizatsiyasi (lip-sync) — haqiqiy videodagi lab harakati yangi audioga moslab oʻzgartiriladi. Toʻliq generatsiya — butun sahna matndan yaratiladi.",
+    "Eng keng tarqalgan va eng oddiy usul esa sunʼiy intellektsiz montaj: kontekstdan uzib olingan parcha, eski videoni yangi voqea sifatida koʻrsatish yoki tezlikni oʻzgartirish.",
+    "Belgilar: yuz chegarasida xiralik, koʻz qisishning gʻalatiligi, tish va til tafsilotlari, yorugʻlik yuz va fonda mos kelmasligi, bosh burilganda yuzning “sirpanishi”."],
+    ex: "Siyosatchining “mast” holatdagi videosi aslida oddiy intervyu, faqat 75% tezlikka sekinlashtirilgan.",
+    quiz: [
+      { q: "Lip-sync manipulyatsiyasida nima oʻzgartiriladi?", o: ["Butun sahna", "Lab harakati yangi audioga moslanadi", "Faqat fon musiqasi"], a: 1, why: "Lip-sync haqiqiy videodagi ogʻiz harakatini boshqa nutqqa moslaydi." },
+      { q: "Nega bitta shubhali kadr butun video soxta deyish uchun yetarli emas?", o: ["Siqish va harakat xiralashuvi tabiiy artefakt yaratadi", "Kadrlar hech qachon xato qilmaydi", "Videoda faqat bitta kadr boʻladi"], a: 0, why: "Yakka artefaktlar kodlash va harakat natijasi boʻlishi mumkin; xulosa koʻp kadrdagi izchil belgilarga asoslanishi kerak." }] },
+  { id: "recognize", title: "Shubhali mediani qanday tanish", min: 4, body: [
+    "Birinchi savol texnik emas: manba kim? Kontentni birinchi kim eʼlon qilgan, rasmiy kanal tasdiqlaganmi, boshqa ishonchli ommaviy axborot vositalari xabar berganmi?",
+    "Ikkinchi qadam — teskari qidiruv. Rasm yoki video kadrini Google Lens, TinEye yoki Yandex orqali qidiring: koʻpincha asl, eski yoki boshqa kontekstdagi versiya topiladi.",
+    "Uchinchi qadam — texnik tahlil: metamaʼlumot, siqish izlari, spektr. Lekin texnik vositalar faqat belgi beradi; ular kontekst va manbani tekshirishning oʻrnini bosmaydi. Kuchli his-tuygʻu (gʻazab, qoʻrquv, shoshilinchlik) uygʻotuvchi kontentga ayniqsa ehtiyot boʻling."],
+    ex: "“Bugungi toshqin” rasmi teskari qidiruvda 2019-yilda boshqa mamlakatda olingani maʼlum boʻladi.",
+    quiz: [
+      { q: "Shubhali rasmni tekshirishda birinchi navbatda nima qilish kerak?", o: ["Darhol doʻstlarga ulashish", "Manbani va birinchi eʼlon qilgan joyni aniqlash", "Rasmni oʻchirish"], a: 1, why: "Manba va kontekst koʻpincha texnik tahlildan tezroq javob beradi." },
+      { q: "Qaysi his-tuygʻu manipulyatsiya belgisi boʻlishi mumkin?", o: ["Kontent kuchli shoshilinchlik va gʻazab uygʻotadi", "Kontent zerikarli", "Kontent uzun"], a: 0, why: "Manipulyativ kontent odatda tanqidiy fikrlashni chetlab oʻtish uchun kuchli hissiyotga tayanadi." }] },
+  { id: "protect", title: "Media firibgarligidan himoyalanish", min: 4, body: [
+    "Oila va yaqin hamkasblar bilan maxfiy soʻz kelishib oling. Shoshilinch pul yoki maʼlumot soʻralganda shu soʻzni soʻrang.",
+    "Pul, parol yoki SMS kod soʻralgan har qanday qoʻngʻiroq yoki video qoʻngʻiroqni toʻxtating va odamga oʻzingiz bilgan raqam orqali qayta qoʻngʻiroq qiling. Bank va davlat idoralari hech qachon SMS kodni soʻramaydi.",
+    "Ijtimoiy tarmoqlarda ovozingiz va yuzingiz aks etgan ochiq kontent miqdorini kamaytiring, profil maxfiyligini sozlang. Agar sizning nomingizdan deepfake tarqalsa, platformaga shikoyat qiling va yaqinlaringizni ogohlantiring."],
+    ex: "Buxgalterga “direktor” video qoʻngʻiroq qilib, shoshilinch toʻlov soʻraydi. Buxgalter qoʻngʻiroqni tugatib, direktorga ichki raqam orqali qayta qoʻngʻiroq qiladi — firibgarlik oldi olinadi.",
+    quiz: [
+      { q: "Maxfiy soʻz nima uchun kerak?", o: ["Wi-Fi paroli sifatida", "Qoʻngʻiroq qilayotgan odam haqiqatan oʻsha shaxs ekanini tekshirish uchun", "Ijtimoiy tarmoqqa kirish uchun"], a: 1, why: "Klonlangan ovoz oldindan kelishilgan soʻzni bilmaydi." },
+      { q: "Bank xodimi deb tanishtirgan odam SMS kodni soʻrasa, nima qilasiz?", o: ["Kodni aytaman", "Qoʻngʻiroqni tugatib, bankning rasmiy raqamiga qoʻngʻiroq qilaman", "Kodning yarmini aytaman"], a: 1, why: "Banklar SMS kodni hech qachon soʻramaydi." }] }
+];
+let openLesson = null;
+function renderEdu() {
+  const root = $("#eduRoot");
+  const done = LESSONS.filter(l => edu[l.id] && edu[l.id].done).length;
+  if (!openLesson) {
+    root.innerHTML = `<div class="page-head"><div><h1>Kiber akademiya</h1><p>Oltita qisqa dars: deepfake, AI rasmlar, ovoz klonlash, video manipulyatsiyasi, tanish usullari va himoya. Har bir dars oxirida test bor.</p></div>
+      <div style="min-width:220px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span class="muted">Jarayon</span><span class="num">${done} / ${LESSONS.length}</span></div><div class="progress-bar"><span style="width:${done / LESSONS.length * 100}%"></span></div></div></div>
+      <div class="grid g3">${LESSONS.map((l, i) => { const p = edu[l.id]; return `<button class="card lesson-card" data-lesson="${l.id}"><span class="eyebrow">Dars ${i + 1} · ${l.min} daqiqa</span><h3>${esc(l.title)}</h3><p class="muted" style="font-size:14px">${esc(l.body[0].slice(0, 110))}…</p><div class="foot"><span>${l.quiz.length} ta savol</span>${p && p.done ? `<span class="chip low">${p.score}/${p.total} ball</span>` : '<span class="chip">boshlanmagan</span>'}</div></button>`; }).join("")}</div>`;
+    $$("[data-lesson]", root).forEach(b => b.addEventListener("click", () => { openLesson = b.dataset.lesson; renderEdu(); window.scrollTo(0, 0); }));
+    return;
+  }
+  const l = LESSONS.find(x => x.id === openLesson), idx = LESSONS.indexOf(l);
+  root.innerHTML = `<button class="btn ghost sm" id="backL">← Barcha darslar</button>
+    <article class="lesson-body" style="margin-top:18px"><span class="eyebrow">Dars ${idx + 1} / ${LESSONS.length} · ${l.min} daqiqa</span><h2>${esc(l.title)}</h2>${l.body.map(p => `<p>${esc(p)}</p>`).join("")}<div class="example"><b>Misol</b>${esc(l.ex)}</div>
+    <h3 style="font-size:18px;margin-bottom:6px">Bilimingizni tekshiring</h3>
+    <form class="quiz" id="quiz">${l.quiz.map((q, qi) => `<fieldset class="q" style="margin:0"><legend class="sr" style="position:absolute;left:-9999px">${esc(q.q)}</legend><h4>${qi + 1}. ${esc(q.q)}</h4>${q.o.map((o, oi) => `<label><input type="radio" name="q${qi}" id="q${qi}o${oi}" value="${oi}"> ${esc(o)}</label>`).join("")}<div class="why">${esc(q.why)}</div></fieldset>`).join("")}
+    <div class="row-actions"><button class="btn primary" type="submit">Javoblarni tekshirish</button>${idx < LESSONS.length - 1 ? '<button class="btn" type="button" id="nextL">Keyingi dars →</button>' : ""}</div><div id="quizRes"></div></form></article>`;
+  $("#backL").addEventListener("click", () => { openLesson = null; renderEdu(); });
+  const nx = $("#nextL"); if (nx) nx.addEventListener("click", () => { openLesson = LESSONS[idx + 1].id; renderEdu(); window.scrollTo(0, 0); });
+  $("#quiz").addEventListener("submit", e => {
+    e.preventDefault();
+    let score = 0, answered = 0;
+    l.quiz.forEach((q, qi) => {
+      const fs = $$(".q", e.target)[qi]; const sel = fs.querySelector("input:checked");
+      $$("label", fs).forEach((lb, oi) => { lb.classList.remove("right", "wrong"); if (oi === q.a) lb.classList.add("right"); else if (sel && +sel.value === oi) lb.classList.add("wrong"); });
+      if (sel) answered++; if (sel && +sel.value === q.a) score++; fs.classList.add("checked");
+    });
+    if (answered < l.quiz.length) { $("#quizRes").innerHTML = `<div class="err">Barcha savollarga javob bering (${answered}/${l.quiz.length}).</div>`; $$(".q", e.target).forEach(f => { f.classList.remove("checked"); $$("label", f).forEach(lb => lb.classList.remove("right", "wrong")); }); return; }
+    edu[l.id] = { done: true, score, total: l.quiz.length, at: Date.now() }; store.set(LS.edu, edu);
+    $("#quizRes").innerHTML = `<div class="notice blue" style="margin-top:4px">Natija: ${score} / ${l.quiz.length}. ${score === l.quiz.length ? "Ajoyib!" : "Izohlarni oʻqib chiqing va qayta urinib koʻring."}</div>`;
+  });
+}
+
+/* ---------- Settings ---------- */
+function renderSettings() {
+  const root = $("#setRoot");
+  root.innerHTML = `<div class="page-head"><div><h1>Sozlamalar</h1><p>Tahlil parametrlari, maxfiylik va maʼlumotlarni saqlash.</p></div></div>
+  ${store.ok ? "" : '<div class="notice" style="margin-bottom:16px">Brauzer xotirasi (localStorage) mavjud emas. Tarix va sozlamalar sahifa yopilganda yoʻqoladi.</div>'}
+  <div class="grid g2" style="align-items:start">
+    <div class="card"><h3>Tahlil parametrlari</h3>
+      <div class="set-row"><div><h4>Maksimal fayl hajmi</h4><p>Bundan katta fayllar qabul qilinmaydi.</p></div><select class="input" id="sMax">${[25, 50, 100, 200, 500].map(v => `<option value="${v}" ${settings.maxMB === v ? "selected" : ""}>${v} MB</option>`).join("")}</select></div>
+      <div class="set-row"><div><h4>Video kadr namunalari</h4><p>Koʻproq kadr — aniqroq, lekin sekinroq.</p></div><select class="input" id="sFrames">${[8, 16, 32, 48].map(v => `<option value="${v}" ${settings.frames === v ? "selected" : ""}>${v} ta kadr</option>`).join("")}</select></div>
+      <div class="set-row"><div><h4>ELA qayta siqish sifati</h4><p>Odatda 90. Past qiymat farqlarni kuchaytiradi.</p></div><select class="input" id="sEla">${[75, 85, 90, 95].map(v => `<option value="${v}" ${settings.elaQ === v ? "selected" : ""}>${v}</option>`).join("")}</select></div>
+      <div class="set-row"><div><h4>Til</h4><p>Interfeys tili. Inglizcha va ruscha versiyalar ishlab chiqilmoqda.</p></div><select class="input" id="sLang"><option value="uz" selected>Oʻzbekcha</option></select></div>
+    </div>
+    <div class="card"><h3>Maxfiylik va maʼlumotlar</h3>
+      <div class="set-row"><div><h4>Tarixni saqlash</h4><p>Oʻchirilsa, natijalar faqat shu seans davomida turadi.</p></div><label class="switch"><input type="checkbox" id="sSave" ${settings.saveHistory ? "checked" : ""}><span class="sr" style="position:absolute;left:-9999px">Tarixni saqlash</span></label></div>
+      <div class="set-row"><div><h4>Avtomatik oʻchirish</h4><p>Belgilangan muddatdan eski natijalar oʻchiriladi.</p></div><select class="input" id="sRet">${[[7, "7 kun"], [30, "30 kun"], [90, "90 kun"], [0, "Hech qachon"]].map(([v, l]) => `<option value="${v}" ${settings.retention === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <div class="set-row"><div><h4>Tarixni eksport qilish</h4><p>${history.length} ta natija JSON koʻrinishida nusxalanadi.</p></div><button class="btn" id="sExport" ${history.length ? "" : "disabled"}>JSON nusxalash</button></div>
+      <div class="set-row"><div><h4>Barcha maʼlumotlarni oʻchirish</h4><p>Tarix, dars natijalari va sozlamalar.</p></div><button class="btn danger" id="sWipe">Hammasini oʻchirish</button></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Maxfiylik haqida</h3><ul class="plain">
+    <li>Media fayllar hech qanday serverga yoki uchinchi tomon AI xizmatiga yuborilmaydi; tahlil faqat shu brauzerda bajariladi.</li>
+    <li>Tarixda faqat fayl nomi, hajmi, SHA-256 xeshi, texnik koʻrsatkichlar va topilmalar saqlanadi. Rasm, video va audio saqlanmaydi.</li>
+    <li>Maʼlumotlar faqat shu qurilma va brauzerda turadi va boshqa qurilmalarga sinxronlanmaydi.</li>
+    <li>Hisob qaydnomasi, kirish va parollar toʻliq server versiyasida (Django) qoʻshiladi; bu versiyada hech qanday shaxsiy maʼlumot soʻralmaydi.</li></ul></div>`;
+  const save = () => { store.set(LS.set, settings); toast("Sozlamalar saqlandi"); };
+  $("#sMax").addEventListener("change", e => { settings.maxMB = +e.target.value; save(); });
+  $("#sFrames").addEventListener("change", e => { settings.frames = +e.target.value; save(); });
+  $("#sEla").addEventListener("change", e => { settings.elaQ = +e.target.value; save(); });
+  $("#sRet").addEventListener("change", e => { settings.retention = +e.target.value; save(); applyRetention(); });
+  $("#sSave").addEventListener("change", e => { settings.saveHistory = e.target.checked; if (!settings.saveHistory) { try { localStorage.removeItem(LS.hist); } catch (x) {} } else persistHistory(); save(); });
+  $("#sExport").addEventListener("click", async () => { const txt = JSON.stringify(history, null, 2); try { await navigator.clipboard.writeText(txt); toast("Tarix JSON sifatida nusxalandi"); } catch (e) { modal({ title: "Tarix (JSON)", text: "Nusxalash ruxsat etilmadi. Matnni qoʻlda nusxalang.", extra: `<textarea readonly aria-label="JSON">${esc(txt)}</textarea>`, buttons: [{ label: "Yopish" }] }); } });
+  $("#sWipe").addEventListener("click", () => modal({ title: "Hammasini oʻchirish", text: `${history.length} ta tahlil natijasi, dars natijalari va sozlamalar butunlay oʻchiriladi. Buni qaytarib boʻlmaydi.`, buttons: [{ label: "Bekor qilish", cls: "ghost" }, { label: "Oʻchirish", cls: "danger", onClick: () => { history = []; edu = {}; settings = Object.assign({}, DEF); Object.keys(visuals).forEach(k => delete visuals[k]); try { Object.values(LS).forEach(k => localStorage.removeItem(k)); } catch (e) {} toast("Barcha maʼlumotlar oʻchirildi"); renderSettings(); } }] }));
+}
+
+/* ================= Router ================= */
+const VIEWS = ["bosh", "panel", "tahlil", "tarix", "natija", "akademiya", "sozlamalar"];
+function route() {
+  let h = location.hash.slice(1) || "bosh";
+  if (!VIEWS.includes(h)) h = "bosh";
+  if (h === "natija" && !currentId) h = "tarix";
+  $$(".view").forEach(v => v.classList.toggle("on", v.dataset.view === h));
+  $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === h || (h === "natija" && a.dataset.nav === "tarix")));
+  ({ panel: renderPanel, tahlil: renderUpload, tarix: renderHistory, natija: renderResult, akademiya: renderEdu, sozlamalar: renderSettings })[h]?.();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

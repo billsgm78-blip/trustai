@@ -344,13 +344,18 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 .gear { display: none; color: var(--muted); padding: 8px; border-radius: 8px; }
 .gear.on, .gear:hover { color: var(--text); background: var(--card); }
 .tabbar { display: none; }
-.quick { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+.quick { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+.g5 { display: grid; gap: 16px; grid-template-columns: repeat(5, minmax(0,1fr)); }
+@media (max-width: 900px) { .g5 { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 600px) { .g5 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.txt-in { width: 100%; min-height: 220px; margin-top: 6px; resize: vertical; font: inherit; line-height: 1.55; padding: 12px 14px; }
 .quick-item { display: flex; gap: 14px; align-items: center; text-decoration: none; color: var(--text); padding: 16px 18px; transition: border-color .15s, transform .15s; }
 .quick-item:hover { border-color: var(--accent); transform: translateY(-1px); }
 .quick-item b { display: block; font-size: 16px; }
 .quick-item small { color: var(--muted); font-size: 13px; }
 .qi-ic { width: 42px; height: 42px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--grad); color: #0A0820; }
 .qi-ic svg { width: 20px; height: 20px; }
+@media (max-width: 1000px) { .quick { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width: 600px) { .quick { grid-template-columns: 1fr; gap: 10px; } .quick-item { padding: 14px 16px; } }
 .edu-band { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
 .file-card { min-width: 280px; }
@@ -362,7 +367,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
   .top .nav { display: none; }
   .gear { display: inline-flex; }
   body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
-  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(7,8,13,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  .tabbar { display: grid; grid-template-columns: repeat(6, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(7,8,13,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
   .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600; padding: 4px 0; border-radius: 10px; -webkit-tap-highlight-color: transparent; }
   .tabbar a.on { color: var(--accent); }
   .tabbar .plus { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: var(--grad); color: #0A0820; box-shadow: 0 6px 20px -6px rgba(139,124,255,.8); margin-top: -2px; }
@@ -428,6 +433,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
       <a href="#rasm" data-nav="rasm">Rasm</a>
       <a href="#video" data-nav="video">Video</a>
       <a href="#ovoz" data-nav="ovoz">Ovoz</a>
+      <a href="#matn" data-nav="matn">Matn</a>
       <a href="#tarix" data-nav="tarix">Tarix</a>
       <a href="#akademiya" data-nav="akademiya">Akademiya</a>
       <a href="#sozlamalar" data-nav="sozlamalar">Sozlamalar</a>
@@ -643,7 +649,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
     <div class="page-head"><div><h1>Tahlillar tarixi</h1><p>Shu brauzerda bajarilgan tahlillar. Media fayllar saqlanmaydi, faqat natijalar.</p></div><a class="btn primary" href="#tahlil">Yangi tahlil</a></div>
     <div class="filters">
       <input class="input search" id="fq" type="search" placeholder="Fayl nomi yoki ID boʻyicha qidirish" aria-label="Qidirish">
-      <select class="input" id="ftype" aria-label="Media turi"><option value="">Barcha turlar</option><option value="image">Rasm</option><option value="video">Video</option><option value="audio">Audio</option></select>
+      <select class="input" id="ftype" aria-label="Media turi"><option value="">Barcha turlar</option><option value="image">Rasm</option><option value="video">Video</option><option value="audio">Audio</option><option value="text">Matn</option></select>
       <select class="input" id="fstatus" aria-label="Holat"><option value="">Barcha holatlar</option><option value="completed">Yakunlandi</option><option value="unsupported">Qoʻllab-quvvatlanmaydi</option><option value="failed">Xatolik</option></select>
       <select class="input" id="frisk" aria-label="Xavf"><option value="">Barcha xavflar</option><option value="low">Past</option><option value="medium">Oʻrta</option><option value="high">Yuqori</option><option value="inconclusive">Noaniq</option></select>
       <select class="input" id="fsort" aria-label="Saralash"><option value="new">Avval yangilari</option><option value="old">Avval eskilari</option><option value="name">Nomi (A–Z)</option><option value="risk">Xavf darajasi</option></select>
@@ -669,6 +675,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
   <a href="#rasm" data-nav="rasm"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg><span>Rasm</span></a>
   <a href="#video" data-nav="video"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/></svg><span>Video</span></a>
   <a href="#ovoz" data-nav="ovoz"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 00-3 3v6a3 3 0 006 0V6a3 3 0 00-3-3z"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span>Ovoz</span></a>
+  <a href="#matn" data-nav="matn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Matn</span></a>
   <a href="#tarix" data-nav="tarix"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Tarix</span></a>
 </nav>
 
@@ -729,7 +736,7 @@ function applyRetention() {
 }
 applyRetention();
 
-const TYPE_UZ = { image: "Rasm", video: "Video", audio: "Audio" };
+const TYPE_UZ = { image: "Rasm", video: "Video", audio: "Audio", text: "Matn" };
 const STATUS_UZ = { completed: "Yakunlandi", failed: "Xatolik", unsupported: "Qoʻllab-quvvatlanmaydi" };
 const RISK = {
   low: { label: "Past xavf", text: "Mavjud tekshiruvlar sezilarli manipulyatsiya belgilarini aniqlamadi." },
@@ -774,9 +781,10 @@ const ACCEPT = Object.keys(ALLOWED).map(e => "." + e).join(",");
 const MODES = {
   rasm: { type: "image", title: "Rasm tekshirish", sub: "Rasm AI yaratganmi yoki haqiqiymi — neyron tarmoq, metamaʼlumot va kriminalistik tekshiruvlar bilan aniqlanadi.", drop: "Rasmni shu yerga tashlang yoki tanlash uchun bosing" },
   video: { type: "video", title: "Video tekshirish", sub: "Video kadrlari AI detektor bilan tekshiriladi, ovozi ajratib olinib alohida tahlil qilinadi.", drop: "Videoni shu yerga tashlang yoki tanlash uchun bosing" },
+  matn: { type: "text", title: "Matn tekshirish", sub: "Matnni AI (ChatGPT, Claude, Gemini va boshqalar) yozganmi yoki odammi — neyron tarmoq va matn statistikasi bilan tekshiriladi.", drop: "" },
   ovoz: { type: "audio", title: "Ovoz tekshirish", sub: "Audio yozuvning akustik belgilari, spektri va tahrir izlari tekshiriladi.", drop: "Audio faylni shu yerga tashlang yoki tanlash uchun bosing" }
 };
-const MODE_OF = { image: "rasm", video: "video", audio: "ovoz" };
+const MODE_OF = { image: "rasm", video: "video", audio: "ovoz", text: "matn" };
 let uploadMode = null;
 const acceptFor = m => m ? Object.keys(ALLOWED).filter(e => ALLOWED[e] === MODES[m].type).map(e => "." + e).join(",") : ACCEPT;
 function ascii(b, i, n) { let s = ""; for (let k = 0; k < n && i + k < b.length; k++) s += String.fromCharCode(b[i + k]); return s; }
@@ -1342,25 +1350,25 @@ const AIM = {
 };
 function loadScript(src) { return new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = () => rej(new Error("Skript yuklanmadi")); document.head.appendChild(el); }); }
 async function modelCached() { try { return !!AIM.session || ("caches" in window && !!(await (await caches.open(AIM.cache)).match(AIM.url))); } catch (e) { return false; } }
-async function getModel(onProgress) {
-  if (AIM.session) return AIM.session;
-  if (!AIM.loading) AIM.loading = (async () => {
+async function getModel(onProgress, M = AIM) {
+  if (M.session) return M.session;
+  if (!M.loading) M.loading = (async () => {
     if (!window.ort) await loadScript(AIM.ortBase + "ort.min.js");
     ort.env.wasm.wasmPaths = AIM.ortBase; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
-    let cache = null; try { if ("caches" in window) cache = await caches.open(AIM.cache); } catch (e) {}
-    let resp = cache ? await cache.match(AIM.url) : null, buf;
+    let cache = null; try { if ("caches" in window) cache = await caches.open(M.cache); } catch (e) {}
+    let resp = cache ? await cache.match(M.url) : null, buf;
     if (resp) buf = new Uint8Array(await resp.arrayBuffer());
     else {
-      const r = await fetch(AIM.url); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
-      const total = +r.headers.get("content-length") || AIM.sizeMB * 1048576, reader = r.body.getReader(), parts = []; let got = 0;
+      const r = await fetch(M.url); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
+      const total = +r.headers.get("content-length") || M.sizeMB * 1048576, reader = r.body.getReader(), parts = []; let got = 0;
       for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; onProgress && onProgress(got, total); }
       buf = new Uint8Array(got); let o = 0; for (const p of parts) { buf.set(p, o); o += p.length; }
-      if (cache) { try { await cache.put(AIM.url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {} }
+      if (cache) { try { await cache.put(M.url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {} }
     }
     onProgress && onProgress(-1);
     return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] });
-  })().catch(e => { AIM.loading = null; throw e; });
-  AIM.session = await AIM.loading; return AIM.session;
+  })().catch(e => { M.loading = null; throw e; });
+  M.session = await M.loading; return M.session;
 }
 function modelTensor(src, sx, sy, sw, sh) {
   const c = document.createElement("canvas"); c.width = 256; c.height = 256; const x = c.getContext("2d", { willReadFrequently: true });
@@ -1409,6 +1417,143 @@ async function runDetector(rec, inputs, kind) {
     if (p < MT.unsure) rec.limitations.push("AI detektor modeli bu faylni haqiqiyga oʻxshatdi, lekin u zamonaviy AI rasmlarning taxminan 3 tadan 1 tasini oʻtkazib yuboradi (ayniqsa FLUX kabi yangi generatorlarni). Past natija haqiqiylik kafolati emas.");
   } catch (e) {
     rec.checks.push({ name: AIM.name, version: AIM.version, status: "failed", summary: "Model yuklanmadi yoki ishlamadi: " + (e && e.message ? e.message : "nomaʼlum xato") + ". Internet aloqasini tekshiring." });
+  }
+}
+
+/* ---------- AI text detector (RoBERTa, ONNX Runtime Web) ----------
+   Model: fakespot-ai/roberta-base-ai-text-detection-v1 (Apache-2.0), int8 ONNX export MedAliFarhat/ai-text-detector-onnx.
+   Measured on textsightai/ai-text-detection-benchmark-2026 (644 human + 56 AI passages from Claude, GPT-4.1, gpt-oss, Qwen, 2026):
+   AUC 0.95; at the "AI" threshold 1% of human texts flagged and 66% of AI texts caught; at "probably AI" 5% / 79%.
+   Uzbek check (150 human 2023 news articles + 12 AI-written texts): no human text above 0.6 (max 0.53), but only ~33% of AI texts reach it.
+   Long texts are scored in 510-token windows and averaged (English AUC 0.956 this way).
+   Raw scores live on different scales per language, so they are mapped onto the same 0–100 tiers as images (35 / 50 / 70). */
+const TXM = {
+  name: "AI matn detektori (RoBERTa)", version: "fakespot-ai/roberta-base-ai-text-detection-v1 · int8",
+  url: "https://huggingface.co/MedAliFarhat/ai-text-detector-onnx/resolve/main/onnx/model_quantized.onnx",
+  tokUrl: "https://huggingface.co/MedAliFarhat/ai-text-detector-onnx/resolve/main/tokenizer.json",
+  sizeMB: 126, cache: "tl-model-v1", session: null, loading: null, enc: null
+};
+const TT = { en: { unsure: 0.9, likely: 0.98, ai: 0.997 }, other: { unsure: 0.35, likely: 0.6, ai: 0.85 } };
+/* RoBERTa / GPT-2 byte-level BPE tokenizer (reads a Hugging Face tokenizer.json). */
+function makeBPE(tj) {
+  const vocab = tj.model.vocab, ranks = new Map();
+  tj.model.merges.forEach((m, i) => ranks.set(Array.isArray(m) ? m[0] + " " + m[1] : m, i));
+  const bs = []; for (let i = 33; i <= 126; i++) bs.push(i); for (let i = 161; i <= 172; i++) bs.push(i); for (let i = 174; i <= 255; i++) bs.push(i);
+  const cs = bs.slice(); let n = 0;
+  for (let b = 0; b < 256; b++) if (!bs.includes(b)) { bs.push(b); cs.push(256 + n); n++; }
+  const B2U = new Array(256); bs.forEach((b, i) => { B2U[b] = String.fromCharCode(cs[i]); });
+  const PRE = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu;
+  const enc = new TextEncoder(), cache = new Map(), unk = vocab["<unk>"] ?? 3;
+  function bpe(tok) {
+    const hit = cache.get(tok); if (hit) return hit;
+    let w = Array.from(tok);
+    while (w.length > 1) {
+      let best = -1, bi = -1;
+      for (let i = 0; i < w.length - 1; i++) { const r = ranks.get(w[i] + " " + w[i + 1]); if (r !== undefined && (best < 0 || r < best)) { best = r; bi = i; } }
+      if (bi < 0) break;
+      const a = w[bi], b = w[bi + 1], out = [];
+      for (let i = 0; i < w.length;) { if (i < w.length - 1 && w[i] === a && w[i + 1] === b) { out.push(a + b); i += 2; } else { out.push(w[i]); i++; } }
+      w = out;
+    }
+    if (cache.size < 50000) cache.set(tok, w);
+    return w;
+  }
+  return function encode(text) {
+    const ids = [];
+    for (const m of text.matchAll(PRE)) {
+      let s = ""; for (const byte of enc.encode(m[0])) s += B2U[byte];
+      for (const p of bpe(s)) ids.push(vocab[p] ?? unk);
+    }
+    return ids;
+  };
+}
+
+async function getTokenizer() {
+  if (TXM.enc) return TXM.enc;
+  let cache = null; try { if ("caches" in window) cache = await caches.open(TXM.cache); } catch (e) {}
+  let resp = cache ? await cache.match(TXM.tokUrl) : null;
+  if (!resp) { const r = await fetch(TXM.tokUrl); if (!r.ok) throw new Error("Tokenizator yuklanmadi (HTTP " + r.status + ")"); const t = await r.text(); if (cache) { try { await cache.put(TXM.tokUrl, new Response(t, { headers: { "Content-Type": "application/json" } })); } catch (e) {} } resp = new Response(t); }
+  TXM.enc = makeBPE(JSON.parse(await resp.text()));
+  return TXM.enc;
+}
+function normQ(t) { return t.replace(/[ʻʼ'‘’`]/g, "ʼ"); }
+const LANG_UZ = { en: "Ingliz", uz: "Oʻzbek (lotin)", "uz-cyr": "Oʻzbek (kirill)", ru: "Rus", other: "Aniqlanmadi" };
+const UZW = new Set(normQ("va bilan uchun bu ham emas edi deb esa yoki lekin hamda kerak mumkin boʻlib boʻladi qilish qiladi ekan uning ular biz siz men shu bir har ammo chunki agar").split(" "));
+const ENW = new Set("the and of to in is that it for was with as on are be this by not but have from or".split(" "));
+function langOf(t) {
+  const L = t.match(/\p{L}/gu) || [];
+  const cyr = L.filter(c => /[Ѐ-ӿ]/.test(c)).length / Math.max(1, L.length);
+  if (cyr > 0.5) return /[ўқғҳЎҚҒҲ]/.test(t) ? "uz-cyr" : "ru";
+  const w = normQ(t.toLowerCase()).match(/[\p{L}ʼ]+/gu) || [];
+  const share = set => w.filter(x => set.has(x)).length / Math.max(1, w.length);
+  const uz = share(UZW) + (/[og][ʻʼ'‘’`]/i.test(t) ? 0.05 : 0), en = share(ENW);
+  if (en > 0.06 && en > uz) return "en";
+  if (uz > 0.04) return "uz";
+  return en > 0.03 ? "en" : "other";
+}
+const AIPH = {
+  uz: ["shuni taʼkidlash joizki", "xulosa qilib aytganda", "maqsadga muvofiq", "muhim ahamiyat kasb etadi", "alohida eʼtiborga loyiq", "oʻzida mujassam etadi", "shubhasiz", "va nihoyat", "bugungi raqamli asrda", "eng muhim omillardan biri", "keng qoʻllanilmoqda", "tavsiya etiladi", "yoqimli ishtaha", "unutmang"],
+  en: ["delve", "it's important to note", "it is important to note", "in conclusion", "tapestry", "in today's fast-paced", "plays a crucial role", "a testament to", "navigating the", "embark on", "in the realm of", "ever-evolving", "seamlessly", "furthermore,", "moreover,", "overall,"],
+  ru: ["важно отметить", "в заключение", "таким образом", "играет ключевую роль", "в современном мире", "стоит отметить", "кроме того", "в целом", "не только", "является неотъемлемой частью"]
+};
+async function analyzeText(file, bytes, fmt, rec, step) {
+  const text = fmt.text;
+  await step("stats");
+  const lang = langOf(text);
+  const words = (text.match(/[\p{L}\p{N}ʻʼ'‘’`-]+/gu) || []);
+  const sents = text.split(/(?<=[.!?…])\s+/).map(x => x.trim()).filter(x => /\p{L}/u.test(x));
+  const sl = sents.map(x => (x.match(/[\p{L}\p{N}]+/gu) || []).length).filter(n => n > 0);
+  const msl = sl.reduce((a, c) => a + c, 0) / Math.max(1, sl.length);
+  const cv = sl.length > 2 ? Math.sqrt(sl.reduce((a, c) => a + (c - msl) ** 2, 0) / sl.length) / (msl || 1) : 0;
+  const lw = words.map(w => w.toLowerCase()); let mattr = 0, nw = 0;
+  for (let i = 0; i + 50 <= lw.length; i += 10) { mattr += new Set(lw.slice(i, i + 50)).size / 50; nw++; }
+  rec.lang = lang;
+  rec.meta["Til"] = LANG_UZ[lang];
+  rec.meta["Soʻzlar / gaplar"] = `${words.length} / ${sents.length}`;
+  rec.meta["Oʻrtacha gap uzunligi"] = msl.toFixed(1) + " soʻz";
+  rec.meta["Gap uzunligi oʻzgaruvchanligi (CV)"] = cv.toFixed(2);
+  if (nw) rec.meta["Soʻz xilma-xilligi (MATTR-50)"] = (mattr / nw).toFixed(2);
+  const hidden = (text.match(/[​-‍⁠﻿­ ]/g) || []).length;
+  if (hidden) rec.indicators.push({ sev: "info", pts: 0, group: "ai", title: `Matnda ${hidden} ta koʻrinmas belgi bor`, detail: "Nol kenglikdagi boʻshliq, yumshoq tire yoki tor boʻshliq kabi koʻzga koʻrinmaydigan belgilar topildi. Ular veb-sahifadan yoki ayrim AI vositalaridan nusxa olinganda paydo boʻladi. Bu yolgʻiz oʻzi AI belgisi emas.", src: "text-chars" });
+  const mixed = words.filter(w => /[A-Za-z]/.test(w) && /[Ѐ-ӿ]/.test(w));
+  if (mixed.length) rec.indicators.push({ sev: "medium", pts: 2, group: "manip", title: `${mixed.length} ta soʻzda lotin va kirill harflari aralash`, detail: `Masalan: ${mixed.slice(0, 4).join(", ")}. Tashqi koʻrinishi bir xil, lekin boshqa alifbodagi harflar (gomoglif) koʻpincha plagiat yoki AI detektorlarini aldash uchun qoʻyiladi.`, src: "text-chars" });
+  const nt = normQ(text.toLowerCase()), group = lang === "uz-cyr" ? null : lang === "uz" ? "uz" : lang === "ru" ? "ru" : "en";
+  const found = group ? AIPH[group].filter(ph => nt.includes(normQ(ph))) : [];
+  if (found.length) rec.indicators.push({ sev: found.length >= 3 ? "low" : "info", pts: found.length >= 5 ? 2 : found.length >= 3 ? 1 : 0, group: "ai", title: `AI matnlarida koʻp uchraydigan iboralar: ${found.length} ta`, detail: `Topildi: “${found.slice(0, 6).join("”, “")}”. Bunday iboralarni odamlar ham ishlatadi, shuning uchun bu faqat qoʻshimcha, kuchsiz belgi.`, src: "text-style" });
+  rec.checks.push({ name: "Til va matn statistikasi", version: "tl-text 1.0", status: "ok", summary: `${LANG_UZ[lang]}, ${words.length} soʻz, ${sents.length} gap.` });
+  if (words.length < 150) rec.limitations.push(`Matn qisqa (${words.length} soʻz). 150 soʻzdan kam matnlarda AI detektori ancha kam ishonchli.`);
+  if (lang !== "en") rec.limitations.push(lang === "uz" || lang === "uz-cyr" ? "Model asosan ingliz tilida oʻqitilgan. Oʻzbek tilida sinovda u odam yozgan matnlarni “AI” deb belgilamadi, lekin AI yozgan matnlarning faqat uchdan biriga yaqinini topdi — past natija “odam yozgan” degani emas." : "Model asosan ingliz tilida oʻqitilgan; bu tilda aniqligi sinab koʻrilmagan.");
+  await step("aimodel");
+  await runTextDetector(rec, text, lang);
+}
+async function runTextDetector(rec, text, lang) {
+  if (!settings.aiModel) { rec.limitations.push("AI detektor modellari Sozlamalarda oʻchirilgan; matn faqat statistik belgilar boʻyicha tekshirildi."); return; }
+  try {
+    const t = performance.now();
+    const [ses, enc] = await Promise.all([getModel((got, total) => rec._progress && rec._progress(got < 0 ? "ishga tushirilmoqda…" : `${Math.round(got / 1048576)} / ${Math.round(total / 1048576)} MB`), TXM), getTokenizer()]);
+    const ids = enc(text), W = 510, wins = [];
+    for (let i = 0; i < ids.length; i += W) { const w = ids.slice(i, i + W); if (w.length >= 64 || !wins.length) wins.push(w); }
+    const ps = [];
+    for (let k = 0; k < wins.length; k++) {
+      rec._progress && rec._progress(wins.length > 1 ? `${k + 1} / ${wins.length} boʻlak` : "hisoblanmoqda…");
+      const seq = [0, ...wins[k], 2], n = seq.length;
+      const out = await ses.run({ input_ids: new ort.Tensor("int64", BigInt64Array.from(seq, BigInt), [1, n]), attention_mask: new ort.Tensor("int64", new BigInt64Array(n).fill(1n), [1, n]) });
+      const l = out[ses.outputNames[0]].data; ps.push(1 / (1 + Math.exp(l[0] - l[1]))); await sleep(0);
+    }
+    const raw = ps.reduce((a, c) => a + c, 0) / ps.length, T = lang === "en" ? TT.en : TT.other;
+    const seg = (x, a, b, c, d) => c + (d - c) * Math.min(1, Math.max(0, (x - a) / (b - a)));
+    const p = raw < T.unsure ? seg(raw, 0, T.unsure, 0, 0.349) : raw < T.likely ? seg(raw, T.unsure, T.likely, 0.35, 0.499) : raw < T.ai ? seg(raw, T.likely, T.ai, 0.5, 0.699) : seg(raw, T.ai, 1, 0.7, 0.99);
+    const pct = Math.round(p * 100);
+    rec.modelScore = p;
+    rec.meta["AI detektor natijasi"] = `${pct}% sunʼiy (model xom bahosi ${(raw * 100).toFixed(1)}%, ${ps.length} boʻlak, til: ${LANG_UZ[lang]})`;
+    const cal = lang === "en" ? "Sinovda (2026-yil modellari) bu chegaradan yuqori natija odam yozgan matnlarning ~1% ida uchragan." : "Oʻzbek tilidagi sinovda bu chegaradan yuqori natija olgan odam yozgan matn uchramadi.";
+    if (p >= MT.ai) rec.indicators.push({ sev: "high", pts: 6, group: "ai", title: `AI matn detektori: ${pct}% — AI yozgan`, detail: `Neyron tarmoq (RoBERTa) matnni AI yozgan deb baholadi. ${cal}`, src: "ai-model" });
+    else if (p >= MT.likely) rec.indicators.push({ sev: "medium", pts: 3, group: "ai", title: `AI matn detektori: ${pct}% — ehtimol AI`, detail: "Model matnni koʻproq AI yozganga oʻxshatdi. Bu oraliqqa ayrim odam yozgan matnlar ham tushadi — ayniqsa rasmiy, ilmiy yoki ona tili boʻlmagan tilda yozilgan matnlar.", src: "ai-model" });
+    else if (p >= MT.unsure) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: `AI matn detektori: noaniq (${pct}%)`, detail: "Model aniq qaror qila olmadi.", src: "ai-model" });
+    else if (p < MT.real) rec.indicators.push({ sev: "auth", pts: -1, group: "ai", title: `AI matn detektori: odam yozganga oʻxshaydi (${pct}%)`, detail: "Model matnni odam yozgan deb baholadi. Eng yangi modellar (masalan, Claude Opus, Qwen) yozgan matnlarning bir qismi ham shunday baho oladi.", src: "ai-model" });
+    rec.checks.push({ name: TXM.name, version: TXM.version + ` · ${ps.length} boʻlak`, status: "ok", summary: `${pct}% sunʼiy · ${Math.round(performance.now() - t)} ms` });
+  } catch (e) {
+    rec.checks.push({ name: TXM.name, version: TXM.version, status: "failed", summary: "Model yuklanmadi yoki ishlamadi: " + (e && e.message ? e.message : "nomaʼlum xato") + ". Internet aloqasini tekshiring." });
   }
 }
 
@@ -1753,6 +1898,7 @@ const AIV = {
   unsure: { label: "Noaniq", cls: "inconclusive", text: "Aniq xulosa chiqarib boʻlmadi: AI ham, haqiqiy ham boʻlishi mumkin." },
   real: { label: "Haqiqiy (AI emas)", cls: "low", text: "AI yaratganlik belgilari topilmadi." }
 };
+const vLabel = r => r.mediaType === "text" && r.aiVerdict === "real" ? "Odam yozgan (AI emas)" : r.mediaType === "text" && r.aiVerdict === "ai" ? "AI yozgan" : AIV[r.aiVerdict].label;
 function aiVerdict(rec, auth) {
   const hard = rec.indicators.some(i => i.sev === "high" && (i.src === "signatures" || i.src === "png-text"));
   const weak = rec.indicators.filter(i => i.group === "ai" && i.src !== "ai-model" && i.pts > 0).reduce((a, i) => a + i.pts, 0);
@@ -1767,7 +1913,7 @@ function aiVerdict(rec, auth) {
   rec.aiVerdict = p >= MT.ai ? "ai" : p >= MT.likely ? "likely" : p >= MT.unsure ? "unsure" : "real";
 }
 function verdictLine(r) {
-  if (r.aiVerdict) return `Xulosa: ${AIV[r.aiVerdict].label} — AI ehtimoli ${r.aiProb}%.`;
+  if (r.aiVerdict) return `Xulosa: ${vLabel(r)} — AI ehtimoli ${r.aiProb}%.`;
   if (typeof r.aiIndex !== "number") return "";
   const m = typeof r.modelScore === "number" ? r.modelScore : null;
   if (r.aiIndex >= 65) return "Xulosa: AI yaratgan boʻlishi ehtimoli yuqori.";
@@ -1779,6 +1925,7 @@ function recommendations(rec) {
   const r = [];
   if (rec.mediaType === "image") { r.push("Rasmni teskari qidiruvda tekshiring (Google Lens, TinEye, Yandex) va eng birinchi eʼlon qilingan manbani toping."); }
   if (rec.mediaType === "video") { r.push("Videodan bir nechta kadrni teskari qidiruvda tekshiring; asl, uzunroq versiyani izlang."); r.push("Lab harakati, koʻz qisish, yuz chegaralari va yorugʻlik izchilligini sekin tezlikda koʻrib chiqing."); }
+  if (rec.mediaType === "text") { r.push("Muallifdan matn qanday yozilganini koʻrsatishini soʻrang: qoralamalar, versiyalar tarixi (Google Docs, Word) yoki manbalar."); r.push("AI detektor natijasi yolgʻiz oʻzi jazo yoki ayblov uchun asos boʻlmasligi kerak: odam yozgan matn ham xato belgilanishi mumkin."); }
   if (rec.mediaType === "audio") { r.push("Agar yozuv tanish odamdan pul yoki maʼlumot soʻrasa, unga oʻzingiz bilgan raqam orqali qayta qoʻngʻiroq qiling."); r.push("Oila yoki hamkasblar bilan oldindan kelishilgan maxfiy soʻzdan foydalaning."); }
   if (rec.indicators.some(i => /C2PA/.test(i.title))) r.push("C2PA manifestini contentcredentials.org/verify sahifasida tekshiring.");
   if (rec.risk === "high" || rec.risk === "medium") r.push("Muhim qaror qabul qilishdan oldin faylni mustaqil kriminalistik ekspertga koʻrsating.");
@@ -1792,6 +1939,7 @@ function recommendations(rec) {
 const STEPS = {
   image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA) va EXIF eskiz"], ["noise", "Shovqin izchilligi xaritasi"], ["clone", "Klonlangan hududlarni qidirish"], ["spectral", "Spektral artefaktlar"], ["aimodel", "AI detektor modeli"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
   video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["audio", "Ovozni ajratish va tahlil qilish"], ["aimodel", "AI detektor modeli (kadrlar)"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
+  text: [["validate", "Matnni qabul qilish"], ["hash", "SHA-256 xeshni hisoblash"], ["stats", "Til va matn statistikasi"], ["aimodel", "AI matn detektori (RoBERTa)"], ["assess", "Xulosa"]],
   audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["assess", "Xavfni baholash"]]
 };
 
@@ -1830,6 +1978,7 @@ async function runAnalysis(file, bytes, fmt) {
     if (history.some(h => h.id === rec.id)) rec.id += "-" + pad(d.getMinutes()) + pad(d.getSeconds());
     if (type === "image") await analyzeImage(file, bytes, fmt, rec, step);
     else if (type === "video") await analyzeVideo(file, bytes, fmt, rec, step);
+    else if (type === "text") await analyzeText(file, bytes, fmt, rec, step);
     else await analyzeAudio(file, bytes, fmt, rec, step);
     await step("assess");
   } catch (err) {
@@ -1860,6 +2009,7 @@ const ICON = {
   image: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>',
   video: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg>',
   audio: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2M6 8v8M10 4v16M14 7v10M18 10v4M22 12h-2"/></svg>',
+  text: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
   all: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
 };
 function emptyState(title, text, cta = true) {
@@ -1867,7 +2017,7 @@ function emptyState(title, text, cta = true) {
 }
 function histTable(rows) {
   return `<div class="tbl"><table class="cards"><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>AI %</th></tr></thead><tbody>${rows.map(r => `
-    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono" data-l="ID">${esc(r.id)}</td><td class="t-name" data-l="Fayl">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td data-l="Tur"><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num" data-l="Sana">${fmtDate(r.createdAt)}</td><td data-l="Holat">${statusChip(r.status)}</td><td data-l="Baho">${r.aiVerdict ? `<span class="chip ${AIV[r.aiVerdict].cls}">${esc(AIV[r.aiVerdict].label)}</span>` : riskChip(r.risk)}</td><td class="num" data-l="AI %" style="font-weight:700;color:${typeof (r.aiProb ?? r.index) === "number" ? idxColor(r.aiProb ?? r.index) : "#94A3B8"}">${typeof (r.aiProb ?? r.index) === "number" ? (r.aiProb ?? r.index) + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
+    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono" data-l="ID">${esc(r.id)}</td><td class="t-name" data-l="Fayl">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td data-l="Tur"><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num" data-l="Sana">${fmtDate(r.createdAt)}</td><td data-l="Holat">${statusChip(r.status)}</td><td data-l="Baho">${r.aiVerdict ? `<span class="chip ${AIV[r.aiVerdict].cls}">${esc(vLabel(r))}</span>` : riskChip(r.risk)}</td><td class="num" data-l="AI %" style="font-weight:700;color:${typeof (r.aiProb ?? r.index) === "number" ? idxColor(r.aiProb ?? r.index) : "#94A3B8"}">${typeof (r.aiProb ?? r.index) === "number" ? (r.aiProb ?? r.index) + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function bindOpen(root) {
   $$("[data-open]", root).forEach(el => {
@@ -1882,12 +2032,13 @@ function renderPanel() {
   const n = history.length;
   const by = t => history.filter(h => h.mediaType === t).length;
   let html = `<div class="page-head"><div><h1>Boshqaruv paneli</h1><p>Barcha koʻrsatkichlar shu brauzerda bajarilgan haqiqiy tahlillardan hisoblanadi.</p></div></div>
-    <div class="quick">${[["rasm", "image", "Rasm tekshirish", "AI yaratganmi yoki haqiqiymi"], ["video", "video", "Video tekshirish", "Kadrlar + ajratilgan ovoz"], ["ovoz", "audio", "Ovoz tekshirish", "Audio yozuv tahlili"]].map(([h, ic, t, d]) => `<a class="card quick-item" href="#${h}"><span class="qi-ic">${ICON[ic]}</span><span><b>${t}</b><small>${d}</small></span></a>`).join("")}</div>`;
-  html += `<div class="grid g4">
+    <div class="quick">${[["rasm", "image", "Rasm tekshirish", "AI yaratganmi yoki haqiqiymi"], ["video", "video", "Video tekshirish", "Kadrlar + ajratilgan ovoz"], ["ovoz", "audio", "Ovoz tekshirish", "Audio yozuv tahlili"], ["matn", "text", "Matn tekshirish", "AI yozganmi yoki odam"]].map(([h, ic, t, d]) => `<a class="card quick-item" href="#${h}"><span class="qi-ic">${ICON[ic]}</span><span><b>${t}</b><small>${d}</small></span></a>`).join("")}</div>`;
+  html += `<div class="grid g5">
     <div class="card tile"><span class="lbl">${ICON.all}Jami tahlillar</span><span class="val">${n}</span></div>
     <div class="card tile"><span class="lbl">${ICON.image}Rasm</span><span class="val">${by("image")}</span></div>
     <div class="card tile"><span class="lbl">${ICON.video}Video</span><span class="val">${by("video")}</span></div>
-    <div class="card tile"><span class="lbl">${ICON.audio}Audio</span><span class="val">${by("audio")}</span></div></div>`;
+    <div class="card tile"><span class="lbl">${ICON.audio}Audio</span><span class="val">${by("audio")}</span></div>
+    <div class="card tile"><span class="lbl">${ICON.text}Matn</span><span class="val">${by("text")}</span></div></div>`;
   if (!n) { root.innerHTML = html + `<div style="margin-top:16px">${emptyState("Hali tahlil yoʻq", "Birinchi faylni tahlil qilganingizdan keyin bu yerda xavf taqsimoti, faollik va soʻnggi natijalar paydo boʻladi.")}</div>`; return; }
   const rc = { high: 0, medium: 0, low: 0, inconclusive: 0 }; history.forEach(h => rc[h.risk]++);
   const sc = { completed: 0, unsupported: 0, failed: 0 }; history.forEach(h => sc[h.status]++);
@@ -1921,9 +2072,10 @@ function renderUpload() {
   const root = $("#uploadRoot");
   const M = uploadMode && MODES[uploadMode];
   $("#upTitle").textContent = M ? M.title : "Yangi tahlil";
-  $("#upSub").textContent = M ? M.sub + " Fayl qurilmangizdan chiqmaydi." : "Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.";
+  $("#upSub").textContent = M ? M.sub + (uploadMode === "matn" ? " Matn qurilmangizdan chiqmaydi." : " Fayl qurilmangizdan chiqmaydi.") : "Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.";
   if (busy) return;
   if (pendingFile && M && pendingFile.fmt.type !== M.type) { URL.revokeObjectURL(pendingFile.url); pendingFile = null; }
+  if (uploadMode === "matn") { renderTextInput(root); return; }
   if (!pendingFile) {
     root.innerHTML = `<div class="drop" id="drop" role="button" tabindex="0" aria-label="Fayl tanlash">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B7CFF" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
@@ -1970,6 +2122,37 @@ function renderUpload() {
     try { await runAnalysis(file, pendingFile.bytes, fmt); }
     catch (e) { busy = false; $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; }
     finally { URL.revokeObjectURL(url); }
+  });
+}
+function renderTextInput(root) {
+  root.innerHTML = `<div class="card">
+      <label for="txtIn" class="muted" style="font-size:13px">Tekshiriladigan matn</label>
+      <textarea id="txtIn" class="input txt-in" rows="12" maxlength="60000" placeholder="Matnni shu yerga joylashtiring (kamida 40 soʻz, eng yaxshisi 150+ soʻz)…"></textarea>
+      <div class="row-actions" id="upBtns" style="justify-content:space-between;align-items:center;margin-top:12px">
+        <span class="muted num" id="txtCount">0 soʻz</span>
+        <span style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn ghost" style="cursor:pointer">.txt fayldan<input type="file" id="txtFile" accept=".txt,text/plain" hidden></label><button class="btn primary" id="startBtn" disabled>Matnni tekshirish</button></span>
+      </div>
+      <div id="upErr"></div><div id="progressBox"></div>
+    </div>
+    ${settings.aiModel ? `<div class="notice blue" style="margin-top:14px">Matn AI matn detektori neyron tarmogʻi bilan tekshiriladi. Birinchi tekshiruvda model (~${TXM.sizeMB} MB) bir marta yuklab olinadi. Matn qurilmangizdan chiqmaydi va tarixda saqlanmaydi — faqat natija va xesh saqlanadi.</div>` : ""}
+    <div class="grid g3" style="margin-top:20px">
+      <div class="card"><h3>Eng aniq</h3><p class="muted" style="font-size:14px">Ingliz tilidagi, 150 soʻzdan uzun matnlar. Sinovda odam yozgan matnlarning ~1% i xato belgilandi.</p></div>
+      <div class="card"><h3>Cheklangan</h3><p class="muted" style="font-size:14px">Oʻzbek va rus tili: odam yozgan matn deyarli xato belgilanmaydi, lekin AI matnlarning taxminan uchdan ikki qismi topilmaydi.</p></div>
+      <div class="card"><h3>Eslatma</h3><p class="muted" style="font-size:14px">Natija ayblov uchun dalil emas. Inson tomonidan tahrirlangan AI matnni aniqlash ancha qiyin.</p></div>
+    </div>`;
+  const ta = $("#txtIn"), cnt = $("#txtCount"), btn = $("#startBtn");
+  const wc = () => (ta.value.match(/[\p{L}\p{N}ʻʼ'‘’`-]+/gu) || []).length;
+  const upd = () => { const n = wc(); cnt.textContent = `${n} soʻz`; btn.disabled = n < 40; };
+  ta.addEventListener("input", upd);
+  $("#txtFile").addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return; if (f.size > 2 * 1048576) { showUpErr("Matn fayli 2 MB dan katta."); return; } ta.value = (await f.text()).slice(0, 60000); upd(); });
+  btn.addEventListener("click", async () => {
+    const text = ta.value.trim(), n = wc();
+    if (n < 40) { showUpErr("Kamida 40 soʻz kerak."); return; }
+    $("#upBtns").style.display = "none"; ta.readOnly = true;
+    const bytes = new TextEncoder().encode(text);
+    const file = new File([bytes], `Matn (${n} soʻz).txt`, { type: "text/plain" });
+    try { await runAnalysis(file, bytes, { type: "text", label: "Matn (UTF-8)", mime: "text/plain", exts: ["txt"], text }); }
+    catch (e) { busy = false; $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; ta.readOnly = false; }
   });
 }
 function showUpErr(msg) { const el = $("#upErr"); if (el) el.innerHTML = `<div class="err" role="alert">${msg}</div>`; }
@@ -2030,7 +2213,7 @@ function renderResult() {
   if (v && v.kind === "image") vis = `<div class="vis">${v.orig ? `<figure><img src="${v.orig}" alt="Asl rasm"><figcaption>Tahlil qilingan rasm</figcaption></figure>` : ""}${v.ela ? `<figure><img src="${v.ela}" alt="ELA xaritasi"><figcaption>ELA xaritasi: yorqin joylar qayta siqishda koʻproq oʻzgargan hududlar. Qirralar va matn tabiiy ravishda yorqin koʻrinadi.</figcaption></figure>` : ""}${v.noise ? `<figure><img src="${v.noise}" alt="Shovqin xaritasi"><figcaption>Shovqin xaritasi: qizil — shovqin koʻp, koʻk — kam (rasm boʻyicha medianaga nisbatan). Sariq ramka — eng katta notekis hudud.</figcaption></figure>` : ""}${v.clone ? `<figure><img src="${v.clone}" alt="Klon xaritasi"><figcaption>Klon xaritasi: koʻk — manba, pushti — nusxa koʻchirilgan joy.</figcaption></figure>` : ""}${v.spec ? `<figure><img src="${v.spec}" alt="Shovqin spektri" style="aspect-ratio:1;object-fit:contain"><figcaption>Shovqin spektri (markaziy 256×256). Panjara shaklidagi yorqin nuqtalar — generatsiya yoki kattalashtirish izi.</figcaption></figure>` : ""}</div>`;
   if (v && v.kind === "audio") vis = `<div class="vis"><figure class="wide"><img src="${v.wave}" alt="Toʻlqin shakli"><figcaption>Toʻlqin shakli (birinchi ${v.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.spec}" alt="Spektrogramma" style="height:220px;object-fit:fill"><figcaption>Spektrogramma: vertikal oʻq 0–${(v.specMaxHz / 1000).toFixed(0)} kHz, gorizontal oʻq vaqt. Yorqinlik energiyani bildiradi.</figcaption></figure></div>`;
   if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#8B7CFF", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#3DD6F5", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure>${v.audio ? `<figure class="wide"><img src="${v.audio.wave}" alt="Video ovozi toʻlqin shakli"><figcaption>Video ovozi: toʻlqin shakli (birinchi ${v.audio.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.audio.spec}" alt="Video ovozi spektrogrammasi" style="height:220px;object-fit:fill"><figcaption>Video ovozi: spektrogramma, 0–${(v.audio.specMaxHz / 1000).toFixed(0)} kHz</figcaption></figure>` : ""}</div>`;
-  if (!v && r.status === "completed") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;
+  if (!v && r.status === "completed" && r.mediaType !== "text") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;
   const statusRow = c => `<tr><td class="t-name" data-l="Modul">${esc(c.name)}</td><td class="mono muted" data-l="Versiya">${esc(c.version)}</td><td data-l="Holat">${c.status === "ok" ? '<span class="chip low">bajarildi</span>' : c.status === "unavailable" ? '<span class="chip inconclusive">mavjud emas</span>' : '<span class="chip high">bajarilmadi</span>'}</td><td class="muted" data-l="Natija" style="font-size:14px">${esc(c.summary)}</td></tr>`;
   root.innerHTML = `
     <div class="page-head"><div><div class="eyebrow">${esc(r.id)}</div><h1 style="word-break:break-all">${esc(r.name)}</h1><p>${TYPE_UZ[r.mediaType]} · ${fmtDate(r.createdAt)} · ${statusChip(r.status)}</p></div>
@@ -2039,7 +2222,7 @@ function renderResult() {
       <div class="verdict ${r.aiVerdict ? AIV[r.aiVerdict].cls : r.risk}">
         <div class="eyebrow" style="color:var(--muted)">${r.aiVerdict ? "AI tekshiruvi natijasi" : "Skrining bahosi"}</div>
         <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap">
-          <div class="big" style="margin:6px 0 0">${esc(r.aiVerdict ? AIV[r.aiVerdict].label : RISK[r.risk].label)}</div>
+          <div class="big" style="margin:6px 0 0">${esc(r.aiVerdict ? vLabel(r) : RISK[r.risk].label)}</div>
           ${typeof r.aiProb === "number" ? `<div><span class="big-pct">${r.aiProb}%</span><div class="muted" style="font-size:12px">AI yaratgan boʻlish ehtimoli</div></div>` : typeof r.index === "number" ? `<div><span class="big-pct">${r.index}%</span><div class="muted" style="font-size:12px">umumiy shubha indeksi</div></div>` : ""}
         </div>
         <div class="meter" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -2051,7 +2234,7 @@ function renderResult() {
           ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
           ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
         </div>` : ""}
-        <p class="muted" style="font-size:13px;margin-top:14px">${r.aiVerdict ? "AI ehtimoli neyron tarmoq (6 koʻrinish/kadr oʻrtachasi) va fayl ichidagi generator izlari asosida hisoblanadi. 70%+ — AI, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — haqiqiy. Sinovda haqiqiy fotolarning ~1% i, AI rasmlarning ~10–20% i notoʻgʻri baholangan: hech bir detektor 100% aniq emas." : "Foiz topilgan belgilarning ogʻirligini koʻrsatadi. 0–34% past, 35–64% oʻrta, 65–100% yuqori."}${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
+        <p class="muted" style="font-size:13px;margin-top:14px">${r.aiVerdict && r.mediaType === "text" ? "AI ehtimoli matn detektori neyron tarmogʻi bahosidan, til boʻyicha kalibrlangan holda hisoblanadi. 70%+ — AI yozgan, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — odam yozgan. Sinovda ingliz tilida odam matnlarining ~1% i “AI” deb belgilangan va AI matnlarning ~2/3 qismi topilgan; oʻzbek tilida AI matnlarning faqat ~1/3 qismi topiladi. Natija ayblov uchun dalil emas." : r.aiVerdict ? "AI ehtimoli neyron tarmoq (6 koʻrinish/kadr oʻrtachasi) va fayl ichidagi generator izlari asosida hisoblanadi. 70%+ — AI, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — haqiqiy. Sinovda haqiqiy fotolarning ~1% i, AI rasmlarning ~10–20% i notoʻgʻri baholangan: hech bir detektor 100% aniq emas." : "Foiz topilgan belgilarning ogʻirligini koʻrsatadi. 0–34% past, 35–64% oʻrta, 65–100% yuqori."}${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
       </div>
       <div class="card file-card"><h3>Fayl maʼlumotlari</h3><dl class="kv">
         <dt>Hajm</dt><dd class="num">${fmtBytes(r.size)}</dd>

@@ -70,7 +70,7 @@ img, canvas, video { max-width: 100%; }
 /* Generic */
 .view { display: none; }
 .view.on { display: block; }
-.page { padding: 36px 0 72px; }
+.page { padding-top: 36px; padding-bottom: 72px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 .page-head h1 { font-size: 28px; }
 .page-head p { color: var(--muted); margin-top: 6px; max-width: 65ch; }
@@ -217,6 +217,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .verdict.high .meter span { background: var(--bad); }
 .ind { display: grid; grid-template-columns: 4px 1fr auto; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .ind:last-child { border-bottom: 0; }
+.ind > .chip { align-self: start; }
 .ind .bar { border-radius: 2px; background: var(--accent); }
 .ind.low .bar { background: #64748B; }
 .ind.medium .bar { background: var(--warn); }
@@ -297,6 +298,66 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 .modal .box .row-actions { justify-content: flex-end; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card); border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; z-index: 60; pointer-events: none; }
 .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Responsive additions */
+.gear { display: none; color: var(--muted); padding: 8px; border-radius: 8px; }
+.gear.on, .gear:hover { color: var(--text); background: var(--card); }
+.tabbar { display: none; }
+.edu-band { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+.file-card { min-width: 280px; }
+.file-card .kv { grid-template-columns: 110px 1fr; }
+.t-name { max-width: 260px; word-break: break-all; }
+@media (min-width: 1600px) { .wrap { max-width: 1320px; } }
+@media (max-width: 760px) {
+  .top .wrap { height: 56px; justify-content: space-between; }
+  .top .nav { display: none; }
+  .gear { display: inline-flex; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(8,13,24,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600; padding: 4px 0; border-radius: 10px; -webkit-tap-highlight-color: transparent; }
+  .tabbar a.on { color: var(--accent); }
+  .tabbar .plus { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: #04121D; margin-top: -2px; }
+  .tabbar .tab-main.on { color: var(--text); }
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .page { padding-top: 24px; padding-bottom: 40px; }
+  .page-head { margin-bottom: 18px; }
+  .page-head h1 { font-size: 24px; }
+  .page-head > .btn, .page-head > a.btn { display: none; }
+  .hero { padding: 36px 0 32px; }
+  .hero .wrap { gap: 28px; }
+  .hero .sub { font-size: 16px; }
+  .cta .btn { flex: 1 1 100%; justify-content: center; padding: 13px 18px; }
+  section.band { padding: 44px 0; }
+  .edu-band { grid-template-columns: 1fr; }
+  .edu-band .btn { justify-self: start; }
+  .lens-panel .row { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .card { padding: 16px; }
+  .res-head .row-actions, .page-head .row-actions { width: 100%; }
+  .page-head .row-actions .btn { flex: 1; justify-content: center; }
+  .file-card { min-width: 0; }
+  .input, select.input { font-size: 16px; }
+  .drop { padding: 32px 16px; }
+  .preview .media img, .preview .media video { max-height: 320px; width: 100%; }
+  .kv { grid-template-columns: 1fr; gap: 2px; }
+  .kv dt { font-size: 12px; margin-top: 8px; }
+  .file-card .kv { grid-template-columns: 1fr; }
+  .verdict { padding: 18px; }
+  .big-pct { font-size: 36px; }
+  .ind { grid-template-columns: 4px 1fr; }
+  .ind > .chip { grid-column: 2; justify-self: start; }
+  .modal .box { padding: 18px; }
+  /* tables -> cards */
+  table.cards thead { display: none; }
+  table.cards, table.cards tbody, table.cards tr, table.cards td { display: block; width: 100%; }
+  table.cards tr { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; background: var(--bg2); }
+  table.cards td { border: 0; padding: 4px 0; display: flex; justify-content: space-between; gap: 12px; text-align: right; max-width: none; }
+  table.cards td::before { content: attr(data-l); color: var(--muted); font-size: 12px; font-weight: 600; text-align: left; flex: none; }
+  table.cards td.t-name { display: block; text-align: left; font-weight: 700; padding-bottom: 6px; border-bottom: 1px dashed var(--line); margin-bottom: 4px; }
+  table.cards td.t-name::before { display: none; }
+  tr.click:hover td { background: transparent; }
+  .tbl { overflow: visible; }
+  .set-row .switch { justify-self: start; }
+}
+@media (max-width: 380px) { .tabbar a { font-size: 10px; } .brand { font-size: 16px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -317,6 +378,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
       <a href="#sozlamalar" data-nav="sozlamalar">Sozlamalar</a>
     </nav>
     <span class="local-pill" title="Fayllar qurilmangizdan tashqariga yuborilmaydi"><i></i>Mahalliy tahlil</span>
+    <a class="gear" href="#sozlamalar" data-nav="sozlamalar" aria-label="Sozlamalar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></a>
   </div>
 </header>
 
@@ -346,7 +408,6 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="row"><span>Siqish xatolari tahlili</span><span class="mono muted">ELA · JPEG DQT</span></div>
         <div class="row"><span>Spektrogramma va akustik belgilar</span><span class="mono muted">FFT · dBFS</span></div>
         <div class="row"><span>Kadrlararo izchillik</span><span class="mono muted">Δ kadr · keskinlik</span></div>
-        <div class="row"><span>Neyron tarmoq klassifikatori</span><span class="chip inconclusive">ulanmagan</span></div>
         <div class="row"><span>Yakuniy baho</span><span class="mono muted">past · oʻrta · yuqori · noaniq</span></div>
       </div>
     </div>
@@ -425,8 +486,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="p"><span class="k">02 hash</span><div><strong>SHA-256 barmoq izi</strong><p>Fayl oʻzgarmaganini keyinchalik isbotlash uchun kriptografik xesh hisoblanadi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">03 metadata</span><div><strong>EXIF, XMP, PNG matnlari</strong><p>Kamera, dastur, sana, GPS, generator parametrlari va IPTC “trainedAlgorithmicMedia” belgisi izlanadi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">04 ela</span><div><strong>Xato darajasi tahlili</strong><p>Rasm qayta siqiladi va farq xaritasi quriladi; notekis hududlar ajratiladi.</p></div><span class="chip low">bajariladi</span></div>
-        <div class="p"><span class="k">05 model</span><div><strong>Neyron tarmoq klassifikatori</strong><p>Brauzer versiyasida ulanmagan. Natijada “mavjud emas” deb koʻrsatiladi va bahoga taʼsir qilmaydi.</p></div><span class="chip inconclusive">ulanmagan</span></div>
-        <div class="p"><span class="k">06 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">05 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
       </div>
     </div>
   </section>
@@ -453,7 +513,6 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
             <li><span>Django REST</span><span>API v1, ruxsatlar, OpenAPI</span></li>
             <li><span>Celery · Redis</span><span>Video va audio uchun fon vazifalari</span></li>
             <li><span>PostgreSQL</span><span>Tahlillar, natijalar, hisobotlar</span></li>
-            <li><span>PyTorch · HF</span><span>Tekshirilgan, litsenziyasi aniq modellar</span></li>
           </ul>
         </div>
       </div>
@@ -461,7 +520,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
   </section>
 
   <section class="band alt">
-    <div class="wrap" style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center">
+    <div class="wrap edu-band">
       <div>
         <div class="eyebrow">Taʼlim</div>
         <h2>Deepfakeni tanishni oʻrganing</h2>
@@ -477,7 +536,6 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
       <h2>Koʻp beriladigan savollar</h2>
       <details class="faq"><summary>TruthLens fayl soxta ekanini aniq aytib bera oladimi?</summary><p>Yoʻq. Hech bir tizim 100% aniqlik bermaydi. TruthLens skrining bahosini beradi: qaysi belgilar topilgani va ular nimani anglatishi mumkinligini koʻrsatadi. Muhim qarorlar uchun mustaqil ekspert tekshiruvi kerak.</p></details>
       <details class="faq"><summary>Fayllarim qayerga yuboriladi?</summary><p>Hech qayerga. Bu versiyada barcha tahlil brauzeringizda bajariladi. Tarixda faqat fayl nomi, hajmi, xeshi va topilmalar saqlanadi; media faylning oʻzi saqlanmaydi.</p></details>
-      <details class="faq"><summary>Nega neyron tarmoq modeli “ulanmagan” deb koʻrsatiladi?</summary><p>Ishonchli deepfake detektori litsenziyasi, oʻqitilgan maʼlumotlari va mustaqil oʻlchangan natijalari tekshirilgan boʻlishi kerak. Bunday model integratsiya qilinmaguncha, TruthLens uning natijasini oʻylab topmaydi va bahoni faqat haqiqatda bajarilgan tekshiruvlar asosida beradi.</p></details>
       <details class="faq"><summary>“Past xavf” fayl haqiqiy degani emasmi?</summary><p>Yoʻq. Bu faqat mavjud tekshiruvlar sezilarli belgi topmaganini bildiradi. Yaxshi tayyorlangan soxta kontent hech qanday iz qoldirmasligi mumkin.</p></details>
       <details class="faq"><summary>Audio tahlili gapirayotgan odamni aniqlaydimi?</summary><p>Yoʻq. Sintetik nutq belgilarini izlash va spikerni identifikatsiya qilish butunlay boshqa vazifalar. TruthLens hech kimning shaxsini aniqlamaydi va hech kimni firibgar deb belgilamaydi.</p></details>
     </div>
@@ -530,6 +588,14 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 <!-- ============ SETTINGS ============ -->
 <section class="view" data-view="sozlamalar"><div class="wrap page" id="setRoot"></div></section>
 </main>
+
+<nav class="tabbar" aria-label="Mobil menyu">
+  <a href="#bosh" data-nav="bosh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>Bosh</span></a>
+  <a href="#panel" data-nav="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span>Panel</span></a>
+  <a href="#tahlil" data-nav="tahlil" class="tab-main"><span class="plus"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span><span>Tahlil</span></a>
+  <a href="#tarix" data-nav="tarix"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Tarix</span></a>
+  <a href="#akademiya" data-nav="akademiya"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 4 2 10l10 6 10-6z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span>Akademiya</span></a>
+</nav>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="box"><h3 id="mTitle"></h3><p id="mText"></p><div id="mExtra"></div><div class="row-actions" id="mBtns"></div></div>
@@ -909,12 +975,11 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
 
   await step("model");
   await faceCheck(bitmap, rec);
-  rec.models.push({ name: "AI-generatsiya / manipulyatsiya klassifikatori", version: "—", status: "unavailable", summary: "Bu versiyada neyron tarmoq modeli ulanmagan. Natijada hech qanday model bashorati yoʻq va baho faqat yuqoridagi tekshiruvlarga asoslangan." });
   if (bitmap.close) bitmap.close();
 }
 
 async function faceCheck(src, rec) {
-  if (!("FaceDetector" in window)) { rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "unavailable", summary: "Brauzer yuz aniqlash API’sini qoʻllab-quvvatlamaydi." }); return null; }
+  if (!("FaceDetector" in window)) return null;
   try { const faces = await new window.FaceDetector({ maxDetectedFaces: 10 }).detect(src); rec.meta["Aniqlangan yuzlar"] = faces.length; rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "ok", summary: `${faces.length} ta yuz topildi.` }); return faces.length; }
   catch (e) { rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "failed", summary: "Bajarilmadi." }); return null; }
 }
@@ -1065,8 +1130,6 @@ async function analyzeAudio(file, bytes, fmt, rec, step) {
   }
   rec.checks.push({ name: "Akustik belgilar", version: "tl-acoustic 1.0", status: "ok", summary: `RMS ${rmsDb.toFixed(1)} dBFS, klipping ${clipPct.toFixed(2)}%, ichki sukunat ${zeroRuns}.` });
 
-  await step("model");
-  rec.models.push({ name: "Sintetik nutq detektori (ASVspoof uslubida)", version: "—", status: "unavailable", summary: "Bu versiyada sintetik nutqni aniqlovchi model ulanmagan. Natijada model bashorati yoʻq." });
   rec.limitations.push("Spiker identifikatsiyasi bajarilmaydi: tahlil gapirayotgan shaxsni aniqlamaydi va tasdiqlamaydi.");
 }
 
@@ -1171,8 +1234,6 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
 
   await step("model");
   if ("FaceDetector" in window) { try { const img = await createImageBitmap(work); await faceCheck(img, rec); } catch (e) {} }
-  else rec.checks.push({ name: "Yuz aniqlash", version: "FaceDetector API", status: "unavailable", summary: "Brauzer yuz aniqlash API’sini qoʻllab-quvvatlamaydi." });
-  rec.models.push({ name: "Deepfake video detektori (FaceForensics++ uslubida)", version: "—", status: "unavailable", summary: "Bu versiyada video deepfake modeli ulanmagan. Natijada model bashorati yoʻq." });
   rec.limitations.push("Kadrlar oraliq bilan tanlanadi; namunalar orasidagi qisqa oʻzgarishlar koʻrinmasligi mumkin.");
   rec.limitations.push("Audio yoʻlagi bu tahlilda tekshirilmaydi.");
 }
@@ -1225,9 +1286,9 @@ function recommendations(rec) {
 
 /* ================= Orchestration ================= */
 const STEPS = {
-  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA)"], ["model", "Model va yuz aniqlash holati"], ["assess", "Xavfni baholash"]],
-  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["model", "Model holati"], ["assess", "Xavfni baholash"]],
-  audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["model", "Model holati"], ["assess", "Xavfni baholash"]]
+  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA)"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
+  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
+  audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["assess", "Xavfni baholash"]]
 };
 
 async function runAnalysis(file, bytes, fmt) {
@@ -1301,8 +1362,8 @@ function emptyState(title, text, cta = true) {
   return `<div class="card empty"><svg width="44" height="44" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9.5" fill="none" stroke="#38BDF8" stroke-width="2"/><path d="M21 21l7 7" stroke="#8B5CF6" stroke-width="2.6" stroke-linecap="round"/></svg><h3>${esc(title)}</h3><p>${esc(text)}</p>${cta ? '<a class="btn primary" href="#tahlil">Birinchi tahlilni boshlash</a>' : ""}</div>`;
 }
 function histTable(rows) {
-  return `<div class="tbl"><table><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>Indeks</th></tr></thead><tbody>${rows.map(r => `
-    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono">${esc(r.id)}</td><td style="max-width:260px;word-break:break-all">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num">${fmtDate(r.createdAt)}</td><td>${statusChip(r.status)}</td><td>${riskChip(r.risk)}</td><td class="num" style="font-weight:700;color:${typeof r.index === "number" ? idxColor(r.index) : "#94A3B8"}">${typeof r.index === "number" ? r.index + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<div class="tbl"><table class="cards"><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>Indeks</th></tr></thead><tbody>${rows.map(r => `
+    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono" data-l="ID">${esc(r.id)}</td><td class="t-name" data-l="Fayl">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td data-l="Tur"><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num" data-l="Sana">${fmtDate(r.createdAt)}</td><td data-l="Holat">${statusChip(r.status)}</td><td data-l="Baho">${riskChip(r.risk)}</td><td class="num" data-l="Indeks" style="font-weight:700;color:${typeof r.index === "number" ? idxColor(r.index) : "#94A3B8"}">${typeof r.index === "number" ? r.index + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function bindOpen(root) {
   $$("[data-open]", root).forEach(el => {
@@ -1365,7 +1426,7 @@ function renderUpload() {
       <div id="upErr"></div>
       <div class="grid g3" style="margin-top:20px">
         <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Format va yaxlitlik, metamaʼlumotlar, generator izlari, siqish xatolari, spektr va kadrlararo izchillik.</p></div>
-        <div class="card"><h3>Nima tekshirilmaydi</h3><p class="muted" style="font-size:14px">Neyron tarmoq klassifikatori bu versiyada ulanmagan. Shaxsni aniqlash hech qachon bajarilmaydi.</p></div>
+        <div class="card"><h3>Nima tekshirilmaydi</h3><p class="muted" style="font-size:14px">Gapirayotgan yoki rasmdagi shaxs aniqlanmaydi. Natija hech kimni aybdor deb koʻrsatmaydi.</p></div>
         <div class="card"><h3>Maxfiylik</h3><p class="muted" style="font-size:14px">Fayl brauzerdan chiqmaydi. Tarixga faqat natija va SHA-256 xesh yoziladi.</p></div>
       </div>`;
     const drop = $("#drop"), inp = $("#fileIn");
@@ -1459,7 +1520,7 @@ function renderResult() {
   if (v && v.kind === "audio") vis = `<div class="vis"><figure class="wide"><img src="${v.wave}" alt="Toʻlqin shakli"><figcaption>Toʻlqin shakli (birinchi ${v.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.spec}" alt="Spektrogramma" style="height:220px;object-fit:fill"><figcaption>Spektrogramma: vertikal oʻq 0–${(v.specMaxHz / 1000).toFixed(0)} kHz, gorizontal oʻq vaqt. Yorqinlik energiyani bildiradi.</figcaption></figure></div>`;
   if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#38BDF8", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#8B5CF6", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure></div>`;
   if (!v && r.status === "completed") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;
-  const statusRow = c => `<tr><td>${esc(c.name)}</td><td class="mono muted">${esc(c.version)}</td><td>${c.status === "ok" ? '<span class="chip low">bajarildi</span>' : c.status === "unavailable" ? '<span class="chip inconclusive">mavjud emas</span>' : '<span class="chip high">bajarilmadi</span>'}</td><td class="muted" style="font-size:14px">${esc(c.summary)}</td></tr>`;
+  const statusRow = c => `<tr><td class="t-name" data-l="Modul">${esc(c.name)}</td><td class="mono muted" data-l="Versiya">${esc(c.version)}</td><td data-l="Holat">${c.status === "ok" ? '<span class="chip low">bajarildi</span>' : c.status === "unavailable" ? '<span class="chip inconclusive">mavjud emas</span>' : '<span class="chip high">bajarilmadi</span>'}</td><td class="muted" data-l="Natija" style="font-size:14px">${esc(c.summary)}</td></tr>`;
   root.innerHTML = `
     <div class="page-head"><div><div class="eyebrow">${esc(r.id)}</div><h1 style="word-break:break-all">${esc(r.name)}</h1><p>${TYPE_UZ[r.mediaType]} · ${fmtDate(r.createdAt)} · ${statusChip(r.status)}</p></div>
       <div class="row-actions"><button class="btn" id="copyRep">Hisobotni nusxalash</button><button class="btn danger" id="delRep">Oʻchirish</button><a class="btn primary" href="#tahlil">Yangi tahlil</a></div></div>
@@ -1476,9 +1537,9 @@ function renderResult() {
           ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
           ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
         </div>` : ""}
-        <p class="muted" style="font-size:13px;margin-top:14px">Foiz topilgan belgilarning ogʻirligini koʻrsatadi (kamera maʼlumoti kabi haqiqiylik belgilari uni pasaytiradi). Bu fayl soxta boʻlish ehtimoli emas: neyron tarmoq modeli ulanmagan, shuning uchun metamaʼlumoti tozalangan AI rasm past foiz olishi mumkin. 0–34% past, 35–64% oʻrta, 65–100% yuqori.${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
+        <p class="muted" style="font-size:13px;margin-top:14px">Foiz topilgan belgilarning ogʻirligini koʻrsatadi (kamera maʼlumoti kabi haqiqiylik belgilari uni pasaytiradi). Bu fayl soxta boʻlish ehtimoli emas: metamaʼlumoti tozalangan AI rasm past foiz olishi mumkin. 0–34% past, 35–64% oʻrta, 65–100% yuqori.${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
       </div>
-      <div class="card" style="min-width:280px"><h3>Fayl maʼlumotlari</h3><dl class="kv" style="grid-template-columns:120px 1fr">
+      <div class="card file-card"><h3>Fayl maʼlumotlari</h3><dl class="kv">
         <dt>Hajm</dt><dd class="num">${fmtBytes(r.size)}</dd>
         <dt>Format</dt><dd>${esc(r.format)}</dd>
         <dt>SHA-256</dt><dd class="mono" style="font-size:11px;word-break:break-all">${esc(r.hash || "mavjud emas")}</dd>
@@ -1489,9 +1550,9 @@ function renderResult() {
       <div class="card"><h3>Texnik koʻrsatkichlar</h3><dl class="kv">${Object.entries(r.meta).map(([k, val]) => `<dt>${esc(k)}</dt><dd class="mono" style="font-size:13px">${esc(val)}</dd>`).join("") || "<dd class='muted'>—</dd>"}</dl></div>
     </div>
     <div style="margin-top:16px">${vis}</div>
-    <div class="card" style="margin-top:16px"><h3>Tekshiruvlar va modellar</h3><div class="tbl"><table><thead><tr><th>Modul</th><th>Versiya</th><th>Holat</th><th>Natija</th></tr></thead><tbody>${r.checks.map(statusRow).join("")}${r.models.map(m => statusRow(m)).join("")}</tbody></table></div></div>
+    <div class="card" style="margin-top:16px"><h3>Bajarilgan tekshiruvlar</h3><div class="tbl"><table class="cards"><thead><tr><th>Modul</th><th>Versiya</th><th>Holat</th><th>Natija</th></tr></thead><tbody>${r.checks.filter(c => c.status !== "unavailable" || c.name !== "Yuz aniqlash").map(statusRow).join("")}</tbody></table></div></div>
     <div class="grid g2" style="margin-top:16px;align-items:start">
-      <div class="card"><h3>Cheklovlar</h3><ul class="plain">${["Natija ishonch darajasi emas: neyron tarmoq modeli ulanmaganligi sababli hech qanday model ishonchi (confidence) hisoblanmagan.", "Evristik chegara qiymatlar etalon maʼlumotlar toʻplamida kalibrlanmagan.", ...r.limitations].map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>
+      <div class="card"><h3>Cheklovlar</h3><ul class="plain">${["Natija ishonch darajasi emas: baho texnik belgilar va evristik qoidalarga asoslangan.", "Evristik chegara qiymatlar etalon maʼlumotlar toʻplamida kalibrlanmagan.", ...r.limitations].map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>
       <div class="card"><h3>Tavsiya etilgan keyingi qadamlar</h3><ul class="plain">${(r.recs || []).map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>
     </div>`;
   $("#copyRep").addEventListener("click", () => copyReport(r));
@@ -1502,14 +1563,14 @@ function reportText(r) {
   L.push("TRUTHLENS AI — KRIMINALISTIK TAHLIL HISOBOTI", "=".repeat(46));
   L.push(`Tahlil ID:      ${r.id}`, `Sana:           ${fmtDate(r.createdAt)}`, `Fayl:           ${r.name}`, `Hajm:           ${fmtBytes(r.size)} (${r.size} bayt)`, `Media turi:     ${TYPE_UZ[r.mediaType]}`, `Haqiqiy format: ${r.format}`, `SHA-256:        ${r.hash || "mavjud emas"}`, `Holat:          ${STATUS_UZ[r.status]}`, "");
   L.push("XAVF BAHOSI", "-".repeat(46), `${RISK[r.risk].label.toUpperCase()} — ${RISK[r.risk].text}`, ...(typeof r.index === "number" ? [`Umumiy shubha indeksi: ${r.index}%`, `AI-generatsiya belgilari: ${r.aiIndex}%`, `Tahrir/montaj belgilari: ${r.manipIndex}%`] : []), "Bu skrining bahosi, haqiqiylik yoki manipulyatsiya isboti emas. Foiz — topilgan belgilar ogʻirligi, soxtalik ehtimoli emas.", "Qoida: indeks = 100·(1 − e^(−ball/4)); haqiqiylik belgilari ballni kamaytiradi. 0–34% past, 35–64% oʻrta, 65–100% yuqori.", "");
-  L.push("TEKSHIRUV USULLARI VA MODELLAR", "-".repeat(46));
-  [...r.checks, ...r.models].forEach(c => L.push(`[${c.status === "ok" ? "BAJARILDI" : c.status === "unavailable" ? "MAVJUD EMAS" : "BAJARILMADI"}] ${c.name} (${c.version}) — ${c.summary}`));
+  L.push("TEKSHIRUV USULLARI", "-".repeat(46));
+  r.checks.forEach(c => L.push(`[${c.status === "ok" ? "BAJARILDI" : c.status === "unavailable" ? "MAVJUD EMAS" : "BAJARILMADI"}] ${c.name} (${c.version}) — ${c.summary}`));
   L.push("", "TOPILGAN BELGILAR", "-".repeat(46));
   if (!r.indicators.length) L.push("Belgilar topilmadi.");
   r.indicators.forEach((i, k) => L.push(`${k + 1}. [${SEV_UZ[i.sev]} · ${Number(i.pts || 0)} ball] ${i.title}`, `   ${i.detail}`));
   L.push("", "TEXNIK KOʻRSATKICHLAR", "-".repeat(46));
   Object.entries(r.meta).forEach(([k, v]) => L.push(`${k}: ${v}`));
-  L.push("", "CHEKLOVLAR", "-".repeat(46), "- Neyron tarmoq modeli ulanmagan; model ishonchi hisoblanmagan.", "- Evristik chegaralar kalibrlanmagan.", ...r.limitations.map(l => "- " + l));
+  L.push("", "CHEKLOVLAR", "-".repeat(46), "- Evristik chegaralar kalibrlanmagan.", ...r.limitations.map(l => "- " + l));
   L.push("", "TAVSIYALAR", "-".repeat(46), ...(r.recs || []).map(l => "- " + l));
   L.push("", "Hisobot TruthLens AI brauzer versiyasida avtomatik yaratildi. Media fayl qurilmadan tashqariga yuborilmagan.");
   return L.join("\n");

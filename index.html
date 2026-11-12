@@ -442,7 +442,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="card media-card">
           <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div>
           <h3>Rasm kriminalistikasi</h3>
-          <ul><li>EXIF, XMP, PNG matn bloklari</li><li>AI generator va C2PA izlari</li><li>Xato darajasi tahlili (ELA)</li><li>JPEG sifat jadvali bahosi</li></ul>
+          <ul><li>EXIF, XMP tarixi, PNG matnlari, EXIF eskiz</li><li>40+ AI generator va C2PA izlari</li><li>ELA va shovqin izchilligi xaritasi</li><li>Klonlash va spektral artefaktlar</li></ul>
           <div class="fmt">JPG · JPEG · PNG · WEBP</div>
         </div>
         <div class="card media-card">
@@ -485,8 +485,9 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="p"><span class="k">01 validate</span><div><strong>Format va hajm</strong><p>Kengaytma, birinchi baytlar (magic bytes) va hajm chegarasi solishtiriladi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">02 hash</span><div><strong>SHA-256 barmoq izi</strong><p>Fayl oʻzgarmaganini keyinchalik isbotlash uchun kriptografik xesh hisoblanadi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">03 metadata</span><div><strong>EXIF, XMP, PNG matnlari</strong><p>Kamera, dastur, sana, GPS, generator parametrlari va IPTC “trainedAlgorithmicMedia” belgisi izlanadi.</p></div><span class="chip low">bajariladi</span></div>
-        <div class="p"><span class="k">04 ela</span><div><strong>Xato darajasi tahlili</strong><p>Rasm qayta siqiladi va farq xaritasi quriladi; notekis hududlar ajratiladi.</p></div><span class="chip low">bajariladi</span></div>
-        <div class="p"><span class="k">05 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
+        \1        <div class="p"><span class="k">05 noise</span><div><strong>Shovqin va klonlash</strong><p>Sensor shovqini bloklar boʻyicha solishtiriladi, rasm ichida nusxa koʻchirilgan hududlar va EXIF eskiz bilan farq izlanadi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">06 spectral</span><div><strong>Spektral artefaktlar</strong><p>Siqilmagan rasmlarda shovqin spektridagi davriy panjara — diffuziya modellari izi — izlanadi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">07 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
       </div>
     </div>
   </section>
@@ -745,9 +746,9 @@ function scanStrings(b, span = 1 << 20) {
     for (let i = s; i < e; i++) {
       const c = b[i];
       if (c >= 32 && c < 127) { cur.push(c); if (cur.length > 4000) { parts.push(String.fromCharCode.apply(null, cur)); cur = []; } }
-      else { if (cur.length >= 4) parts.push(String.fromCharCode.apply(null, cur)); cur = []; }
+      else { if (cur.length >= 8) parts.push(String.fromCharCode.apply(null, cur)); cur = []; }
     }
-    if (cur.length >= 4) parts.push(String.fromCharCode.apply(null, cur));
+    if (cur.length >= 8) parts.push(String.fromCharCode.apply(null, cur));
   }
   return parts.join("\n");
 }
@@ -768,7 +769,22 @@ const AI_SIGS = [
   [/runwayml|runway gen-\d/i, "Runway nomi", "high"],
   [/pika labs/i, "“Pika Labs” nomi", "high"],
   [/elevenlabs/i, "“ElevenLabs” nomi", "high"],
-  [/SynthID/, "Google SynthID belgisi haqida yozuv", "high"]
+  [/SynthID/, "Google SynthID belgisi haqida yozuv", "high"],
+  [/OpenAI|ChatGPT|GPT-4o|gpt-image-\d/, "OpenAI / ChatGPT nomi", "high"],
+  [/\bSora\b/, "OpenAI Sora nomi", "high"],
+  [/Made with Google AI|Google Imagen|\bImagen \d|Gemini Image|Nano Banana/i, "Google Imagen / Gemini nomi", "high"],
+  [/Microsoft Designer|Bing Image Creator|Image Creator from Microsoft/i, "Microsoft Designer / Bing Image Creator nomi", "high"],
+  [/Imagined with AI|\bMeta AI\b/, "Meta AI nomi", "high"],
+  [/\bGrok\b|xAI Aurora/, "xAI Grok nomi", "high"],
+  [/Kling AI|Kuaishou/i, "Kling AI nomi", "high"],
+  [/Hailuo|MiniMax AI|minimaxi/, "Hailuo / MiniMax nomi", "high"],
+  [/Seedream|Dreamina|Jimeng AI|Doubao/, "ByteDance Seedream / Dreamina nomi", "high"],
+  [/Qwen-Image|Tongyi Wanxiang|Hunyuan(?:Image|DiT)?/i, "Qwen / Hunyuan generator nomi", "high"],
+  [/Recraft|Krea\.ai|KREA AI|Playground ?AI|playgroundai/i, "Recraft / Krea / Playground nomi", "high"],
+  [/Kandinsky|Fooocus|DreamStudio|\bSDXL\b|stable-diffusion-xl|flux-(?:dev|schnell|pro)/, "Diffuziya modeli nomi (SDXL / FLUX / Kandinsky)", "high"],
+  [/civitai|Tensor\.Art|NightCafe|Craiyon|Dream by WOMBO|starryai|Artbreeder|SeaArt|PixAI|Mage\.space|getimg\.ai|Pikaso|Freepik AI|Luma Dream Machine/i, "AI rasm xizmati nomi", "high"],
+  [/Generative Fill|generativeFill|Generative Expand/i, "Photoshop “Generative Fill” (AI bilan toʻldirish)", "high"],
+  [/Magic Media|Magic Edit|Magic Eraser|Magic Editor/i, "AI tahrir vositasi (Magic Media / Magic Editor)", "high"]
 ];
 const EDITOR_RE = /(Adobe Photoshop|GIMP|Affinity Photo|Pixelmator|Snapseed|PicsArt|FaceApp|Facetune|Remini|Canva|Photopea|Lensa)/i;
 const VIDEO_EDITOR_RE = /(Adobe Premiere|After Effects|DaVinci Resolve|CapCut|InShot|Final Cut|Filmora|VN Video)/i;
@@ -780,9 +796,10 @@ function parseTiff(b, base, end) {
   const le = b[base] === 0x49;
   const u16 = o => le ? b[o] | (b[o + 1] << 8) : (b[o] << 8) | b[o + 1];
   const u32 = o => le ? (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0 : u32be(b, o);
-  const names = { 0x010E: "ImageDescription", 0x010F: "Make", 0x0110: "Model", 0x0131: "Software", 0x0132: "DateTime", 0x013B: "Artist", 0x8298: "Copyright", 0x9003: "DateTimeOriginal", 0x9004: "DateTimeDigitized", 0xA002: "PixelXDimension", 0xA003: "PixelYDimension" };
+  const names = { 0x010E: "ImageDescription", 0x010F: "Make", 0x0110: "Model", 0x0131: "Software", 0x0132: "DateTime", 0x013B: "Artist", 0x8298: "Copyright", 0x9003: "DateTimeOriginal", 0x9004: "DateTimeDigitized", 0xA002: "PixelXDimension", 0xA003: "PixelYDimension",
+    0x829A: "ExposureTime", 0x829D: "FNumber", 0x8827: "ISO", 0x920A: "FocalLength", 0xA434: "LensModel", 0xA433: "LensMake", 0x927C: "MakerNote", 0xA420: "ImageUniqueID", 0x0201: "ThumbOffset", 0x0202: "ThumbLength" };
   const seen = new Set();
-  function readIFD(off, depth) {
+  function readIFD(off, depth, ifd1) {
     const p = base + off;
     if (depth > 3 || seen.has(p) || p + 2 > end) return;
     seen.add(p);
@@ -790,16 +807,23 @@ function parseTiff(b, base, end) {
     for (let k = 0; k < n && k < 500; k++) {
       const e = p + 2 + k * 12; if (e + 12 > end) break;
       const tag = u16(e), type = u16(e + 2), cnt = u32(e + 4), vo = e + 8;
-      if (tag === 0x8769) { readIFD(u32(vo), depth + 1); continue; }
+      if (tag === 0x8769) { readIFD(u32(vo), depth + 1, false); continue; }
       if (tag === 0x8825) { tags.GPS = true; continue; }
       const name = names[tag]; if (!name) continue;
+      if ((name === "ThumbOffset" || name === "ThumbLength") && !ifd1) continue;
+      if (name !== "ThumbOffset" && name !== "ThumbLength" && ifd1) continue;
+      if (name === "MakerNote") { tags.MakerNote = cnt; continue; }
       if (type === 2) { const o = cnt > 4 ? base + u32(vo) : vo; if (o < end) tags[name] = latin1(b, o, Math.min(o + cnt, end, o + 300)).replace(/\0+$/, "").trim(); }
       else if (type === 3) tags[name] = u16(vo);
       else if (type === 4) tags[name] = u32(vo);
+      else if (type === 5 || type === 10) { const o = base + u32(vo); if (o + 8 <= end) { const num = u32(o), den = u32(o + 4); if (den) tags[name] = num / den; } }
     }
+    if (depth === 0 && !ifd1) { const nx = p + 2 + n * 12; if (nx + 4 <= end) { const o1 = u32(nx); if (o1) readIFD(o1, 0, true); } }
   }
   if (u16(base + 2) !== 42) return tags;
-  readIFD(u32(base + 4), 0);
+  readIFD(u32(base + 4), 0, false);
+  if (tags.ThumbOffset && tags.ThumbLength) tags.thumb = { off: base + tags.ThumbOffset, len: tags.ThumbLength };
+  delete tags.ThumbOffset; delete tags.ThumbLength;
   return tags;
 }
 const STD_LUMA_SUM = [16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,14,13,16,24,40,57,69,56,14,17,22,29,51,87,80,62,18,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99].reduce((a, c) => a + c, 0);
@@ -929,6 +953,7 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
     const w = parseWebp(bytes); exif = w.exif;
     rec.meta["WebP bloklari"] = w.chunks.slice(0, 8).join(", ");
   }
+  const camFields = ["ExposureTime", "FNumber", "ISO", "FocalLength", "LensModel"].filter(k => exif[k] != null).length + (exif.MakerNote ? 1 : 0);
   rec.meta["Kamera"] = [exif.Make, exif.Model].filter(Boolean).join(" ") || "koʻrsatilmagan";
   if (exif.Software) rec.meta["Dastur (EXIF)"] = exif.Software;
   if (exif.DateTimeOriginal) rec.meta["Suratga olingan"] = exif.DateTimeOriginal;
@@ -939,10 +964,27 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
   const hasCamera = !!(exif.Make && exif.Model);
   rec._hasCamera = hasCamera;
   if (hasCamera) rec.indicators.push({ sev: "auth", pts: -2, group: "auth", title: `Kamera qurilmasi maʼlumoti bor: ${[exif.Make, exif.Model].join(" ")}`, detail: "Kamera ishlab chiqaruvchisi va modeli yozilgan. Generativ AI rasmlarida bu maʼlumot odatda boʻlmaydi, lekin uni qoʻlda qoʻshish mumkin.", src: "provenance" });
+  if (hasCamera && camFields >= 3) rec.indicators.push({ sev: "auth", pts: exif.MakerNote ? -1.5 : -1, group: "auth", title: "Toʻliq kamera parametrlari yozilgan", detail: `Ekspozitsiya, diafragma, ISO kabi ${camFields} ta texnik maydon${exif.MakerNote ? " va ishlab chiqaruvchining MakerNote bloki" : ""} bor. Bunday toʻliq toʻplamni qoʻlda soxtalashtirish kamdan-kam uchraydi.`, src: "provenance" });
+  if (hasCamera && camFields === 0) rec.indicators.push({ sev: "low", pts: 1.5, group: "ai", title: "Kamera nomi bor, lekin suratga olish parametrlari yoʻq", detail: "Haqiqiy kamera fayllarida ekspozitsiya, diafragma va ISO deyarli doim yoziladi. Faqat kamera nomi boʻlishi metamaʼlumot qoʻlda qoʻshilgani yoki tahrirlovchi uni qisman oʻchirgani belgisi boʻlishi mumkin.", src: "provenance" });
   if (exif.DateTimeOriginal) rec.indicators.push({ sev: "auth", pts: -1, group: "auth", title: "Asl suratga olish sanasi bor", detail: `DateTimeOriginal: ${exif.DateTimeOriginal}. Kameradan olingan fayllarga xos.`, src: "provenance" });
   if (!hasCamera && fmt.label !== "JPEG") rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: `${fmt.label} faylda kamera maʼlumoti yoʻq`, detail: "Kameralar odatda JPEG/HEIC saqlaydi. Kamera izisiz PNG/WebP — skrinshot, grafika yoki AI generatsiya boʻlishi mumkin.", src: "provenance" });
   if (exif.GPS) rec.indicators.push({ sev: "info", title: "Faylda GPS joylashuv maʼlumoti bor", detail: "Bu manipulyatsiya belgisi emas, lekin maxfiylik uchun muhim: faylni ulashsangiz, joylashuv ham ulashiladi.", src: "metadata" });
-  scanSignatures(textBlob + "\n" + scanStrings(bytes), rec, "image");
+  const allText = textBlob + "\n" + scanStrings(bytes);
+  scanSignatures(allText, rec, "image");
+  const xi = xmpInfo(allText);
+  if (xi.creator) rec.meta["Yaratgan dastur (XMP)"] = xi.creator;
+  if (xi.agents.length) rec.meta["Tahrir tarixi (XMP)"] = xi.agents.slice(0, 6).join(" → ");
+  const editAgent = xi.agents.find(a => EDITOR_RE.test(a) && !/Lightroom|Camera Raw/i.test(a));
+  if (editAgent && !(exif.Software && EDITOR_RE.test(exif.Software))) rec.indicators.push({ sev: "medium", pts: 2, group: "manip", title: `XMP tahrir tarixida tahrirlovchi bor: ${editAgent}`, detail: "Fayl tarixida rasm tahrirlash dasturida ochilib saqlangani yozilgan. Bu kontent oʻzgartirilganini tekshirishga sabab.", src: "xmp" });
+  if (xi.ancestors) rec.indicators.push({ sev: "medium", pts: 2.5, group: "manip", title: "Rasm boshqa hujjatlardan yigʻilgan (DocumentAncestors)", detail: "Photoshop boshqa fayldan qatlam qoʻshilganda shu belgini yozadi. Rasmga tashqi manbadan qism qoʻshilgan boʻlishi mumkin (kollaj, montaj).", src: "xmp" });
+  if (xi.saves >= 3) rec.indicators.push({ sev: "info", title: `Fayl ${xi.saves} marta qayta saqlangan (XMP tarixi)`, detail: "Koʻp marta saqlash odatiy ish jarayoni ham boʻlishi mumkin.", src: "xmp" });
+  if (xi.capture) rec.indicators.push({ sev: "auth", pts: -1.5, group: "auth", title: "IPTC: “digitalCapture” (kamerada olingan) deb belgilangan", detail: "Fayl metamaʼlumotida kontent raqamli kamera bilan olingani koʻrsatilgan. Uni qoʻlda yozish mumkin, shuning uchun bu kuchsiz haqiqiylik belgisi.", src: "xmp" });
+  const gen = c2paGenerator(allText);
+  if (gen) rec.meta["C2PA yaratuvchi"] = gen;
+  if (exif.ExposureTime) rec.meta["Ekspozitsiya"] = exif.ExposureTime >= 1 ? exif.ExposureTime + " s" : "1/" + Math.round(1 / exif.ExposureTime) + " s";
+  if (exif.FNumber) rec.meta["Diafragma"] = "f/" + (+exif.FNumber).toFixed(1);
+  if (exif.ISO) rec.meta["ISO"] = exif.ISO;
+  if (exif.LensModel) rec.meta["Obyektiv"] = exif.LensModel;
   rec.checks.push({ name: "Metamaʼlumot tahlilchisi", version: "tl-meta 1.0", status: "ok", summary: "EXIF/TIFF, XMP, PNG matn bloklari va bayt satrlari oʻqildi." });
 
   await step("decode");
@@ -964,7 +1006,7 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
     const e = await runELA(bitmap, settings.elaQ / 100);
     rec.meta["ELA oʻrtacha xato"] = e.mean.toFixed(2);
     rec.meta["ELA notekislik (p98/median)"] = e.ratio ? e.ratio.toFixed(2) : "—";
-    visuals[rec.tmpKey] = { kind: "image", orig: e.origUrl, ela: e.url };
+    visuals[rec.tmpKey] = Object.assign(visuals[rec.tmpKey] || {}, { kind: "image", orig: e.origUrl, ela: e.url });
     if (e.scaled) rec.limitations.push(`ELA tezlik uchun ${e.W}×${e.H} px ga kichraytirilgan nusxada bajarildi; mayda tafsilotlar yoʻqolishi mumkin.`);
     if (fmt.label !== "JPEG") rec.limitations.push("ELA asosan JPEG uchun moʻljallangan. PNG/WebP fayllarda farq xaritasi kamroq maʼno beradi.");
     if (fmt.label === "JPEG" && e.med > 0.4 && e.ratio > 4) rec.indicators.push({ sev: e.ratio > 7 ? "medium" : "low", pts: e.ratio > 7 ? 2 : 0.75, group: "manip", title: "ELA xaritasida notekis hududlar", detail: `Ayrim hududlarning qayta siqish xatosi medianadan ${e.ratio.toFixed(1)} barobar yuqori. Bu boshqa manbadan qoʻshilgan yoki qayta ishlangan qism belgisi boʻlishi mumkin, lekin keskin qirralar va matn ham shunday koʻrinadi. Xaritani koʻz bilan tekshiring.`, src: "ela" });
@@ -973,9 +1015,234 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
     rec.checks.push({ name: "Xato darajasi tahlili (ELA)", version: "tl-ela 1.0", status: "failed", summary: "Bajarilmadi: " + err.message });
   }
 
+  if (fmt.label === "JPEG" && exif.thumb) { try { await thumbCheck(bytes, exif.thumb, bitmap, rec); } catch (e) {} }
+
+  await step("noise");
+  const vis = visuals[rec.tmpKey] || (visuals[rec.tmpKey] = { kind: "image" });
+  let graphics = false;
+  try {
+    const sc = Math.min(1, 1536 / Math.max(bitmap.width, bitmap.height));
+    const G = grayCanvas(bitmap, Math.max(1, Math.round(bitmap.width * sc)), Math.max(1, Math.round(bitmap.height * sc)));
+    const na = noiseAnalysis(G);
+    if (!na) rec.checks.push({ name: "Shovqin izchilligi", version: "tl-noise 1.0", status: "failed", summary: "Rasm juda kichik yoki bir xil rangli." });
+    else {
+      vis.noise = na.url;
+      rec.meta["Shovqin darajasi (median σ)"] = na.med.toFixed(2);
+      const frac = na.smooth ? na.largest / na.smooth : 0;
+      graphics = na.flat > 0.45;
+      if (graphics) rec.limitations.push("Rasm skrinshot yoki grafikaga oʻxshaydi (katta bir xil rangli maydonlar). Shovqin, klon va spektral tekshiruvlar bunday rasmlarda ishonchsiz, shuning uchun ular bahoga qoʻshilmadi.");
+      else if (na.med <= 0.2) rec.limitations.push("Rasmda deyarli shovqin yoʻq (grafika, skrinshot yoki kuchli tozalangan rasm) — shovqin tahlili maʼno bermaydi.");
+      else if (na.largest >= Math.max(6, 0.05 * na.smooth) && frac <= 0.45) rec.indicators.push({ sev: "medium", pts: frac >= 0.1 ? 3 : 2, group: "manip", title: "Shovqini gʻayritabiiy kam boʻlgan hudud topildi", detail: `Rasmning bir qismida (${Math.round(frac * 100)}% silliq bloklar) sensor shovqini qolgan qismdan 1.8 barobardan koʻp kam. Xiralashtirib “tozalangan”, boshqa rasmdan qoʻyilgan yoki AI bilan toʻldirilgan (inpainting) hudud shunday iz qoldiradi. Tabiiy silliq hududlar (osmon, devor) ham kuchli JPEG siqishda shunday koʻrinishi mumkin. Shovqin xaritasida sariq ramka bilan belgilangan.`, src: "noise" });
+      rec.checks.push({ name: "Shovqin izchilligi", version: "tl-noise 1.0 · Immerkær", status: "ok", summary: `Median σ ${na.med.toFixed(2)}, eng katta notekis hudud ${na.largest} blok.` });
+    }
+  } catch (e) { rec.checks.push({ name: "Shovqin izchilligi", version: "tl-noise 1.0", status: "failed", summary: "Bajarilmadi." }); }
+
+  await step("clone");
+  try {
+    const sc = Math.min(1, 360 / Math.max(bitmap.width, bitmap.height));
+    const G = grayCanvas(bitmap, Math.max(1, Math.round(bitmap.width * sc)), Math.max(1, Math.round(bitmap.height * sc)));
+    await sleep(0);
+    const cm = copyMove(G);
+    if (cm.url) vis.clone = cm.url;
+    rec.meta["Klon bloklar (eng koʻp siljish)"] = cm.count ? `${cm.count} ta (Δ ${Math.round(cm.dx / sc)}, ${Math.round(cm.dy / sc)} px)` : "0";
+    if (!graphics && cm.count >= 15 && cm.dominance >= 2) rec.indicators.push({ sev: cm.count >= 40 ? "high" : "medium", pts: cm.count >= 40 ? 6 : 3, group: "manip", title: "Rasm ichida nusxa koʻchirilgan (klonlangan) hudud", detail: `${cm.count} ta blok rasmning boshqa joyida aynan bir xil siljish bilan (${Math.round(cm.dx / sc)}, ${Math.round(cm.dy / sc)} px) takrorlanadi. Bu obyektni yashirish yoki koʻpaytirish uchun “Clone Stamp” ishlatilganiga xos. Takrorlanuvchi naqshlar (gʻisht, plitka) ham shunday koʻrinishi mumkin — klon xaritasini koʻz bilan tekshiring.`, src: "clone" });
+    rec.checks.push({ name: "Klonlash (copy-move) qidiruvi", version: "tl-clone 1.0 · 8×8 blok", status: "ok", summary: cm.count ? `Eng kuchli siljishda ${cm.count} ta mos blok.` : "Mos bloklar topilmadi." });
+  } catch (e) { rec.checks.push({ name: "Klonlash (copy-move) qidiruvi", version: "tl-clone 1.0", status: "failed", summary: "Bajarilmadi." }); }
+
+  await step("spectral");
+  const lossless = fmt.label === "PNG" || (fmt.label === "WebP" && bytes.length > 16 && ascii(bytes, 12, 4) === "VP8L");
+  if (lossless) {
+    try {
+      const sp = spectralPeaks(bitmap);
+      if (!sp) rec.checks.push({ name: "Spektral artefaktlar", version: "tl-spec 1.0", status: "failed", summary: "Rasm 256×256 dan kichik." });
+      else {
+        vis.spec = sp.url;
+        rec.meta["Spektral choʻqqilar (8 px panjara)"] = `${sp.peaks} / 63`;
+        if (graphics) {}
+        else if (sp.peaks >= 4) rec.indicators.push({ sev: "medium", pts: sp.peaks >= 10 ? 3.5 : 2.5, group: "ai", title: "Shovqin spektrida davriy panjara choʻqqilari", detail: `Shovqin qoldigʻi spektrida 8 piksellik panjaraga mos ${sp.peaks} ta keskin choʻqqi bor. Diffuziya modellari rasmni 8 barobar kattalashtirib (VAE dekoder) hosil qiladi va bu shunday davriy iz qoldiradi. Kamera rasmlari siqilmagan holda odatda bunday naqsh bermaydi.`, src: "spectral" });
+        else if (sp.peaks >= 2) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: "Spektrda kuchsiz davriy choʻqqilar", detail: `${sp.peaks} ta panjara choʻqqisi topildi. Kattalashtirish (upscale) yoki generatsiya izi boʻlishi mumkin, lekin kuchsiz belgi.`, src: "spectral" });
+        rec.checks.push({ name: "Spektral artefaktlar", version: "tl-spec 1.0 · FFT 256", status: "ok", summary: `${sp.peaks} ta panjara choʻqqisi.` });
+      }
+    } catch (e) { rec.checks.push({ name: "Spektral artefaktlar", version: "tl-spec 1.0", status: "failed", summary: "Bajarilmadi." }); }
+  }
+
   await step("model");
   await faceCheck(bitmap, rec);
   if (bitmap.close) bitmap.close();
+}
+
+/* ---------- Extra image forensics ---------- */
+function grayCanvas(src, w, h, sx = 0, sy = 0, sw, sh) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  if (sw) x.drawImage(src, sx, sy, sw, sh, 0, 0, w, h); else x.drawImage(src, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, g = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) g[i] = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2];
+  return { g, w, h, c, x };
+}
+function median(a) { return percentile(a, 0.5); }
+
+function xmpInfo(text) {
+  const agents = [...new Set([...text.matchAll(/stEvt:softwareAgent(?:="|>)([^"<]{2,80})/g)].map(m => m[1].trim()))];
+  const creator = (/xmp:CreatorTool(?:="|>)([^"<]{2,80})/.exec(text) || [])[1];
+  return { agents, creator: creator ? creator.trim() : null, ancestors: /photoshop:DocumentAncestors/.test(text), saves: (text.match(/stEvt:action(?:="|>)saved/g) || []).length, capture: /digitalsourcetype\/digitalCapture/i.test(text) };
+}
+function c2paGenerator(text) {
+  const i = text.indexOf("claim_generator");
+  if (i < 0) return null;
+  const c = text.charCodeAt(i + 15);
+  if (c >= 0x63 && c < 0x78) return text.substr(i + 16, c - 0x60).trim() || null;
+  const m = /^[^A-Za-z]{0,3}([A-Za-z][\w .\/()-]{2,60})/.exec(text.slice(i + 15, i + 90));
+  return m ? m[1].trim() : null;
+}
+
+async function thumbCheck(bytes, t, bitmap, rec) {
+  if (!t || !t.len || t.off + t.len > bytes.length) return;
+  const tb = bytes.subarray(t.off, t.off + t.len);
+  if (tb[0] !== 0xFF || tb[1] !== 0xD8) return;
+  let tbm; try { tbm = await createImageBitmap(new Blob([tb], { type: "image/jpeg" })); } catch (e) { return; }
+  const T = grayCanvas(tbm, tbm.width, tbm.height);
+  let x0 = 0, x1 = T.w - 1, y0 = 0, y1 = T.h - 1;
+  const rowMean = y => { let s = 0; for (let x = 0; x < T.w; x++) s += T.g[y * T.w + x]; return s / T.w; };
+  const colMean = x => { let s = 0; for (let y = 0; y < T.h; y++) s += T.g[y * T.w + x]; return s / T.h; };
+  while (y0 < y1 && rowMean(y0) < 10) y0++; while (y1 > y0 && rowMean(y1) < 10) y1--;
+  while (x0 < x1 && colMean(x0) < 10) x0++; while (x1 > x0 && colMean(x1) < 10) x1--;
+  const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+  if (cw < 16 || ch < 16) return;
+  const S = 24, tg = grayCanvas(T.c, S, S, x0, y0, cw, ch).g;
+  const corr = (a, b) => { let ma = 0, mb = 0; for (let i = 0; i < a.length; i++) { ma += a[i]; mb += b[i]; } ma /= a.length; mb /= b.length; let sab = 0, sa = 0, sb = 0; for (let i = 0; i < a.length; i++) { const da = a[i] - ma, db = b[i] - mb; sab += da * db; sa += da * da; sb += db * db; } return sa < 1 || sb < 1 ? null : sab / Math.sqrt(sa * sb); };
+  let best = -2, bestAspect = 0;
+  for (const rot of [0, 90, 180, 270]) {
+    const c = document.createElement("canvas"); c.width = S; c.height = S; const x = c.getContext("2d", { willReadFrequently: true });
+    x.translate(S / 2, S / 2); x.rotate(rot * Math.PI / 180); x.drawImage(bitmap, -S / 2, -S / 2, S, S);
+    const d = x.getImageData(0, 0, S, S).data, g = new Float32Array(S * S);
+    for (let i = 0; i < S * S; i++) g[i] = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2];
+    const r = corr(tg, g); if (r === null) return;
+    const ma = rot % 180 ? bitmap.height / bitmap.width : bitmap.width / bitmap.height;
+    if (r > best) { best = r; bestAspect = Math.abs(Math.log((cw / ch) / ma)); }
+  }
+  rec.meta["EXIF eskiz mosligi"] = best.toFixed(2);
+  if (best < 0.5) rec.indicators.push({ sev: "high", pts: 6, group: "manip", title: "EXIF ichidagi eskiz (thumbnail) asosiy rasmga mos emas", detail: `Kamera faylga kichik nusxa (eskiz) yozadi. Bu faylda eskiz va asosiy rasm oʻxshashligi ${best.toFixed(2)} (1 = bir xil). Rasm tahrirlangan, eskiz esa yangilanmagan boʻlishi mumkin — bu klassik va kuchli belgi.`, src: "thumbnail" });
+  else if (bestAspect > 0.12) rec.indicators.push({ sev: "medium", pts: 2, group: "manip", title: "EXIF eskizi nisbati asosiy rasmdan farq qiladi", detail: "Eskiz mazmuni mos, lekin tomonlar nisbati boshqacha. Rasm kesilgan (crop) va eskiz yangilanmagan boʻlishi mumkin.", src: "thumbnail" });
+  rec.checks.push({ name: "EXIF eskiz solishtirish", version: "tl-thumb 1.0", status: "ok", summary: `Eskiz bilan oʻxshashlik ${best.toFixed(2)}.` });
+}
+
+/* Block-wise noise level (Immerkaer estimator) on smooth blocks; flags connected regions with a different noise level */
+function noiseAnalysis(G) {
+  const { g, w, h } = G, B = 32, bw = Math.floor(w / B), bh = Math.floor(h / B);
+  if (bw < 4 || bh < 4) return null;
+  let flatPx = 0, allPx = 0;
+  const n = bw * bh, sig = new Float32Array(n), tex = new Float32Array(n), ok = new Uint8Array(n);
+  for (let by = 0; by < bh; by++) for (let bx = 0; bx < bw; bx++) {
+    let sa = 0, gr = 0, mean = 0, cnt = 0, fl = 0;
+    for (let y = Math.max(1, by * B); y < Math.min(h - 1, by * B + B); y++) for (let x = Math.max(1, bx * B); x < Math.min(w - 1, bx * B + B); x++) {
+      const i = y * w + x, c = g[i];
+      const m = 4 * c - 2 * (g[i - 1] + g[i + 1] + g[i - w] + g[i + w]) + g[i - w - 1] + g[i - w + 1] + g[i + w - 1] + g[i + w + 1];
+      if (Math.abs(m) < 0.5) fl++; sa += Math.abs(m); gr += Math.abs(g[i + 1] - g[i - 1]) + Math.abs(g[i + w] - g[i - w]); mean += c; cnt++;
+    }
+    flatPx += fl; allPx += cnt;
+    const k = by * bw + bx; sig[k] = Math.sqrt(Math.PI / 2) / 6 * sa / cnt; tex[k] = gr / cnt; mean /= cnt;
+    ok[k] = mean > 16 && mean < 239 ? 1 : 0;
+  }
+  const texOk = []; for (let k = 0; k < n; k++) if (ok[k]) texOk.push(tex[k]);
+  if (texOk.length < 12) return null;
+  const tp = percentile(texOk, 0.6);
+  const smooth = new Uint8Array(n), sv = [];
+  for (let k = 0; k < n; k++) if (ok[k] && tex[k] <= tp) { smooth[k] = 1; sv.push(sig[k]); }
+  const med = median(sv);
+  const out = new Uint8Array(n);
+  if (med > 0.2) for (let k = 0; k < n; k++) if (smooth[k] && sig[k] < med / 1.8) out[k] = 1;
+  // largest 4-connected outlier component
+  const lab = new Int32Array(n); let best = 0, bestId = 0, id = 0;
+  for (let k = 0; k < n; k++) if (out[k] && !lab[k]) {
+    id++; let sz = 0; const st = [k]; lab[k] = id;
+    while (st.length) { const q = st.pop(); sz++; const qx = q % bw, qy = (q / bw) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue; const r = ny * bw + nx; if (out[r] && !lab[r]) { lab[r] = id; st.push(r); } } }
+    if (sz > best) { best = sz; bestId = id; }
+  }
+  const mc = document.createElement("canvas"); mc.width = w; mc.height = h; const mx = mc.getContext("2d");
+  mx.drawImage(G.c, 0, 0); mx.fillStyle = "rgba(5,9,17,.55)"; mx.fillRect(0, 0, w, h);
+  for (let k = 0; k < n; k++) {
+    if (!ok[k]) continue; const bx = k % bw, by = (k / bw) | 0;
+    const r = med > 0 ? Math.log2(sig[k] / med) : 0, t = Math.max(-1, Math.min(1, r / 2));
+    if (!smooth[k]) { mx.fillStyle = "rgba(148,163,184,.10)"; }
+    else if (t >= 0) mx.fillStyle = `rgba(239,68,68,${(0.08 + 0.55 * t).toFixed(2)})`;
+    else mx.fillStyle = `rgba(56,189,248,${(0.08 + 0.55 * -t).toFixed(2)})`;
+    mx.fillRect(bx * B, by * B, B, B);
+    if (lab[k] === bestId && best) { mx.strokeStyle = "#FDE047"; mx.lineWidth = 2; mx.strokeRect(bx * B + 1, by * B + 1, B - 2, B - 2); }
+  }
+  return { med, largest: best, smooth: sv.length, flat: flatPx / Math.max(1, allPx), url: mc.toDataURL("image/jpeg", 0.82) };
+}
+
+/* Copy-move (clone) detection: exact-ish block matching with a dominant shift vector */
+function copyMove(G) {
+  const { g, w, h } = G, B = 8;
+  const buckets = new Map();
+  for (let y = 0; y + B <= h; y++) for (let x = 0; x + B <= w; x++) {
+    let q = [0, 0, 0, 0], s = 0, s2 = 0;
+    for (let yy = 0; yy < B; yy++) for (let xx = 0; xx < B; xx++) { const v = g[(y + yy) * w + x + xx]; s += v; s2 += v * v; q[(yy >> 2) * 2 + (xx >> 2)] += v; }
+    const m = s / 64, sd = Math.sqrt(Math.max(0, s2 / 64 - m * m));
+    if (sd < 7) continue;
+    const key = q.map(v => Math.floor(v / 16 / 5)).join(",") + "," + Math.floor(sd / 4);
+    let a = buckets.get(key); if (!a) buckets.set(key, a = []); if (a.length < 13) a.push(y * w + x);
+  }
+  const shifts = new Map();
+  for (const a of buckets.values()) {
+    if (a.length < 2 || a.length > 12) continue;
+    for (let i = 0; i < a.length; i++) for (let j = i + 1; j < a.length; j++) {
+      let p = a[i], r = a[j]; let dx = (r % w) - (p % w), dy = ((r / w) | 0) - ((p / w) | 0);
+      if (dx * dx + dy * dy < 24 * 24) continue;
+      let sad = 0;
+      for (let yy = 0; yy < B && sad < 64 * 3.5; yy++) for (let xx = 0; xx < B; xx++) sad += Math.abs(g[p + yy * w + xx] - g[r + yy * w + xx]);
+      if (sad >= 64 * 3.5) continue;
+      if (dy < 0 || (dy === 0 && dx < 0)) { [p, r] = [r, p]; dx = -dx; dy = -dy; }
+      const k = (Math.round(dx / 2)) + ":" + (Math.round(dy / 2));
+      let e = shifts.get(k); if (!e) shifts.set(k, e = { dx, dy, pairs: [] }); e.pairs.push([p, r]);
+    }
+  }
+  const list = [...shifts.values()].sort((a, b) => b.pairs.length - a.pairs.length);
+  if (!list.length) return { count: 0 };
+  const top = list[0];
+  const second = list.find(e => Math.abs(e.dx - top.dx) > 3 || Math.abs(e.dy - top.dy) > 3);
+  const srcSet = new Set(top.pairs.map(p => p[0]));
+  const res = { count: srcSet.size, dx: top.dx, dy: top.dy, dominance: second ? top.pairs.length / second.pairs.length : Infinity };
+  if (srcSet.size >= 15) {
+    const mc = document.createElement("canvas"); mc.width = w; mc.height = h; const mx = mc.getContext("2d");
+    mx.drawImage(G.c, 0, 0); mx.fillStyle = "rgba(5,9,17,.5)"; mx.fillRect(0, 0, w, h);
+    mx.fillStyle = "rgba(56,189,248,.55)"; top.pairs.forEach(([p]) => mx.fillRect(p % w, (p / w) | 0, B, B));
+    mx.fillStyle = "rgba(236,72,153,.55)"; top.pairs.forEach(([, r]) => mx.fillRect(r % w, (r / w) | 0, B, B));
+    res.url = mc.toDataURL("image/jpeg", 0.85);
+  }
+  return res;
+}
+
+/* Periodic spectral peaks of the noise residual (upsampling grid of generative models) */
+function spectralPeaks(bitmap) {
+  const N = 256; if (bitmap.width < N || bitmap.height < N) return null;
+  const G = grayCanvas(bitmap, N, N, (bitmap.width - N) >> 1, (bitmap.height - N) >> 1, N, N), g = G.g;
+  const re = new Float64Array(N * N), im = new Float64Array(N * N);
+  for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++) {
+    const i = y * N + x, m = 4 * g[i] - g[i - 1] - g[i + 1] - g[i - N] - g[i + N];
+    re[i] = m * (0.5 - 0.5 * Math.cos(2 * Math.PI * x / (N - 1))) * (0.5 - 0.5 * Math.cos(2 * Math.PI * y / (N - 1)));
+  }
+  const fft = makeFFT(N), rr = new Float64Array(N), ri = new Float64Array(N);
+  for (let y = 0; y < N; y++) { for (let x = 0; x < N; x++) { rr[x] = re[y * N + x]; ri[x] = im[y * N + x]; } fft(rr, ri); for (let x = 0; x < N; x++) { re[y * N + x] = rr[x]; im[y * N + x] = ri[x]; } }
+  for (let x = 0; x < N; x++) { for (let y = 0; y < N; y++) { rr[y] = re[y * N + x]; ri[y] = im[y * N + x]; } fft(rr, ri); for (let y = 0; y < N; y++) { re[y * N + x] = rr[y]; im[y * N + x] = ri[y]; } }
+  const L = new Float64Array(N * N); for (let i = 0; i < N * N; i++) L[i] = Math.log(re[i] * re[i] + im[i] * im[i] + 1e-9);
+  const at = (u, v) => L[((v + N) % N) * N + ((u + N) % N)];
+  let peaks = 0, strength = 0;
+  for (let v = 0; v < N; v += 32) for (let u = 0; u < N; u += 32) {
+    if (!u && !v) continue;
+    const nb = []; for (let dv = -4; dv <= 4; dv++) for (let du = -4; du <= 4; du++) if (Math.abs(du) > 1 || Math.abs(dv) > 1) nb.push(at(u + du, v + dv));
+    const d = at(u, v) - median(nb);
+    if (d > 2.3) { peaks++; strength += d; }
+  }
+  // visual: fft-shifted log spectrum
+  let mn = Infinity, mxv = -Infinity; for (let i = 0; i < N * N; i++) { if (L[i] < mn) mn = L[i]; if (L[i] > mxv) mxv = L[i]; }
+  const c = document.createElement("canvas"); c.width = N; c.height = N; const x = c.getContext("2d"), d = x.createImageData(N, N);
+  for (let y = 0; y < N; y++) for (let xx = 0; xx < N; xx++) { const v = (at(xx - N / 2, y - N / 2) - mn) / (mxv - mn); const [R, Gc, Bc] = cmap(Math.pow(v, 1.6)); const i = (y * N + xx) * 4; d.data[i] = R; d.data[i + 1] = Gc; d.data[i + 2] = Bc; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0);
+  return { peaks, strength, url: c.toDataURL("image/png") };
 }
 
 async function faceCheck(src, rec) {
@@ -1252,7 +1519,7 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
    Overall     = max(AI, Edit). Risk: < 35 low, 35–64 medium, ≥ 65 high.
    The index measures the weight of found signs. It is NOT the probability that the file is fake. */
 const WEIGHT = { info: 0, low: 1, medium: 2, high: 6, auth: -1 };
-const AI_SRC = new Set(["signatures", "png-text", "dimensions"]);
+const AI_SRC = new Set(["signatures", "png-text", "dimensions", "spectral"]);
 const toIndex = s => Math.round(100 * (1 - Math.exp(-Math.max(0, s) / 4)));
 function assess(rec) {
   let ai = 0, man = 0, auth = 0;
@@ -1286,7 +1553,7 @@ function recommendations(rec) {
 
 /* ================= Orchestration ================= */
 const STEPS = {
-  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA)"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
+  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA) va EXIF eskiz"], ["noise", "Shovqin izchilligi xaritasi"], ["clone", "Klonlangan hududlarni qidirish"], ["spectral", "Spektral artefaktlar"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
   video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
   audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["assess", "Xavfni baholash"]]
 };
@@ -1425,7 +1692,7 @@ function renderUpload() {
       <input type="file" id="fileIn" accept="${ACCEPT}" hidden>
       <div id="upErr"></div>
       <div class="grid g3" style="margin-top:20px">
-        <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Format va yaxlitlik, metamaʼlumotlar, generator izlari, siqish xatolari, spektr va kadrlararo izchillik.</p></div>
+        <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Rasm uchun: metamaʼlumot va tahrir tarixi, 40+ AI generator izi, EXIF eskiz, ELA, shovqin xaritasi, klonlangan hududlar va spektral artefaktlar.</p></div>
         <div class="card"><h3>Nima tekshirilmaydi</h3><p class="muted" style="font-size:14px">Gapirayotgan yoki rasmdagi shaxs aniqlanmaydi. Natija hech kimni aybdor deb koʻrsatmaydi.</p></div>
         <div class="card"><h3>Maxfiylik</h3><p class="muted" style="font-size:14px">Fayl brauzerdan chiqmaydi. Tarixga faqat natija va SHA-256 xesh yoziladi.</p></div>
       </div>`;
@@ -1516,7 +1783,7 @@ function renderResult() {
   const sevOrder = { high: 0, medium: 1, low: 2, info: 3, auth: 4 };
   const inds = r.indicators.slice().sort((a, b) => sevOrder[a.sev] - sevOrder[b.sev]);
   let vis = "";
-  if (v && v.kind === "image") vis = `<div class="vis"><figure><img src="${v.orig}" alt="Asl rasm"><figcaption>Tahlil qilingan rasm</figcaption></figure><figure><img src="${v.ela}" alt="ELA xaritasi"><figcaption>ELA xaritasi: yorqin joylar qayta siqishda koʻproq oʻzgargan hududlar. Qirralar va matn tabiiy ravishda yorqin koʻrinadi.</figcaption></figure></div>`;
+  if (v && v.kind === "image") vis = `<div class="vis">${v.orig ? `<figure><img src="${v.orig}" alt="Asl rasm"><figcaption>Tahlil qilingan rasm</figcaption></figure>` : ""}${v.ela ? `<figure><img src="${v.ela}" alt="ELA xaritasi"><figcaption>ELA xaritasi: yorqin joylar qayta siqishda koʻproq oʻzgargan hududlar. Qirralar va matn tabiiy ravishda yorqin koʻrinadi.</figcaption></figure>` : ""}${v.noise ? `<figure><img src="${v.noise}" alt="Shovqin xaritasi"><figcaption>Shovqin xaritasi: qizil — shovqin koʻp, koʻk — kam (rasm boʻyicha medianaga nisbatan). Sariq ramka — eng katta notekis hudud.</figcaption></figure>` : ""}${v.clone ? `<figure><img src="${v.clone}" alt="Klon xaritasi"><figcaption>Klon xaritasi: koʻk — manba, pushti — nusxa koʻchirilgan joy.</figcaption></figure>` : ""}${v.spec ? `<figure><img src="${v.spec}" alt="Shovqin spektri" style="aspect-ratio:1;object-fit:contain"><figcaption>Shovqin spektri (markaziy 256×256). Panjara shaklidagi yorqin nuqtalar — generatsiya yoki kattalashtirish izi.</figcaption></figure>` : ""}</div>`;
   if (v && v.kind === "audio") vis = `<div class="vis"><figure class="wide"><img src="${v.wave}" alt="Toʻlqin shakli"><figcaption>Toʻlqin shakli (birinchi ${v.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.spec}" alt="Spektrogramma" style="height:220px;object-fit:fill"><figcaption>Spektrogramma: vertikal oʻq 0–${(v.specMaxHz / 1000).toFixed(0)} kHz, gorizontal oʻq vaqt. Yorqinlik energiyani bildiradi.</figcaption></figure></div>`;
   if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#38BDF8", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#8B5CF6", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure></div>`;
   if (!v && r.status === "completed") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;

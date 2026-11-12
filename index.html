@@ -1424,8 +1424,10 @@ async function runDetector(rec, inputs, kind) {
    Model: fakespot-ai/roberta-base-ai-text-detection-v1 (Apache-2.0), int8 ONNX export MedAliFarhat/ai-text-detector-onnx.
    Measured on textsightai/ai-text-detection-benchmark-2026 (644 human + 56 AI passages from Claude, GPT-4.1, gpt-oss, Qwen, 2026):
    AUC 0.95; at the "AI" threshold 1% of human texts flagged and 66% of AI texts caught; at "probably AI" 5% / 79%.
-   Uzbek check (150 human 2023 news articles + 12 AI-written texts): no human text above 0.6 (max 0.53), but only ~33% of AI texts reach it.
-   Long texts are scored in 510-token windows and averaged (English AUC 0.956 this way).
+   Uzbek check (350 human texts: 2023 news, Wikipedia, legal acts; 30 AI-written texts), apostrophes normalised to ASCII:
+   AUC 0.88 on news, but formal/legal Uzbek scores high too. At 0.8: 0.6% of human texts flagged, ~23% of AI caught;
+   at 0.6: 3.7% / 37%. Uzbek detection is therefore weak, and a low score is never reported as "human".
+   Long texts: 510-token windows, a trailing window shorter than half is dropped, scores averaged (English AUC 0.951).
    Raw scores live on different scales per language, so they are mapped onto the same 0–100 tiers as images (35 / 50 / 70). */
 const TXM = {
   name: "AI matn detektori (RoBERTa)", version: "fakespot-ai/roberta-base-ai-text-detection-v1 · int8",
@@ -1433,7 +1435,23 @@ const TXM = {
   tokUrl: "https://huggingface.co/MedAliFarhat/ai-text-detector-onnx/resolve/main/tokenizer.json",
   sizeMB: 126, cache: "tl-model-v1", session: null, loading: null, enc: null
 };
-const TT = { en: { unsure: 0.9, likely: 0.98, ai: 0.997 }, other: { unsure: 0.35, likely: 0.6, ai: 0.85 } };
+/* Uzbek (Latin) combiner: logistic regression on [connector-phrase rate per 100 words, sentence-length CV, model logit],
+   fitted on 350 human Uzbek texts (news, Wikipedia, legal acts) + 30 AI texts. Leave-one-out AUC 0.955 (model alone 0.74).
+   At 0.95: 1.4% of human texts flagged (mostly legal acts), ~50% of AI caught; at 0.8: 3.1% / 67%. */
+const UZC = {
+  conn: ["bundan tashqari", "shuningdek", "birinchidan", "ikkinchidan", "uchinchidan", "xulosa qilib", "umuman olganda", "shu bilan birga", "va nihoyat", "eng muhimi", "shuni ta'kidlash", "albatta", "muhim ahamiyat", "alohida e'tibor", "maqsadga muvofiq", "tavsiya", "shu sababli", "shuning uchun", "jumladan", "xususan"],
+  mu: [0.4936, 0.6322, -2.6156], sd: [0.7612, 0.3231, 1.9394], w: [0.985, -2.6818, 1.4471], b: -2.5437, th: { unsure: 0.6, likely: 0.8, ai: 0.95 }
+};
+function uzStyle(text) {
+  const t = text.replace(/[ʻʼ‘’`]/g, "'"), lo = t.toLowerCase();
+  const nw = Math.max(1, (lo.match(/[\p{L}\p{N}_']+/gu) || []).length);
+  let c = 0; for (const ph of UZC.conn) { let i = 0; while ((i = lo.indexOf(ph, i)) !== -1) { c++; i += ph.length; } }
+  const sents = t.split(/(?<=[.!?…])\s+/).filter(x => /[\p{L}\p{N}_]/u.test(x));
+  const sl = sents.length ? sents.map(x => (x.match(/[\p{L}\p{N}_']+/gu) || []).length) : [nw];
+  const m = sl.reduce((a, v) => a + v, 0) / sl.length, sd = Math.sqrt(sl.reduce((a, v) => a + (v - m) ** 2, 0) / sl.length);
+  return { conn: c / nw * 100, cv: sd / Math.max(1, m) };
+}
+const TT = { en: { unsure: 0.9, likely: 0.98, ai: 0.997 }, other: { unsure: 0.5, likely: 0.6, ai: 0.8 } };
 /* RoBERTa / GPT-2 byte-level BPE tokenizer (reads a Hugging Face tokenizer.json). */
 function makeBPE(tj) {
   const vocab = tj.model.vocab, ranks = new Map();
@@ -1522,7 +1540,7 @@ async function analyzeText(file, bytes, fmt, rec, step) {
   if (found.length) rec.indicators.push({ sev: found.length >= 3 ? "low" : "info", pts: found.length >= 5 ? 2 : found.length >= 3 ? 1 : 0, group: "ai", title: `AI matnlarida koʻp uchraydigan iboralar: ${found.length} ta`, detail: `Topildi: “${found.slice(0, 6).join("”, “")}”. Bunday iboralarni odamlar ham ishlatadi, shuning uchun bu faqat qoʻshimcha, kuchsiz belgi.`, src: "text-style" });
   rec.checks.push({ name: "Til va matn statistikasi", version: "tl-text 1.0", status: "ok", summary: `${LANG_UZ[lang]}, ${words.length} soʻz, ${sents.length} gap.` });
   if (words.length < 150) rec.limitations.push(`Matn qisqa (${words.length} soʻz). 150 soʻzdan kam matnlarda AI detektori ancha kam ishonchli.`);
-  if (lang !== "en") rec.limitations.push(lang === "uz" || lang === "uz-cyr" ? "Model asosan ingliz tilida oʻqitilgan. Oʻzbek tilida sinovda u odam yozgan matnlarni “AI” deb belgilamadi, lekin AI yozgan matnlarning faqat uchdan biriga yaqinini topdi — past natija “odam yozgan” degani emas." : "Model asosan ingliz tilida oʻqitilgan; bu tilda aniqligi sinab koʻrilmagan.");
+  if (lang !== "en") rec.limitations.push(lang === "uz" || lang === "uz-cyr" ? "Model asosan ingliz tilida oʻqitilgan. Oʻzbek (lotin) matnlari uchun model natijasi uslub tahlili bilan birlashtiriladi: sinovda AI matnlarning ~50% i “AI”, ~67% i kamida “ehtimol AI” deb topildi, odam matnlarining 1–3% i (asosan rasmiy-huquqiy hujjatlar) xato belgilandi. Sinov toʻplami kichik (30 ta AI matn), shuning uchun bu raqamlar taxminiy. Past natija “odam yozgan” degani emas." : "Model asosan ingliz tilida oʻqitilgan; bu tilda aniqligi sinab koʻrilmagan.");
   await step("aimodel");
   await runTextDetector(rec, text, lang);
 }
@@ -1531,8 +1549,8 @@ async function runTextDetector(rec, text, lang) {
   try {
     const t = performance.now();
     const [ses, enc] = await Promise.all([getModel((got, total) => rec._progress && rec._progress(got < 0 ? "ishga tushirilmoqda…" : `${Math.round(got / 1048576)} / ${Math.round(total / 1048576)} MB`), TXM), getTokenizer()]);
-    const ids = enc(text), W = 510, wins = [];
-    for (let i = 0; i < ids.length; i += W) { const w = ids.slice(i, i + W); if (w.length >= 64 || !wins.length) wins.push(w); }
+    const ids = enc(text.replace(/[ʻʼ‘’`]/g, "'")), W = 510, wins = [];
+    for (let i = 0; i < ids.length; i += W) { const w = ids.slice(i, i + W); if (w.length >= W / 2 || !wins.length) wins.push(w); }
     const ps = [];
     for (let k = 0; k < wins.length; k++) {
       rec._progress && rec._progress(wins.length > 1 ? `${k + 1} / ${wins.length} boʻlak` : "hisoblanmoqda…");
@@ -1540,17 +1558,26 @@ async function runTextDetector(rec, text, lang) {
       const out = await ses.run({ input_ids: new ort.Tensor("int64", BigInt64Array.from(seq, BigInt), [1, n]), attention_mask: new ort.Tensor("int64", new BigInt64Array(n).fill(1n), [1, n]) });
       const l = out[ses.outputNames[0]].data; ps.push(1 / (1 + Math.exp(l[0] - l[1]))); await sleep(0);
     }
-    const raw = ps.reduce((a, c) => a + c, 0) / ps.length, T = lang === "en" ? TT.en : TT.other;
+    const raw = ps.reduce((a, c) => a + c, 0) / ps.length;
+    let score = raw, T = lang === "en" ? TT.en : TT.other, styleNote = "";
+    if (lang === "uz") {
+      const st = uzStyle(text), lg = Math.log(Math.max(raw, 1e-4) / Math.max(1 - raw, 1e-4)), f = [st.conn, st.cv, lg];
+      const z = f.reduce((a, v, k) => a + UZC.w[k] * (v - UZC.mu[k]) / UZC.sd[k], UZC.b);
+      score = 1 / (1 + Math.exp(-z)); T = UZC.th;
+      rec.meta["Uslub: bogʻlovchi iboralar"] = st.conn.toFixed(2) + " / 100 soʻz";
+      rec.meta["Uslub: gap uzunligi CV"] = st.cv.toFixed(2) + (st.cv < 0.4 ? " (juda bir xil)" : "");
+      styleNote = ` + uslub tahlili → ${(score * 100).toFixed(1)}%`;
+    }
     const seg = (x, a, b, c, d) => c + (d - c) * Math.min(1, Math.max(0, (x - a) / (b - a)));
-    const p = raw < T.unsure ? seg(raw, 0, T.unsure, 0, 0.349) : raw < T.likely ? seg(raw, T.unsure, T.likely, 0.35, 0.499) : raw < T.ai ? seg(raw, T.likely, T.ai, 0.5, 0.699) : seg(raw, T.ai, 1, 0.7, 0.99);
+    const p = score < T.unsure ? seg(score, 0, T.unsure, 0, 0.349) : score < T.likely ? seg(score, T.unsure, T.likely, 0.35, 0.499) : score < T.ai ? seg(score, T.likely, T.ai, 0.5, 0.699) : seg(score, T.ai, 1, 0.7, 0.99);
     const pct = Math.round(p * 100);
     rec.modelScore = p;
-    rec.meta["AI detektor natijasi"] = `${pct}% sunʼiy (model xom bahosi ${(raw * 100).toFixed(1)}%, ${ps.length} boʻlak, til: ${LANG_UZ[lang]})`;
-    const cal = lang === "en" ? "Sinovda (2026-yil modellari) bu chegaradan yuqori natija odam yozgan matnlarning ~1% ida uchragan." : "Oʻzbek tilidagi sinovda bu chegaradan yuqori natija olgan odam yozgan matn uchramadi.";
+    rec.meta["AI detektor natijasi"] = `${pct}% sunʼiy (model xom bahosi ${(raw * 100).toFixed(1)}%${styleNote}, ${ps.length} boʻlak, til: ${LANG_UZ[lang]})`;
+    const cal = lang === "en" ? "Sinovda (2026-yil modellari) bu chegaradan yuqori natija odam yozgan matnlarning ~1% ida uchragan." : lang === "uz" ? "Baho neyron tarmoq va oʻzbek tili uslub tahlili (bogʻlovchi iboralar, gap uzunligining bir xilligi) birlashmasidan olindi. Sinovda bu chegaradan yuqori natija odam yozgan matnlarning ~1–2% ida (asosan rasmiy-huquqiy hujjatlarda) uchragan." : "Bu tilda model aniqligi cheklangan.";
     if (p >= MT.ai) rec.indicators.push({ sev: "high", pts: 6, group: "ai", title: `AI matn detektori: ${pct}% — AI yozgan`, detail: `Neyron tarmoq (RoBERTa) matnni AI yozgan deb baholadi. ${cal}`, src: "ai-model" });
     else if (p >= MT.likely) rec.indicators.push({ sev: "medium", pts: 3, group: "ai", title: `AI matn detektori: ${pct}% — ehtimol AI`, detail: "Model matnni koʻproq AI yozganga oʻxshatdi. Bu oraliqqa ayrim odam yozgan matnlar ham tushadi — ayniqsa rasmiy, ilmiy yoki ona tili boʻlmagan tilda yozilgan matnlar.", src: "ai-model" });
     else if (p >= MT.unsure) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: `AI matn detektori: noaniq (${pct}%)`, detail: "Model aniq qaror qila olmadi.", src: "ai-model" });
-    else if (p < MT.real) rec.indicators.push({ sev: "auth", pts: -1, group: "ai", title: `AI matn detektori: odam yozganga oʻxshaydi (${pct}%)`, detail: "Model matnni odam yozgan deb baholadi. Eng yangi modellar (masalan, Claude Opus, Qwen) yozgan matnlarning bir qismi ham shunday baho oladi.", src: "ai-model" });
+    else rec.indicators.push({ sev: "info", pts: 0, group: "ai", title: `AI matn detektori: AI belgisi topilmadi (${pct}%)`, detail: lang === "en" ? "Model matnda AI belgilarini topmadi. Lekin sinovda AI matnlarning ~1/3 qismi (ayniqsa eng yangi modellar va odam tahrirlagan matnlar) ham shunday baho olgan — bu odam yozgani kafolati emas." : "Model matnda AI belgilarini topmadi. Oʻzbek va rus tilida bu model AI matnlarning koʻpchiligini (~2/3 qismini) topa olmaydi, shuning uchun bu natija odam yozgani degani EMAS.", src: "ai-model" });
     rec.checks.push({ name: TXM.name, version: TXM.version + ` · ${ps.length} boʻlak`, status: "ok", summary: `${pct}% sunʼiy · ${Math.round(performance.now() - t)} ms` });
   } catch (e) {
     rec.checks.push({ name: TXM.name, version: TXM.version, status: "failed", summary: "Model yuklanmadi yoki ishlamadi: " + (e && e.message ? e.message : "nomaʼlum xato") + ". Internet aloqasini tekshiring." });
@@ -1898,7 +1925,8 @@ const AIV = {
   unsure: { label: "Noaniq", cls: "inconclusive", text: "Aniq xulosa chiqarib boʻlmadi: AI ham, haqiqiy ham boʻlishi mumkin." },
   real: { label: "Haqiqiy (AI emas)", cls: "low", text: "AI yaratganlik belgilari topilmadi." }
 };
-const vLabel = r => r.mediaType === "text" && r.aiVerdict === "real" ? "Odam yozgan (AI emas)" : r.mediaType === "text" && r.aiVerdict === "ai" ? "AI yozgan" : AIV[r.aiVerdict].label;
+const vLabel = r => r.mediaType === "text" && r.aiVerdict === "real" ? "AI belgisi topilmadi" : r.mediaType === "text" && r.aiVerdict === "ai" ? "AI yozgan" : AIV[r.aiVerdict].label;
+const vText = r => r.mediaType === "text" && r.aiVerdict === "real" ? (r.meta && r.meta["Til"] === "Ingliz" ? "Model AI belgilarini topmadi. Bu odam yozgani kafolati emas: eng yangi modellar va tahrirlangan AI matnlarning bir qismi aniqlanmaydi." : "Model AI belgilarini topmadi, lekin bu tilda u AI matnlarning koʻpini aniqlay olmaydi. Natija odam yozgani isboti emas.") : AIV[r.aiVerdict].text;
 function aiVerdict(rec, auth) {
   const hard = rec.indicators.some(i => i.sev === "high" && (i.src === "signatures" || i.src === "png-text"));
   const weak = rec.indicators.filter(i => i.group === "ai" && i.src !== "ai-model" && i.pts > 0).reduce((a, i) => a + i.pts, 0);
@@ -2137,7 +2165,7 @@ function renderTextInput(root) {
     ${settings.aiModel ? `<div class="notice blue" style="margin-top:14px">Matn AI matn detektori neyron tarmogʻi bilan tekshiriladi. Birinchi tekshiruvda model (~${TXM.sizeMB} MB) bir marta yuklab olinadi. Matn qurilmangizdan chiqmaydi va tarixda saqlanmaydi — faqat natija va xesh saqlanadi.</div>` : ""}
     <div class="grid g3" style="margin-top:20px">
       <div class="card"><h3>Eng aniq</h3><p class="muted" style="font-size:14px">Ingliz tilidagi, 150 soʻzdan uzun matnlar. Sinovda odam yozgan matnlarning ~1% i xato belgilandi.</p></div>
-      <div class="card"><h3>Cheklangan</h3><p class="muted" style="font-size:14px">Oʻzbek va rus tili: odam yozgan matn deyarli xato belgilanmaydi, lekin AI matnlarning taxminan uchdan ikki qismi topilmaydi.</p></div>
+      <div class="card"><h3>Cheklangan</h3><p class="muted" style="font-size:14px">Oʻzbek tili (lotin): AI matnlarning ~1/2–2/3 qismi topiladi; rasmiy-huquqiy uslubdagi odam matni baʼzan “ehtimol AI” chiqadi. Rus va kirill yozuvi: aniqlik ancha past.</p></div>
       <div class="card"><h3>Eslatma</h3><p class="muted" style="font-size:14px">Natija ayblov uchun dalil emas. Inson tomonidan tahrirlangan AI matnni aniqlash ancha qiyin.</p></div>
     </div>`;
   const ta = $("#txtIn"), cnt = $("#txtCount"), btn = $("#startBtn");
@@ -2226,7 +2254,7 @@ function renderResult() {
           ${typeof r.aiProb === "number" ? `<div><span class="big-pct">${r.aiProb}%</span><div class="muted" style="font-size:12px">AI yaratgan boʻlish ehtimoli</div></div>` : typeof r.index === "number" ? `<div><span class="big-pct">${r.index}%</span><div class="muted" style="font-size:12px">umumiy shubha indeksi</div></div>` : ""}
         </div>
         <div class="meter" aria-hidden="true"><span></span><span></span><span></span></div>
-        <p style="color:#CBD5E1">${esc(r.aiVerdict ? AIV[r.aiVerdict].text : RISK[r.risk].text)}</p>
+        <p style="color:#CBD5E1">${esc(r.aiVerdict ? vText(r) : RISK[r.risk].text)}</p>
         ${r.aiVerdict && r.manipIndex >= 35 ? `<p style="color:#FBBF24">Diqqat: tahrir/montaj belgilari ham topildi (${r.manipIndex}%).</p>` : ""}
         ${!r.aiVerdict && verdictLine(r) ? `<p style="font-weight:600;margin-top:8px">${esc(verdictLine(r))}</p>` : ""}
         ${typeof r.modelScore === "number" ? `<div class="idx" style="margin-bottom:-4px">${idxRow("Neyron tarmoq: sunʼiy boʻlish ehtimoli", Math.round(r.modelScore * 100))}</div>` : ""}
@@ -2234,7 +2262,7 @@ function renderResult() {
           ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
           ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
         </div>` : ""}
-        <p class="muted" style="font-size:13px;margin-top:14px">${r.aiVerdict && r.mediaType === "text" ? "AI ehtimoli matn detektori neyron tarmogʻi bahosidan, til boʻyicha kalibrlangan holda hisoblanadi. 70%+ — AI yozgan, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — odam yozgan. Sinovda ingliz tilida odam matnlarining ~1% i “AI” deb belgilangan va AI matnlarning ~2/3 qismi topilgan; oʻzbek tilida AI matnlarning faqat ~1/3 qismi topiladi. Natija ayblov uchun dalil emas." : r.aiVerdict ? "AI ehtimoli neyron tarmoq (6 koʻrinish/kadr oʻrtachasi) va fayl ichidagi generator izlari asosida hisoblanadi. 70%+ — AI, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — haqiqiy. Sinovda haqiqiy fotolarning ~1% i, AI rasmlarning ~10–20% i notoʻgʻri baholangan: hech bir detektor 100% aniq emas." : "Foiz topilgan belgilarning ogʻirligini koʻrsatadi. 0–34% past, 35–64% oʻrta, 65–100% yuqori."}${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
+        <p class="muted" style="font-size:13px;margin-top:14px">${r.aiVerdict && r.mediaType === "text" ? "AI ehtimoli matn detektori neyron tarmogʻi bahosidan, til boʻyicha kalibrlangan holda hisoblanadi. 70%+ — AI yozgan, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — AI belgisi topilmadi (bu “odam yozgan” degani emas). Sinovda ingliz tilida odam matnlarining ~1% i “AI” deb belgilangan va AI matnlarning ~2/3 qismi topilgan; oʻzbek tilida (uslub tahlili bilan) AI matnlarning ~1/2–2/3 qismi topiladi, rasmiy (huquqiy) uslubdagi odam matnlari esa baʼzan “ehtimol AI” chiqadi. Natija ayblov uchun dalil emas." : r.aiVerdict ? "AI ehtimoli neyron tarmoq (6 koʻrinish/kadr oʻrtachasi) va fayl ichidagi generator izlari asosida hisoblanadi. 70%+ — AI, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — haqiqiy. Sinovda haqiqiy fotolarning ~1% i, AI rasmlarning ~10–20% i notoʻgʻri baholangan: hech bir detektor 100% aniq emas." : "Foiz topilgan belgilarning ogʻirligini koʻrsatadi. 0–34% past, 35–64% oʻrta, 65–100% yuqori."}${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
       </div>
       <div class="card file-card"><h3>Fayl maʼlumotlari</h3><dl class="kv">
         <dt>Hajm</dt><dd class="num">${fmtBytes(r.size)}</dd>

@@ -344,6 +344,14 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 .gear { display: none; color: var(--muted); padding: 8px; border-radius: 8px; }
 .gear.on, .gear:hover { color: var(--text); background: var(--card); }
 .tabbar { display: none; }
+.quick { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+.quick-item { display: flex; gap: 14px; align-items: center; text-decoration: none; color: var(--text); padding: 16px 18px; transition: border-color .15s, transform .15s; }
+.quick-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+.quick-item b { display: block; font-size: 16px; }
+.quick-item small { color: var(--muted); font-size: 13px; }
+.qi-ic { width: 42px; height: 42px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--grad); color: #0A0820; }
+.qi-ic svg { width: 20px; height: 20px; }
+@media (max-width: 600px) { .quick { grid-template-columns: 1fr; gap: 10px; } .quick-item { padding: 14px 16px; } }
 .edu-band { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
 .file-card { min-width: 280px; }
 .file-card .kv { grid-template-columns: 110px 1fr; }
@@ -415,11 +423,13 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
       <span>Aslida<span class="dot">.</span></span>
     </a>
     <nav class="nav" aria-label="Asosiy menyu">
-      <a href="#bosh" data-nav="bosh">Bosh sahifa</a>
-      <a href="#panel" data-nav="panel">Boshqaruv paneli</a>
-      <a href="#tahlil" data-nav="tahlil">Yangi tahlil</a>
+      <a href="#bosh" data-nav="bosh">Bosh</a>
+      <a href="#panel" data-nav="panel">Panel</a>
+      <a href="#rasm" data-nav="rasm">Rasm</a>
+      <a href="#video" data-nav="video">Video</a>
+      <a href="#ovoz" data-nav="ovoz">Ovoz</a>
       <a href="#tarix" data-nav="tarix">Tarix</a>
-      <a href="#akademiya" data-nav="akademiya">Kiber akademiya</a>
+      <a href="#akademiya" data-nav="akademiya">Akademiya</a>
       <a href="#sozlamalar" data-nav="sozlamalar">Sozlamalar</a>
     </nav>
     <span class="local-pill" title="Fayllar qurilmangizdan tashqariga yuborilmaydi"><i></i>Mahalliy tahlil</span>
@@ -621,7 +631,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 <section class="view" data-view="tahlil">
   <div class="wrap page">
     <div class="page-head">
-      <div><h1>Yangi tahlil</h1><p>Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.</p></div>
+      <div><h1 id="upTitle">Yangi tahlil</h1><p id="upSub">Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.</p></div>
     </div>
     <div id="uploadRoot"></div>
   </div>
@@ -655,11 +665,11 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
 </main>
 
 <nav class="tabbar" aria-label="Mobil menyu">
-  <a href="#bosh" data-nav="bosh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>Bosh</span></a>
   <a href="#panel" data-nav="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span>Panel</span></a>
-  <a href="#tahlil" data-nav="tahlil" class="tab-main"><span class="plus"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span><span>Tahlil</span></a>
+  <a href="#rasm" data-nav="rasm"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg><span>Rasm</span></a>
+  <a href="#video" data-nav="video"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/></svg><span>Video</span></a>
+  <a href="#ovoz" data-nav="ovoz"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 00-3 3v6a3 3 0 006 0V6a3 3 0 00-3-3z"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span>Ovoz</span></a>
   <a href="#tarix" data-nav="tarix"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Tarix</span></a>
-  <a href="#akademiya" data-nav="akademiya"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 4 2 10l10 6 10-6z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span>Akademiya</span></a>
 </nav>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -760,6 +770,15 @@ const ALLOWED = {
   wav: "audio", mp3: "audio", ogg: "audio", flac: "audio", m4a: "audio"
 };
 const ACCEPT = Object.keys(ALLOWED).map(e => "." + e).join(",");
+/* Separate upload sections: #rasm, #video, #ovoz (#tahlil accepts every type). */
+const MODES = {
+  rasm: { type: "image", title: "Rasm tekshirish", sub: "Rasm AI yaratganmi yoki haqiqiymi — neyron tarmoq, metamaʼlumot va kriminalistik tekshiruvlar bilan aniqlanadi.", drop: "Rasmni shu yerga tashlang yoki tanlash uchun bosing" },
+  video: { type: "video", title: "Video tekshirish", sub: "Video kadrlari AI detektor bilan tekshiriladi, ovozi ajratib olinib alohida tahlil qilinadi.", drop: "Videoni shu yerga tashlang yoki tanlash uchun bosing" },
+  ovoz: { type: "audio", title: "Ovoz tekshirish", sub: "Audio yozuvning akustik belgilari, spektri va tahrir izlari tekshiriladi.", drop: "Audio faylni shu yerga tashlang yoki tanlash uchun bosing" }
+};
+const MODE_OF = { image: "rasm", video: "video", audio: "ovoz" };
+let uploadMode = null;
+const acceptFor = m => m ? Object.keys(ALLOWED).filter(e => ALLOWED[e] === MODES[m].type).map(e => "." + e).join(",") : ACCEPT;
 function ascii(b, i, n) { let s = ""; for (let k = 0; k < n && i + k < b.length; k++) s += String.fromCharCode(b[i + k]); return s; }
 function latin1(b, s, e) { let out = ""; for (let i = s; i < e && i < b.length; i++) out += String.fromCharCode(b[i]); return out; }
 function u32be(b, o) { return ((b[o] << 24) | (b[o + 1] << 16) | (b[o + 2] << 8) | b[o + 3]) >>> 0; }
@@ -1479,6 +1498,14 @@ async function analyzeAudio(file, bytes, fmt, rec, step) {
   rec.checks.push({ name: "Audio dekodlash", version: "Web Audio · 48 kHz", status: "ok", summary: `${fmtDur(buf.duration)}, ${buf.numberOfChannels} kanal.` });
 
   await step("features");
+  visuals[rec.tmpKey] = await audioCore(buf, rec, step, "", origSR);
+  rec.limitations.push("Spiker identifikatsiyasi bajarilmaydi: tahlil gapirayotgan shaxsni aniqlamaydi va tasdiqlamaydi.");
+}
+
+/* Shared acoustic analysis (standalone audio files and the sound track extracted from videos). */
+async function audioCore(buf, rec, step, pre, origSR) {
+  const SR = buf.sampleRate || 48000;
+  let vis = null;
   const maxN = Math.min(buf.length, SR * 120);
   const x = new Float32Array(maxN);
   for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < maxN; i++) x[i] += d[i] / buf.numberOfChannels; }
@@ -1492,17 +1519,17 @@ async function analyzeAudio(file, bytes, fmt, rec, step) {
   for (let i = Math.max(0, firstNZ); i <= lastNZ; i++) { if (x[i] === 0) run++; else { if (run >= SR * 0.05) zeroRuns++; run = 0; } }
   let silent = 0, frames = 0;
   for (let i = 0; i + 2048 <= maxN; i += 2048) { let s = 0; for (let k = 0; k < 2048; k++) s += x[i + k] * x[i + k]; frames++; if (10 * Math.log10(s / 2048 + 1e-12) < -60) silent++; }
-  rec.meta["Choʻqqi (peak)"] = (20 * Math.log10(peak + 1e-12)).toFixed(1) + " dBFS";
-  rec.meta["Oʻrtacha daraja (RMS)"] = rmsDb.toFixed(1) + " dBFS";
-  rec.meta["Sukunat ulushi"] = frames ? Math.round(silent / frames * 100) + "%" : "—";
+  rec.meta[pre + "Choʻqqi (peak)"] = (20 * Math.log10(peak + 1e-12)).toFixed(1) + " dBFS";
+  rec.meta[pre + "Oʻrtacha daraja (RMS)"] = rmsDb.toFixed(1) + " dBFS";
+  rec.meta[pre + "Sukunat ulushi"] = frames ? Math.round(silent / frames * 100) + "%" : "—";
   const clipPct = clip / maxN * 100;
-  if (clipPct > 0.5) rec.indicators.push({ sev: "low", title: `Klipping: namunalarning ${clipPct.toFixed(2)}% maksimal darajada`, detail: "Signal yozish yoki qayta ishlashda kesilgan. Sifat muammosi; manipulyatsiya belgisi boʻlishi shart emas.", src: "acoustic" });
-  if (zeroRuns > 0) rec.indicators.push({ sev: "low", title: `${zeroRuns} ta ichki “raqamli sukunat” boʻlagi`, detail: "Yozuv ichida mutlaq nol qiymatli 50 ms dan uzun boʻlaklar bor. Tabiiy mikrofon yozuvida fon shovqini boʻladi; bunday boʻlaklar audio tahrirlovchida kesish yoki qoʻshish izi boʻlishi mumkin.", src: "acoustic" });
-  if (peak === 0) { rec.indicators.push({ sev: "info", title: "Yozuv butunlay jim", detail: "Signal topilmadi.", src: "acoustic" }); }
+  if (clipPct > 0.5) rec.indicators.push({ sev: "low", title: pre + `Klipping: namunalarning ${clipPct.toFixed(2)}% maksimal darajada`, detail: "Signal yozish yoki qayta ishlashda kesilgan. Sifat muammosi; manipulyatsiya belgisi boʻlishi shart emas.", src: "acoustic" });
+  if (zeroRuns > 0) rec.indicators.push({ sev: "low", title: pre + `${zeroRuns} ta ichki “raqamli sukunat” boʻlagi`, detail: "Yozuv ichida mutlaq nol qiymatli 50 ms dan uzun boʻlaklar bor. Tabiiy mikrofon yozuvida fon shovqini boʻladi; bunday boʻlaklar audio tahrirlovchida kesish yoki qoʻshish izi boʻlishi mumkin.", src: "acoustic" });
+  if (peak === 0) { rec.indicators.push({ sev: "info", title: pre + "Yozuv butunlay jim", detail: "Signal topilmadi.", src: "acoustic" }); }
 
-  await step("spectrum");
+  if (step) await step("spectrum");
   const N = 2048;
-  if (maxN < N * 2) { rec.checks.push({ name: "Spektral tahlil", version: "tl-fft 1.0", status: "failed", summary: "Yozuv spektrogramma uchun juda qisqa." }); }
+  if (maxN < N * 2) { rec.checks.push({ name: pre + "Spektral tahlil", version: "tl-fft 1.0", status: "failed", summary: "Yozuv spektrogramma uchun juda qisqa." }); }
   else {
     const fft = makeFFT(N), win = new Float64Array(N);
     for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
@@ -1531,24 +1558,44 @@ async function analyzeAudio(file, bytes, fmt, rec, step) {
     const hzPerBin = SR / N, cutHz = Math.round(cut * hzPerBin);
     const after = Math.min(bins - 1, cut + Math.round(1000 / hzPerBin));
     const sharp = (sm[cut] - sm[after]) > 25;
-    rec.meta["Samarali chastota chegarasi"] = (cutHz / 1000).toFixed(1) + " kHz" + (sharp ? " (keskin)" : "");
-    if (cutHz < 4500) rec.indicators.push({ sev: "info", title: `Tor polosali audio (~${(cutHz / 1000).toFixed(1)} kHz gacha)`, detail: "Telefon yoki messenjer qoʻngʻirogʻi sifatiga xos. Bunday yozuvlarda tahlil imkoniyatlari cheklangan.", src: "spectrum" });
-    else if (origSR && origSR >= 32000 && cutHz < origSR * 0.35) rec.indicators.push({ sev: "low", title: "Qayta namunalash (upsampling) belgisi", detail: `Fayl ${origSR} Hz deb belgilangan, lekin ${(cutHz / 1000).toFixed(1)} kHz dan yuqorida mazmun deyarli yoʻq. Audio pastroq chastotada yaratilib, keyin oshirilgan boʻlishi mumkin. Koʻp nutq sintezi tizimlari 16–24 kHz da ishlaydi, lekin oddiy siqish ham shunday iz qoldiradi.`, src: "spectrum" });
-    else if (cutHz < 15000 && sharp) rec.indicators.push({ sev: "low", title: `Keskin chastota chegarasi ~${(cutHz / 1000).toFixed(1)} kHz`, detail: "Spektr shu chastotadan keyin keskin uziladi. Bu MP3/AAC siqish, qayta namunalash yoki sintez tizimi chiqishi bilan bogʻliq boʻlishi mumkin. Yolgʻiz oʻzi sintetik nutq belgisi emas.", src: "spectrum" });
+    rec.meta[pre + "Samarali chastota chegarasi"] = (cutHz / 1000).toFixed(1) + " kHz" + (sharp ? " (keskin)" : "");
+    if (cutHz < 4500) rec.indicators.push({ sev: "info", title: pre + `Tor polosali audio (~${(cutHz / 1000).toFixed(1)} kHz gacha)`, detail: "Telefon yoki messenjer qoʻngʻirogʻi sifatiga xos. Bunday yozuvlarda tahlil imkoniyatlari cheklangan.", src: "spectrum" });
+    else if (origSR && origSR >= 32000 && cutHz < origSR * 0.35) rec.indicators.push({ sev: "low", title: pre + "Qayta namunalash (upsampling) belgisi", detail: `Fayl ${origSR} Hz deb belgilangan, lekin ${(cutHz / 1000).toFixed(1)} kHz dan yuqorida mazmun deyarli yoʻq. Audio pastroq chastotada yaratilib, keyin oshirilgan boʻlishi mumkin. Koʻp nutq sintezi tizimlari 16–24 kHz da ishlaydi, lekin oddiy siqish ham shunday iz qoldiradi.`, src: "spectrum" });
+    else if (cutHz < 15000 && sharp) rec.indicators.push({ sev: "low", title: pre + `Keskin chastota chegarasi ~${(cutHz / 1000).toFixed(1)} kHz`, detail: "Spektr shu chastotadan keyin keskin uziladi. Bu MP3/AAC siqish, qayta namunalash yoki sintez tizimi chiqishi bilan bogʻliq boʻlishi mumkin. Yolgʻiz oʻzi sintetik nutq belgisi emas.", src: "spectrum" });
     // waveform
     const wc = document.createElement("canvas"); wc.width = 720; wc.height = 120; const wx = wc.getContext("2d");
     wx.fillStyle = "#05060A"; wx.fillRect(0, 0, 720, 120); wx.strokeStyle = "#1F2433"; wx.beginPath(); wx.moveTo(0, 60); wx.lineTo(720, 60); wx.stroke();
     wx.fillStyle = "#8B7CFF"; const per = maxN / 720;
     for (let c = 0; c < 720; c++) { let mn = 1, mx = -1; const s = Math.floor(c * per), e = Math.floor((c + 1) * per); for (let i = s; i < e; i++) { if (x[i] < mn) mn = x[i]; if (x[i] > mx) mx = x[i]; } if (mx < mn) continue; wx.fillRect(c, 60 - mx * 56, 1, Math.max(1, (mx - mn) * 56)); }
-    visuals[rec.tmpKey] = { kind: "audio", spec: sc.toDataURL("image/png"), wave: wc.toDataURL("image/png"), specMaxHz: SR / 2, secs: maxN / SR };
-    rec.checks.push({ name: "Spektral tahlil", version: "tl-fft 1.0 · N=2048 Hann", status: "ok", summary: `Chegara ${(cutHz / 1000).toFixed(1)} kHz, ${cols} ustunli spektrogramma.` });
+    vis = { kind: "audio", spec: sc.toDataURL("image/png"), wave: wc.toDataURL("image/png"), specMaxHz: SR / 2, secs: maxN / SR };
+    rec.checks.push({ name: pre + "Spektral tahlil", version: "tl-fft 1.0 · N=2048 Hann", status: "ok", summary: `Chegara ${(cutHz / 1000).toFixed(1)} kHz, ${cols} ustunli spektrogramma.` });
   }
-  rec.checks.push({ name: "Akustik belgilar", version: "tl-acoustic 1.0", status: "ok", summary: `RMS ${rmsDb.toFixed(1)} dBFS, klipping ${clipPct.toFixed(2)}%, ichki sukunat ${zeroRuns}.` });
+  rec.checks.push({ name: pre + "Akustik belgilar", version: "tl-acoustic 1.0", status: "ok", summary: `RMS ${rmsDb.toFixed(1)} dBFS, klipping ${clipPct.toFixed(2)}%, ichki sukunat ${zeroRuns}.` });
 
-  rec.limitations.push("Spiker identifikatsiyasi bajarilmaydi: tahlil gapirayotgan shaxsni aniqlamaydi va tasdiqlamaydi.");
+  return vis;
 }
 
 /* ================= Video pipeline ================= */
+/* Extract the sound track of a video (Web Audio decodes the audio stream of MP4/MOV/WebM) and run the acoustic checks on it. */
+async function videoAudio(file, rec) {
+  let buf;
+  try {
+    const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Ctx) throw new Error("no ctx");
+    buf = await new Ctx(1, 48000, 48000).decodeAudioData(await file.arrayBuffer());
+  } catch (e) { buf = null; }
+  if (!buf || !buf.length) {
+    rec.meta["Ovoz yoʻlagi"] = "yoʻq yoki dekodlanmadi";
+    rec.checks.push({ name: "Video ovozi", version: "Web Audio", status: "unavailable", summary: "Videoda ovoz yoʻlagi topilmadi yoki brauzer uni ochib bera olmadi." });
+    rec.limitations.push("Video ovozi tekshirilmadi: ovoz yoʻlagi yoʻq yoki kodek qoʻllab-quvvatlanmaydi.");
+    return;
+  }
+  rec.meta["Ovoz yoʻlagi"] = `${fmtDur(buf.duration)}, ${buf.numberOfChannels} kanal`;
+  rec.checks.push({ name: "Video ovozini ajratish", version: "Web Audio · 48 kHz", status: "ok", summary: `Ovoz ajratildi: ${fmtDur(buf.duration)}.` });
+  const vis = await audioCore(buf, rec, null, "Video ovozi: ", null);
+  if (vis && visuals[rec.tmpKey]) visuals[rec.tmpKey].audio = vis;
+}
+
 function findAscii(b, needle, from, to) {
   const n = needle.split("").map(c => c.charCodeAt(0));
   for (let i = from; i < to - n.length; i++) { let ok = true; for (let j = 0; j < n.length; j++) if (b[i + j] !== n[j]) { ok = false; break; } if (ok) return i; }
@@ -1648,6 +1695,9 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
   rec.checks.push({ name: "Vaqt boʻyicha izchillik", version: "tl-temporal 1.0", status: "ok", summary: `Median farq ${medAdj.toFixed(2)}, sakrashlar ${spikes.length}/${adj.length}.` });
   visuals[rec.tmpKey] = { kind: "video", thumbs, adj, sharp, times, dur };
 
+  await step("audio");
+  await videoAudio(file, rec);
+
   await step("aimodel");
   if (mFrames.length) await runDetector(rec, mFrames, "video");
   else if (!settings.aiModel) rec.limitations.push("AI detektor modeli Sozlamalarda oʻchirilgan.");
@@ -1655,7 +1705,6 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
   await step("model");
   if ("FaceDetector" in window) { try { const img = await createImageBitmap(work); await faceCheck(img, rec); } catch (e) {} }
   rec.limitations.push("Kadrlar oraliq bilan tanlanadi; namunalar orasidagi qisqa oʻzgarishlar koʻrinmasligi mumkin.");
-  rec.limitations.push("Audio yoʻlagi bu tahlilda tekshirilmaydi.");
 }
 
 /* ================= Risk assessment ================= */
@@ -1742,7 +1791,7 @@ function recommendations(rec) {
 /* ================= Orchestration ================= */
 const STEPS = {
   image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA) va EXIF eskiz"], ["noise", "Shovqin izchilligi xaritasi"], ["clone", "Klonlangan hududlarni qidirish"], ["spectral", "Spektral artefaktlar"], ["aimodel", "AI detektor modeli"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
-  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["aimodel", "AI detektor modeli (kadrlar)"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
+  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["audio", "Ovozni ajratish va tahlil qilish"], ["aimodel", "AI detektor modeli (kadrlar)"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
   audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["assess", "Xavfni baholash"]]
 };
 
@@ -1832,7 +1881,8 @@ function renderPanel() {
   const root = $("#panelRoot");
   const n = history.length;
   const by = t => history.filter(h => h.mediaType === t).length;
-  let html = `<div class="page-head"><div><h1>Boshqaruv paneli</h1><p>Barcha koʻrsatkichlar shu brauzerda bajarilgan haqiqiy tahlillardan hisoblanadi.</p></div><a class="btn primary" href="#tahlil">Yangi tahlil</a></div>`;
+  let html = `<div class="page-head"><div><h1>Boshqaruv paneli</h1><p>Barcha koʻrsatkichlar shu brauzerda bajarilgan haqiqiy tahlillardan hisoblanadi.</p></div></div>
+    <div class="quick">${[["rasm", "image", "Rasm tekshirish", "AI yaratganmi yoki haqiqiymi"], ["video", "video", "Video tekshirish", "Kadrlar + ajratilgan ovoz"], ["ovoz", "audio", "Ovoz tekshirish", "Audio yozuv tahlili"]].map(([h, ic, t, d]) => `<a class="card quick-item" href="#${h}"><span class="qi-ic">${ICON[ic]}</span><span><b>${t}</b><small>${d}</small></span></a>`).join("")}</div>`;
   html += `<div class="grid g4">
     <div class="card tile"><span class="lbl">${ICON.all}Jami tahlillar</span><span class="val">${n}</span></div>
     <div class="card tile"><span class="lbl">${ICON.image}Rasm</span><span class="val">${by("image")}</span></div>
@@ -1869,16 +1919,20 @@ function renderPanel() {
 
 function renderUpload() {
   const root = $("#uploadRoot");
+  const M = uploadMode && MODES[uploadMode];
+  $("#upTitle").textContent = M ? M.title : "Yangi tahlil";
+  $("#upSub").textContent = M ? M.sub + " Fayl qurilmangizdan chiqmaydi." : "Rasm, video yoki audio faylni tanlang. Tahlil shu brauzerda bajariladi, fayl hech qayerga yuborilmaydi.";
   if (busy) return;
+  if (pendingFile && M && pendingFile.fmt.type !== M.type) { URL.revokeObjectURL(pendingFile.url); pendingFile = null; }
   if (!pendingFile) {
     root.innerHTML = `<div class="drop" id="drop" role="button" tabindex="0" aria-label="Fayl tanlash">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B7CFF" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-        <h3>Faylni shu yerga tashlang yoki tanlash uchun bosing</h3>
+        <h3>${uploadMode ? MODES[uploadMode].drop : "Faylni shu yerga tashlang yoki tanlash uchun bosing"}</h3>
         <p>Bitta fayl · maksimal hajm <span class="num">${Number(settings.maxMB)}</span> MB</p>
-        <div class="type-pills"><span class="chip info">${ICON.image} JPG · PNG · WEBP</span><span class="chip ai">${ICON.video} MP4 · MOV · WEBM</span><span class="chip low">${ICON.audio} WAV · MP3 · OGG · FLAC · M4A</span></div>
+        <div class="type-pills">${!uploadMode || uploadMode === "rasm" ? `<span class="chip info">${ICON.image} JPG · PNG · WEBP</span>` : ""}${!uploadMode || uploadMode === "video" ? `<span class="chip ai">${ICON.video} MP4 · MOV · WEBM</span>` : ""}${!uploadMode || uploadMode === "ovoz" ? `<span class="chip low">${ICON.audio} WAV · MP3 · OGG · FLAC · M4A</span>` : ""}</div>
       </div>
-      <input type="file" id="fileIn" accept="${ACCEPT}" hidden>
-      ${settings.aiModel ? `<div class="notice blue" id="mNote" style="margin-top:14px">Rasm va video AI detektor neyron tarmogʻi bilan ham tekshiriladi. Birinchi tahlilda model (~${AIM.sizeMB} MB) bir marta yuklab olinadi — mobil internetda Wi-Fi tavsiya etiladi. Faylingiz baribir qurilmadan chiqmaydi.</div>` : ""}
+      <input type="file" id="fileIn" accept="${acceptFor(uploadMode)}" hidden>
+      ${settings.aiModel && uploadMode !== "ovoz" ? `<div class="notice blue" id="mNote" style="margin-top:14px">Rasm va video AI detektor neyron tarmogʻi bilan ham tekshiriladi. Birinchi tahlilda model (~${AIM.sizeMB} MB) bir marta yuklab olinadi — mobil internetda Wi-Fi tavsiya etiladi. Faylingiz baribir qurilmadan chiqmaydi.</div>` : ""}
       <div id="upErr"></div>
       <div class="grid g3" style="margin-top:20px">
         <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Rasm uchun: AI detektor neyron tarmogʻi, metamaʼlumot va tahrir tarixi, 40+ AI generator izi, EXIF eskiz, ELA, shovqin xaritasi, klonlangan hududlar va spektral artefaktlar.</p></div>
@@ -1926,6 +1980,7 @@ async function pick(file) {
   try { bytes = new Uint8Array(await file.arrayBuffer()); } catch (e) { showUpErr("Faylni oʻqib boʻlmadi."); return; }
   const v = validateFile(file, bytes);
   if (v.error) { showUpErr(v.error); return; }
+  if (uploadMode && v.fmt.type !== MODES[uploadMode].type) { const m = MODE_OF[v.fmt.type]; showUpErr(`Bu boʻlim faqat ${esc(TYPE_UZ[MODES[uploadMode].type].toLowerCase())} uchun. Tanlangan fayl — ${esc(TYPE_UZ[v.fmt.type].toLowerCase())}: uni <a href="#${m}">${esc(MODES[m].title)}</a> boʻlimida tekshiring.`); return; }
   pendingFile = { file, bytes, fmt: v.fmt, ext, url: URL.createObjectURL(file) };
   renderUpload();
 }
@@ -1974,12 +2029,12 @@ function renderResult() {
   let vis = "";
   if (v && v.kind === "image") vis = `<div class="vis">${v.orig ? `<figure><img src="${v.orig}" alt="Asl rasm"><figcaption>Tahlil qilingan rasm</figcaption></figure>` : ""}${v.ela ? `<figure><img src="${v.ela}" alt="ELA xaritasi"><figcaption>ELA xaritasi: yorqin joylar qayta siqishda koʻproq oʻzgargan hududlar. Qirralar va matn tabiiy ravishda yorqin koʻrinadi.</figcaption></figure>` : ""}${v.noise ? `<figure><img src="${v.noise}" alt="Shovqin xaritasi"><figcaption>Shovqin xaritasi: qizil — shovqin koʻp, koʻk — kam (rasm boʻyicha medianaga nisbatan). Sariq ramka — eng katta notekis hudud.</figcaption></figure>` : ""}${v.clone ? `<figure><img src="${v.clone}" alt="Klon xaritasi"><figcaption>Klon xaritasi: koʻk — manba, pushti — nusxa koʻchirilgan joy.</figcaption></figure>` : ""}${v.spec ? `<figure><img src="${v.spec}" alt="Shovqin spektri" style="aspect-ratio:1;object-fit:contain"><figcaption>Shovqin spektri (markaziy 256×256). Panjara shaklidagi yorqin nuqtalar — generatsiya yoki kattalashtirish izi.</figcaption></figure>` : ""}</div>`;
   if (v && v.kind === "audio") vis = `<div class="vis"><figure class="wide"><img src="${v.wave}" alt="Toʻlqin shakli"><figcaption>Toʻlqin shakli (birinchi ${v.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.spec}" alt="Spektrogramma" style="height:220px;object-fit:fill"><figcaption>Spektrogramma: vertikal oʻq 0–${(v.specMaxHz / 1000).toFixed(0)} kHz, gorizontal oʻq vaqt. Yorqinlik energiyani bildiradi.</figcaption></figure></div>`;
-  if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#8B7CFF", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#3DD6F5", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure></div>`;
+  if (v && v.kind === "video") vis = `<div class="vis"><figure class="wide"><div class="film">${v.thumbs.map((t, i) => `<img src="${t}" alt="Kadr ${(v.times[i] || 0).toFixed(1)} s" title="${(v.times[i] || 0).toFixed(1)} s">`).join("")}</div><figcaption>Ajratilgan kadrlar (${v.thumbs.length} ta)</figcaption></figure><figure>${sparkSVG(v.adj, v.times, v.dur, "#8B7CFF", "Qoʻshni kadrlar farqi")}<figcaption>Qoʻshni kadrlar farqi (≈33 ms oraliq)</figcaption></figure><figure>${sparkSVG(v.sharp, v.times, v.dur, "#3DD6F5", "Keskinlik")}<figcaption>Kadr keskinligi (Laplas dispersiyasi)</figcaption></figure>${v.audio ? `<figure class="wide"><img src="${v.audio.wave}" alt="Video ovozi toʻlqin shakli"><figcaption>Video ovozi: toʻlqin shakli (birinchi ${v.audio.secs.toFixed(0)} s)</figcaption></figure><figure class="wide"><img src="${v.audio.spec}" alt="Video ovozi spektrogrammasi" style="height:220px;object-fit:fill"><figcaption>Video ovozi: spektrogramma, 0–${(v.audio.specMaxHz / 1000).toFixed(0)} kHz</figcaption></figure>` : ""}</div>`;
   if (!v && r.status === "completed") vis = `<div class="notice blue">Vizual xaritalar (ELA, spektrogramma, kadrlar) faqat tahlil bajarilgan seansda koʻrinadi, chunki media saqlanmaydi. Ularni qayta koʻrish uchun faylni yana tahlil qiling.</div>`;
   const statusRow = c => `<tr><td class="t-name" data-l="Modul">${esc(c.name)}</td><td class="mono muted" data-l="Versiya">${esc(c.version)}</td><td data-l="Holat">${c.status === "ok" ? '<span class="chip low">bajarildi</span>' : c.status === "unavailable" ? '<span class="chip inconclusive">mavjud emas</span>' : '<span class="chip high">bajarilmadi</span>'}</td><td class="muted" data-l="Natija" style="font-size:14px">${esc(c.summary)}</td></tr>`;
   root.innerHTML = `
     <div class="page-head"><div><div class="eyebrow">${esc(r.id)}</div><h1 style="word-break:break-all">${esc(r.name)}</h1><p>${TYPE_UZ[r.mediaType]} · ${fmtDate(r.createdAt)} · ${statusChip(r.status)}</p></div>
-      <div class="row-actions"><button class="btn" id="copyRep">Hisobotni nusxalash</button><button class="btn danger" id="delRep">Oʻchirish</button><a class="btn primary" href="#tahlil">Yangi tahlil</a></div></div>
+      <div class="row-actions"><button class="btn" id="copyRep">Hisobotni nusxalash</button><button class="btn danger" id="delRep">Oʻchirish</button><a class="btn primary" href="#${MODE_OF[r.mediaType] || "tahlil"}">Yana tekshirish</a></div></div>
     <div class="res-head">
       <div class="verdict ${r.aiVerdict ? AIV[r.aiVerdict].cls : r.risk}">
         <div class="eyebrow" style="color:var(--muted)">${r.aiVerdict ? "AI tekshiruvi natijasi" : "Skrining bahosi"}</div>
@@ -2165,10 +2220,12 @@ function renderSettings() {
 const VIEWS = ["bosh", "panel", "tahlil", "tarix", "natija", "akademiya", "sozlamalar"];
 function route() {
   let h = location.hash.slice(1) || "bosh";
+  const nav = h;
+  if (MODES[h]) { uploadMode = h; h = "tahlil"; } else if (h === "tahlil") uploadMode = null;
   if (!VIEWS.includes(h)) h = "bosh";
   if (h === "natija" && !currentId) h = "tarix";
   $$(".view").forEach(v => v.classList.toggle("on", v.dataset.view === h));
-  $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === h || (h === "natija" && a.dataset.nav === "tarix")));
+  $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === nav || (h === "natija" && a.dataset.nav === "tarix")));
   ({ panel: renderPanel, tahlil: renderUpload, tarix: renderHistory, natija: renderResult, akademiya: renderEdu, sozlamalar: renderSettings })[h]?.();
   window.scrollTo(0, 0);
 }

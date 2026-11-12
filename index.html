@@ -1687,11 +1687,38 @@ function assess(rec) {
   rec.aiIndex = toIndex(ai - auth);
   rec.manipIndex = toIndex(man - auth / 2);
   rec.index = Math.max(rec.aiIndex, rec.manipIndex);
+  aiVerdict(rec, auth);
+  if (rec.aiVerdict === "ai") return "high";
   if (rec.index >= 65) return "high";
   if (rec.index >= 35) return "medium";
   return "low";
 }
+/* Final AI verdict + percentage shown to the user.
+   1) Hard evidence in the file (IPTC trainedAlgorithmicMedia, SD/ComfyUI parameters, generator names) → ≥ 97%.
+   2) Otherwise the neural-network score (mean over views/frames) is the percentage, nudged by:
+      full camera EXIF (−30%, only below the AI threshold) and ≥ 2 points of weak AI signs (+10%, only in the unsure zone).
+   3) No model result → percentage from metadata signs only, never above "uncertain" without hard evidence. */
+const AIV = {
+  ai: { label: "AI yaratgan", cls: "high", text: "Fayl sunʼiy intellekt tomonidan yaratilgan deb baholandi." },
+  likely: { label: "Ehtimol AI", cls: "medium", text: "AI belgilari kuchli, lekin toʻliq ishonch yoʻq. Qoʻshimcha tekshiring." },
+  unsure: { label: "Noaniq", cls: "inconclusive", text: "Aniq xulosa chiqarib boʻlmadi: AI ham, haqiqiy ham boʻlishi mumkin." },
+  real: { label: "Haqiqiy (AI emas)", cls: "low", text: "AI yaratganlik belgilari topilmadi." }
+};
+function aiVerdict(rec, auth) {
+  const hard = rec.indicators.some(i => i.sev === "high" && (i.src === "signatures" || i.src === "png-text"));
+  const weak = rec.indicators.filter(i => i.group === "ai" && i.src !== "ai-model" && i.pts > 0).reduce((a, i) => a + i.pts, 0);
+  let p = typeof rec.modelScore === "number" ? rec.modelScore : null;
+  if (hard) p = Math.max(p || 0, 0.97);
+  else if (p != null) {
+    if (auth >= 3 && p < MT.ai) p *= 0.7;
+    if (weak >= 2 && p >= MT.unsure && p < MT.ai) p = Math.min(MT.ai - 0.01, p + 0.1);
+  } else if (rec.mediaType !== "audio") p = Math.min(MT.likely - 0.01, rec.aiIndex / 100 * 0.6);
+  else { rec.aiProb = null; rec.aiVerdict = null; return; }
+  rec.aiProb = Math.round(p * 100);
+  rec.aiVerdict = p >= MT.ai ? "ai" : p >= MT.likely ? "likely" : p >= MT.unsure ? "unsure" : "real";
+}
 function verdictLine(r) {
+  if (r.aiVerdict) return `Xulosa: ${AIV[r.aiVerdict].label} — AI ehtimoli ${r.aiProb}%.`;
   if (typeof r.aiIndex !== "number") return "";
   const m = typeof r.modelScore === "number" ? r.modelScore : null;
   if (r.aiIndex >= 65) return "Xulosa: AI yaratgan boʻlishi ehtimoli yuqori.";
@@ -1790,8 +1817,8 @@ function emptyState(title, text, cta = true) {
   return `<div class="card empty"><svg width="44" height="44" viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="9.5" fill="none" stroke="#8B7CFF" stroke-width="2"/><path d="M21 21l7 7" stroke="#3DD6F5" stroke-width="2.6" stroke-linecap="round"/></svg><h3>${esc(title)}</h3><p>${esc(text)}</p>${cta ? '<a class="btn primary" href="#tahlil">Birinchi tahlilni boshlash</a>' : ""}</div>`;
 }
 function histTable(rows) {
-  return `<div class="tbl"><table class="cards"><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>Indeks</th></tr></thead><tbody>${rows.map(r => `
-    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono" data-l="ID">${esc(r.id)}</td><td class="t-name" data-l="Fayl">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td data-l="Tur"><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num" data-l="Sana">${fmtDate(r.createdAt)}</td><td data-l="Holat">${statusChip(r.status)}</td><td data-l="Baho">${riskChip(r.risk)}</td><td class="num" data-l="Indeks" style="font-weight:700;color:${typeof r.index === "number" ? idxColor(r.index) : "#94A3B8"}">${typeof r.index === "number" ? r.index + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<div class="tbl"><table class="cards"><thead><tr><th>ID</th><th>Fayl</th><th>Tur</th><th>Sana</th><th>Holat</th><th>Baho</th><th>AI %</th></tr></thead><tbody>${rows.map(r => `
+    <tr class="click" data-open="${esc(r.id)}" tabindex="0"><td class="mono" data-l="ID">${esc(r.id)}</td><td class="t-name" data-l="Fayl">${esc(r.name)}<div class="muted" style="font-size:12px">${fmtBytes(r.size)}</div></td><td data-l="Tur"><span style="display:inline-flex;gap:6px;align-items:center">${ICON[r.mediaType]}${TYPE_UZ[r.mediaType]}</span></td><td class="num" data-l="Sana">${fmtDate(r.createdAt)}</td><td data-l="Holat">${statusChip(r.status)}</td><td data-l="Baho">${r.aiVerdict ? `<span class="chip ${AIV[r.aiVerdict].cls}">${esc(AIV[r.aiVerdict].label)}</span>` : riskChip(r.risk)}</td><td class="num" data-l="AI %" style="font-weight:700;color:${typeof (r.aiProb ?? r.index) === "number" ? idxColor(r.aiProb ?? r.index) : "#94A3B8"}">${typeof (r.aiProb ?? r.index) === "number" ? (r.aiProb ?? r.index) + "%" : "—"}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function bindOpen(root) {
   $$("[data-open]", root).forEach(el => {
@@ -1954,21 +1981,22 @@ function renderResult() {
     <div class="page-head"><div><div class="eyebrow">${esc(r.id)}</div><h1 style="word-break:break-all">${esc(r.name)}</h1><p>${TYPE_UZ[r.mediaType]} · ${fmtDate(r.createdAt)} · ${statusChip(r.status)}</p></div>
       <div class="row-actions"><button class="btn" id="copyRep">Hisobotni nusxalash</button><button class="btn danger" id="delRep">Oʻchirish</button><a class="btn primary" href="#tahlil">Yangi tahlil</a></div></div>
     <div class="res-head">
-      <div class="verdict ${r.risk}">
-        <div class="eyebrow" style="color:var(--muted)">Skrining bahosi</div>
+      <div class="verdict ${r.aiVerdict ? AIV[r.aiVerdict].cls : r.risk}">
+        <div class="eyebrow" style="color:var(--muted)">${r.aiVerdict ? "AI tekshiruvi natijasi" : "Skrining bahosi"}</div>
         <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap">
-          <div class="big" style="margin:6px 0 0">${esc(RISK[r.risk].label)}</div>
-          ${typeof r.index === "number" ? `<div><span class="big-pct">${r.index}%</span><div class="muted" style="font-size:12px">umumiy shubha indeksi</div></div>` : ""}
+          <div class="big" style="margin:6px 0 0">${esc(r.aiVerdict ? AIV[r.aiVerdict].label : RISK[r.risk].label)}</div>
+          ${typeof r.aiProb === "number" ? `<div><span class="big-pct">${r.aiProb}%</span><div class="muted" style="font-size:12px">AI yaratgan boʻlish ehtimoli</div></div>` : typeof r.index === "number" ? `<div><span class="big-pct">${r.index}%</span><div class="muted" style="font-size:12px">umumiy shubha indeksi</div></div>` : ""}
         </div>
         <div class="meter" aria-hidden="true"><span></span><span></span><span></span></div>
-        <p style="color:#CBD5E1">${esc(RISK[r.risk].text)}</p>
-        ${verdictLine(r) ? `<p style="font-weight:600;margin-top:8px">${esc(verdictLine(r))}</p>` : ""}
+        <p style="color:#CBD5E1">${esc(r.aiVerdict ? AIV[r.aiVerdict].text : RISK[r.risk].text)}</p>
+        ${r.aiVerdict && r.manipIndex >= 35 ? `<p style="color:#FBBF24">Diqqat: tahrir/montaj belgilari ham topildi (${r.manipIndex}%).</p>` : ""}
+        ${!r.aiVerdict && verdictLine(r) ? `<p style="font-weight:600;margin-top:8px">${esc(verdictLine(r))}</p>` : ""}
         ${typeof r.modelScore === "number" ? `<div class="idx" style="margin-bottom:-4px">${idxRow("Neyron tarmoq: sunʼiy boʻlish ehtimoli", Math.round(r.modelScore * 100))}</div>` : ""}
         ${typeof r.aiIndex === "number" ? `<div class="idx">
           ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
           ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
         </div>` : ""}
-        <p class="muted" style="font-size:13px;margin-top:14px">Foiz topilgan belgilarning ogʻirligini koʻrsatadi (kamera maʼlumoti kabi haqiqiylik belgilari uni pasaytiradi). Bu fayl soxta boʻlish ehtimoli emas: metamaʼlumoti tozalangan AI rasm past foiz olishi mumkin. 0–34% past, 35–64% oʻrta, 65–100% yuqori.${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
+        <p class="muted" style="font-size:13px;margin-top:14px">${r.aiVerdict ? "AI ehtimoli neyron tarmoq (6 koʻrinish/kadr oʻrtachasi) va fayl ichidagi generator izlari asosida hisoblanadi. 70%+ — AI, 50–69% — ehtimol AI, 35–49% — noaniq, 35% dan past — haqiqiy. Sinovda haqiqiy fotolarning ~1% i, AI rasmlarning ~10–20% i notoʻgʻri baholangan: hech bir detektor 100% aniq emas." : "Foiz topilgan belgilarning ogʻirligini koʻrsatadi. 0–34% past, 35–64% oʻrta, 65–100% yuqori."}${r.error ? " Xatolik: " + esc(r.error) : ""}</p>
       </div>
       <div class="card file-card"><h3>Fayl maʼlumotlari</h3><dl class="kv">
         <dt>Hajm</dt><dd class="num">${fmtBytes(r.size)}</dd>

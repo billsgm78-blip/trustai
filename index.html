@@ -407,6 +407,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="row"><span>Metamaʼlumotlar va generator izlari</span><span class="mono muted">EXIF · XMP · C2PA</span></div>
         <div class="row"><span>Siqish xatolari tahlili</span><span class="mono muted">ELA · JPEG DQT</span></div>
         <div class="row"><span>Spektrogramma va akustik belgilar</span><span class="mono muted">FFT · dBFS</span></div>
+        <div class="row"><span>AI detektor neyron tarmogʻi</span><span class="mono muted">SwinV2 · ONNX</span></div>
         <div class="row"><span>Kadrlararo izchillik</span><span class="mono muted">Δ kadr · keskinlik</span></div>
         <div class="row"><span>Yakuniy baho</span><span class="mono muted">past · oʻrta · yuqori · noaniq</span></div>
       </div>
@@ -486,8 +487,9 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
         <div class="p"><span class="k">02 hash</span><div><strong>SHA-256 barmoq izi</strong><p>Fayl oʻzgarmaganini keyinchalik isbotlash uchun kriptografik xesh hisoblanadi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">03 metadata</span><div><strong>EXIF, XMP, PNG matnlari</strong><p>Kamera, dastur, sana, GPS, generator parametrlari va IPTC “trainedAlgorithmicMedia” belgisi izlanadi.</p></div><span class="chip low">bajariladi</span></div>
         \1        <div class="p"><span class="k">05 noise</span><div><strong>Shovqin va klonlash</strong><p>Sensor shovqini bloklar boʻyicha solishtiriladi, rasm ichida nusxa koʻchirilgan hududlar va EXIF eskiz bilan farq izlanadi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">07 ai-model</span><div><strong>AI detektor neyron tarmogʻi</strong><p>SwinV2 modeli rasmni brauzerning oʻzida baholaydi. Model bir marta yuklanadi, rasm hech qayerga yuborilmaydi.</p></div><span class="chip low">bajariladi</span></div>
         <div class="p"><span class="k">06 spectral</span><div><strong>Spektral artefaktlar</strong><p>Siqilmagan rasmlarda shovqin spektridagi davriy panjara — diffuziya modellari izi — izlanadi.</p></div><span class="chip low">bajariladi</span></div>
-        <div class="p"><span class="k">07 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
+        <div class="p"><span class="k">08 assess</span><div><strong>Xavf bahosi</strong><p>Belgilar ogʻirligi boʻyicha hujjatlashtirilgan qoida asosida baho beriladi.</p></div><span class="chip low">bajariladi</span></div>
       </div>
     </div>
   </section>
@@ -504,6 +506,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
             <li><span>Canvas 2D</span><span>ELA, kadrlarni ajratish, keskinlik</span></li>
             <li><span>Web Audio</span><span>Dekodlash, FFT spektrogramma</span></li>
             <li><span>Bayt tahlili</span><span>EXIF/TIFF, PNG, MP4 mvhd, WAV/FLAC/MP3 sarlavhalari</span></li>
+            <li><span>ONNX Runtime Web</span><span>SwinV2 AI detektor modeli brauzerda</span></li>
             <li><span>localStorage</span><span>Natijalar tarixi (media saqlanmaydi)</span></li>
           </ul>
         </div>
@@ -537,6 +540,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #CBD5E
       <h2>Koʻp beriladigan savollar</h2>
       <details class="faq"><summary>TruthLens fayl soxta ekanini aniq aytib bera oladimi?</summary><p>Yoʻq. Hech bir tizim 100% aniqlik bermaydi. TruthLens skrining bahosini beradi: qaysi belgilar topilgani va ular nimani anglatishi mumkinligini koʻrsatadi. Muhim qarorlar uchun mustaqil ekspert tekshiruvi kerak.</p></details>
       <details class="faq"><summary>Fayllarim qayerga yuboriladi?</summary><p>Hech qayerga. Bu versiyada barcha tahlil brauzeringizda bajariladi. Tarixda faqat fayl nomi, hajmi, xeshi va topilmalar saqlanadi; media faylning oʻzi saqlanmaydi.</p></details>
+      <details class="faq"><summary>AI detektor modeli qanchalik aniq?</summary><p>Biz uni 2025–2026 yillardagi generatorlar (GPT-image, Midjourney 7, FLUX.2, Nano Banana, Seedream, Veo 3) rasmlari va haqiqiy fotolardan iborat mustaqil OpenFake toʻplamida sinadik: AI rasmlarning ~70–74% i aniqlandi, haqiqiy fotolarning 1–2% i xato belgilandi. Midjourney va GPT-image rasmlarida natija yuqori (85–100%), FLUX.2 da past (~37%). Shuning uchun model natijasi metamaʼlumot va kriminalistik tekshiruvlar bilan birga baholanadi.</p></details>
       <details class="faq"><summary>“Past xavf” fayl haqiqiy degani emasmi?</summary><p>Yoʻq. Bu faqat mavjud tekshiruvlar sezilarli belgi topmaganini bildiradi. Yaxshi tayyorlangan soxta kontent hech qanday iz qoldirmasligi mumkin.</p></details>
       <details class="faq"><summary>Audio tahlili gapirayotgan odamni aniqlaydimi?</summary><p>Yoʻq. Sintetik nutq belgilarini izlash va spikerni identifikatsiya qilish butunlay boshqa vazifalar. TruthLens hech kimning shaxsini aniqlamaydi va hech kimni firibgar deb belgilamaydi.</p></details>
     </div>
@@ -636,7 +640,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal()
 
 /* ================= State ================= */
 const LS = { hist: "tl_history_v1", set: "tl_settings_v1", edu: "tl_edu_v1" };
-const DEF = { maxMB: 200, frames: 16, elaQ: 90, retention: 30, saveHistory: true };
+const DEF = { maxMB: 200, frames: 16, elaQ: 90, retention: 30, saveHistory: true, aiModel: true };
 let settings = Object.assign({}, DEF, store.get(LS.set, {}));
 let history = store.get(LS.hist, []); if (!Array.isArray(history)) history = [];
 let edu = store.get(LS.edu, {}); if (typeof edu !== "object" || !edu) edu = {};
@@ -671,13 +675,14 @@ const RISK_ORDER = { high: 3, medium: 2, low: 1, inconclusive: 0 };
   const ALLOWED_NUM = { maxMB: [25, 50, 100, 200, 500], frames: [8, 16, 32, 48], elaQ: [75, 85, 90, 95], retention: [0, 7, 30, 90] };
   for (const k in ALLOWED_NUM) { const n = Number(settings[k]); settings[k] = ALLOWED_NUM[k].includes(n) ? n : DEF[k]; }
   settings.saveHistory = settings.saveHistory !== false;
+  settings.aiModel = settings.aiModel !== false;
   const str = (v, max = 500) => typeof v === "string" ? v.slice(0, max) : "";
   const num = v => (typeof v === "number" && isFinite(v) ? v : null);
   const okCheck = c => c && typeof c === "object" && ["ok", "unavailable", "failed"].includes(c.status);
   history = history.filter(r => r && typeof r === "object" && /^TL-[A-Z0-9-]{4,40}$/.test(r.id) && RISK[r.risk] && TYPE_UZ[r.mediaType] && STATUS_UZ[r.status] && num(r.createdAt)).slice(0, 2000).map(r => ({
     id: r.id, name: str(r.name, 255), size: num(r.size) || 0, clientMime: str(r.clientMime, 100), mime: str(r.mime, 100), format: str(r.format, 60),
     mediaType: r.mediaType, createdAt: r.createdAt, status: r.status, risk: r.risk, hash: /^[0-9a-f]{64}$/.test(r.hash) ? r.hash : null,
-    index: num(r.index), aiIndex: num(r.aiIndex), manipIndex: num(r.manipIndex), durationMs: num(r.durationMs) || 0, error: str(r.error),
+    index: num(r.index), aiIndex: num(r.aiIndex), manipIndex: num(r.manipIndex), durationMs: num(r.durationMs) || 0, error: str(r.error), modelScore: num(r.modelScore),
     indicators: (Array.isArray(r.indicators) ? r.indicators : []).filter(i => i && SEV_UZ[i.sev]).slice(0, 100).map(i => ({ sev: i.sev, pts: num(i.pts) || 0, group: ["ai", "manip", "auth"].includes(i.group) ? i.group : "manip", title: str(i.title), detail: str(i.detail, 1500), src: str(i.src, 40) })),
     checks: (Array.isArray(r.checks) ? r.checks : []).filter(okCheck).slice(0, 50).map(c => ({ name: str(c.name, 120), version: str(c.version, 80), status: c.status, summary: str(c.summary) })),
     models: (Array.isArray(r.models) ? r.models : []).filter(okCheck).slice(0, 20).map(c => ({ name: str(c.name, 120), version: str(c.version, 80), status: c.status, summary: str(c.summary) })),
@@ -938,7 +943,7 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
     if (!j.eoi) rec.indicators.push({ sev: "low", title: "JPEG yakunlovchi belgisi (EOI) topilmadi", detail: "Fayl toʻliq saqlanmagan yoki kesilgan boʻlishi mumkin. Bu manipulyatsiya isboti emas, lekin yaxlitlik shubhali.", src: "integrity" });
     else if (j.trailing > 4096) rec.indicators.push({ sev: "info", title: `Fayl oxirida ${fmtBytes(j.trailing)} qoʻshimcha maʼlumot bor`, detail: "Koʻp telefonlar bu joyga qoʻshimcha rasm (MPF, chuqurlik xaritasi) yozadi. Odatiy hol, lekin yashirin maʼlumot ham boʻlishi mumkin.", src: "integrity" });
     if (j.quality != null && j.quality < 70) rec.indicators.push({ sev: "info", title: `Kuchli siqish (sifat ≈ ${j.quality})`, detail: "Fayl bir necha marta qayta saqlangan yoki messenjer orqali yuborilgan boʻlishi mumkin. Kuchli siqish izlarni yoʻqotadi va tahlil aniqligini pasaytiradi.", src: "jpeg-dqt" });
-    if (!Object.keys(exif).length) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: "EXIF metamaʼlumotlari yoʻq", detail: "Ijtimoiy tarmoqlar va messenjerlar EXIFni odatda oʻchiradi, shuning uchun bu yolgʻiz oʻzi shubha belgisi emas. Kameradan olingan asl fayllarda EXIF odatda boʻladi.", src: "metadata" });
+    if (!Object.keys(exif).length) rec.indicators.push({ sev: "low", pts: 0.5, group: "ai", title: "EXIF metamaʼlumotlari yoʻq", detail: "Ijtimoiy tarmoqlar va messenjerlar EXIFni odatda oʻchiradi, shuning uchun bu yolgʻiz oʻzi shubha belgisi emas. Kameradan olingan asl fayllarda EXIF odatda boʻladi.", src: "metadata" });
   } else if (fmt.label === "PNG") {
     const p = parsePng(bytes);
     exif = p.exif || {};
@@ -1032,7 +1037,7 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
       graphics = na.flat > 0.45;
       if (graphics) rec.limitations.push("Rasm skrinshot yoki grafikaga oʻxshaydi (katta bir xil rangli maydonlar). Shovqin, klon va spektral tekshiruvlar bunday rasmlarda ishonchsiz, shuning uchun ular bahoga qoʻshilmadi.");
       else if (na.med <= 0.2) rec.limitations.push("Rasmda deyarli shovqin yoʻq (grafika, skrinshot yoki kuchli tozalangan rasm) — shovqin tahlili maʼno bermaydi.");
-      else if (na.largest >= Math.max(6, 0.05 * na.smooth) && frac <= 0.45) rec.indicators.push({ sev: "medium", pts: frac >= 0.1 ? 3 : 2, group: "manip", title: "Shovqini gʻayritabiiy kam boʻlgan hudud topildi", detail: `Rasmning bir qismida (${Math.round(frac * 100)}% silliq bloklar) sensor shovqini qolgan qismdan 1.8 barobardan koʻp kam. Xiralashtirib “tozalangan”, boshqa rasmdan qoʻyilgan yoki AI bilan toʻldirilgan (inpainting) hudud shunday iz qoldiradi. Tabiiy silliq hududlar (osmon, devor) ham kuchli JPEG siqishda shunday koʻrinishi mumkin. Shovqin xaritasida sariq ramka bilan belgilangan.`, src: "noise" });
+      else if (na.largest >= Math.max(6, 0.05 * na.smooth) && frac <= 0.45) rec.indicators.push({ sev: "info", pts: 0, group: "manip", title: "Shovqini kam boʻlgan hudud bor (xaritani koʻz bilan tekshiring)", detail: `Rasmning bir qismida (${Math.round(frac * 100)}% silliq bloklar) sensor shovqini qolgan qismdan 1.8 barobardan koʻp kam. Xiralashtirib “tozalangan”, boshqa rasmdan qoʻyilgan yoki AI bilan toʻldirilgan (inpainting) hudud shunday iz qoldiradi. Lekin tabiiy silliq hududlar (osmon, devor, xira fon) ham shunday koʻrinadi — sinovda haqiqiy fotolarning ~30% ida shunday hudud chiqdi, shuning uchun bu belgi bahoga qoʻshilmaydi. Shovqin xaritasida sariq ramka bilan belgilangan.`, src: "noise" });
       rec.checks.push({ name: "Shovqin izchilligi", version: "tl-noise 1.0 · Immerkær", status: "ok", summary: `Median σ ${na.med.toFixed(2)}, eng katta notekis hudud ${na.largest} blok.` });
     }
   } catch (e) { rec.checks.push({ name: "Shovqin izchilligi", version: "tl-noise 1.0", status: "failed", summary: "Bajarilmadi." }); }
@@ -1045,7 +1050,7 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
     const cm = copyMove(G);
     if (cm.url) vis.clone = cm.url;
     rec.meta["Klon bloklar (eng koʻp siljish)"] = cm.count ? `${cm.count} ta (Δ ${Math.round(cm.dx / sc)}, ${Math.round(cm.dy / sc)} px)` : "0";
-    if (!graphics && cm.count >= 15 && cm.dominance >= 2) rec.indicators.push({ sev: cm.count >= 40 ? "high" : "medium", pts: cm.count >= 40 ? 6 : 3, group: "manip", title: "Rasm ichida nusxa koʻchirilgan (klonlangan) hudud", detail: `${cm.count} ta blok rasmning boshqa joyida aynan bir xil siljish bilan (${Math.round(cm.dx / sc)}, ${Math.round(cm.dy / sc)} px) takrorlanadi. Bu obyektni yashirish yoki koʻpaytirish uchun “Clone Stamp” ishlatilganiga xos. Takrorlanuvchi naqshlar (gʻisht, plitka) ham shunday koʻrinishi mumkin — klon xaritasini koʻz bilan tekshiring.`, src: "clone" });
+    if (!graphics && cm.count >= 80 && cm.dominance >= 2) rec.indicators.push({ sev: cm.count >= 150 ? "high" : "medium", pts: cm.count >= 150 ? 6 : 3, group: "manip", title: "Rasm ichida nusxa koʻchirilgan (klonlangan) hudud", detail: `${cm.count} ta blok rasmning boshqa joyida aynan bir xil siljish bilan (${Math.round(cm.dx / sc)}, ${Math.round(cm.dy / sc)} px) takrorlanadi. Bu obyektni yashirish yoki koʻpaytirish uchun “Clone Stamp” ishlatilganiga xos. Takrorlanuvchi naqshlar (gʻisht, plitka) ham shunday koʻrinishi mumkin — klon xaritasini koʻz bilan tekshiring.`, src: "clone" });
     rec.checks.push({ name: "Klonlash (copy-move) qidiruvi", version: "tl-clone 1.0 · 8×8 blok", status: "ok", summary: cm.count ? `Eng kuchli siljishda ${cm.count} ta mos blok.` : "Mos bloklar topilmadi." });
   } catch (e) { rec.checks.push({ name: "Klonlash (copy-move) qidiruvi", version: "tl-clone 1.0", status: "failed", summary: "Bajarilmadi." }); }
 
@@ -1065,6 +1070,9 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
       }
     } catch (e) { rec.checks.push({ name: "Spektral artefaktlar", version: "tl-spec 1.0", status: "failed", summary: "Bajarilmadi." }); }
   }
+
+  await step("aimodel");
+  await runDetector(rec, [modelTensor(bitmap)], "image");
 
   await step("model");
   await faceCheck(bitmap, rec);
@@ -1206,7 +1214,7 @@ function copyMove(G) {
   const second = list.find(e => Math.abs(e.dx - top.dx) > 3 || Math.abs(e.dy - top.dy) > 3);
   const srcSet = new Set(top.pairs.map(p => p[0]));
   const res = { count: srcSet.size, dx: top.dx, dy: top.dy, dominance: second ? top.pairs.length / second.pairs.length : Infinity };
-  if (srcSet.size >= 15) {
+  if (srcSet.size >= 80) {
     const mc = document.createElement("canvas"); mc.width = w; mc.height = h; const mx = mc.getContext("2d");
     mx.drawImage(G.c, 0, 0); mx.fillStyle = "rgba(5,9,17,.5)"; mx.fillRect(0, 0, w, h);
     mx.fillStyle = "rgba(56,189,248,.55)"; top.pairs.forEach(([p]) => mx.fillRect(p % w, (p / w) | 0, B, B));
@@ -1243,6 +1251,70 @@ function spectralPeaks(bitmap) {
   for (let y = 0; y < N; y++) for (let xx = 0; xx < N; xx++) { const v = (at(xx - N / 2, y - N / 2) - mn) / (mxv - mn); const [R, Gc, Bc] = cmap(Math.pow(v, 1.6)); const i = (y * N + xx) * 4; d.data[i] = R; d.data[i + 1] = Gc; d.data[i + 2] = Bc; d.data[i + 3] = 255; }
   x.putImageData(d, 0, 0);
   return { peaks, strength, url: c.toDataURL("image/png") };
+}
+
+/* ---------- AI detector model (SwinV2, ONNX Runtime Web) ----------
+   Model: haywoodsloan/ai-image-detector-deploy (Apache-2.0), ONNX export SoldadoXara/ai-image-detector-deploy-ONNX (uint8).
+   Benchmarked on OpenFakeTiny test split (2025–26 generators): ~70–74% of AI images detected, 1–2% of real photos flagged. */
+const AIM = {
+  name: "AI detektor modeli (SwinV2)", version: "haywoodsloan/ai-image-detector-deploy · uint8",
+  url: "https://huggingface.co/SoldadoXara/ai-image-detector-deploy-ONNX/resolve/main/onnx/model_uint8.onnx",
+  ortBase: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/", sizeMB: 190, cache: "tl-model-v1", session: null, loading: null
+};
+function loadScript(src) { return new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = () => rej(new Error("Skript yuklanmadi")); document.head.appendChild(el); }); }
+async function modelCached() { try { return !!AIM.session || ("caches" in window && !!(await (await caches.open(AIM.cache)).match(AIM.url))); } catch (e) { return false; } }
+async function getModel(onProgress) {
+  if (AIM.session) return AIM.session;
+  if (!AIM.loading) AIM.loading = (async () => {
+    if (!window.ort) await loadScript(AIM.ortBase + "ort.min.js");
+    ort.env.wasm.wasmPaths = AIM.ortBase; ort.env.wasm.numThreads = 1;
+    let cache = null; try { if ("caches" in window) cache = await caches.open(AIM.cache); } catch (e) {}
+    let resp = cache ? await cache.match(AIM.url) : null, buf;
+    if (resp) buf = new Uint8Array(await resp.arrayBuffer());
+    else {
+      const r = await fetch(AIM.url); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
+      const total = +r.headers.get("content-length") || AIM.sizeMB * 1048576, reader = r.body.getReader(), parts = []; let got = 0;
+      for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; onProgress && onProgress(got, total); }
+      buf = new Uint8Array(got); let o = 0; for (const p of parts) { buf.set(p, o); o += p.length; }
+      if (cache) { try { await cache.put(AIM.url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {} }
+    }
+    onProgress && onProgress(-1);
+    return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] });
+  })().catch(e => { AIM.loading = null; throw e; });
+  AIM.session = await AIM.loading; return AIM.session;
+}
+function modelTensor(src) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 256; const x = c.getContext("2d", { willReadFrequently: true });
+  x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high"; x.drawImage(src, 0, 0, 256, 256);
+  const d = x.getImageData(0, 0, 256, 256).data, f = new Float32Array(3 * 65536), M = [0.485, 0.456, 0.406], SD = [0.229, 0.224, 0.225];
+  for (let i = 0; i < 65536; i++) for (let k = 0; k < 3; k++) f[k * 65536 + i] = (d[i * 4 + k] / 255 - M[k]) / SD[k];
+  return f;
+}
+async function modelScore(session, data) {
+  const out = await session.run({ [session.inputNames[0]]: new ort.Tensor("float32", data, [1, 3, 256, 256]) });
+  const l = out[session.outputNames[0]].data, m = Math.max(l[0], l[1]), a = Math.exp(l[0] - m), b = Math.exp(l[1] - m);
+  return a / (a + b); // label 0 = "artificial"
+}
+async function runDetector(rec, inputs, kind) {
+  if (!settings.aiModel) { rec.limitations.push("AI detektor modeli Sozlamalarda oʻchirilgan; baho faqat texnik belgilarga asoslangan."); return; }
+  try {
+    const t = performance.now();
+    const ses = await getModel((got, total) => rec._progress && rec._progress(got < 0 ? "ishga tushirilmoqda…" : `${Math.round(got / 1048576)} / ${Math.round(total / 1048576)} MB`));
+    const ps = [];
+    for (let i = 0; i < inputs.length; i++) { rec._progress && rec._progress(inputs.length > 1 ? `${i + 1} / ${inputs.length} kadr` : "hisoblanmoqda…"); ps.push(await modelScore(ses, inputs[i])); await sleep(0); }
+    const p = ps.reduce((a, c) => a + c, 0) / ps.length, mx = Math.max(...ps), pct = Math.round(p * 100);
+    rec.modelScore = p;
+    rec.meta["AI detektor natijasi"] = `${pct}% sunʼiy` + (ps.length > 1 ? ` (oʻrtacha ${ps.length} kadr, eng yuqori ${Math.round(mx * 100)}%)` : "");
+    const what = kind === "video" ? "Video kadrlari" : "Rasm";
+    if (p >= 0.9) rec.indicators.push({ sev: "high", pts: 6, group: "ai", title: `AI detektor modeli: ${pct}% ehtimol bilan sunʼiy`, detail: `${what} neyron tarmoq (SwinV2) tomonidan AI yaratgan kontent deb aniq baholandi. Sinovda bu model zamonaviy generatorlar rasmlarining ~70–74% ini aniqlagan, haqiqiy fotolarning esa atigi 1–2% ini xato belgilagan.`, src: "ai-model" });
+    else if (p >= 0.6) rec.indicators.push({ sev: "medium", pts: 3, group: "ai", title: `AI detektor modeli: ${pct}% ehtimol bilan sunʼiy`, detail: `Model ${what.toLowerCase()}ni koʻproq AI yaratganga oʻxshatdi, lekin toʻliq ishonch bilan emas.`, src: "ai-model" });
+    else if (p >= 0.35) rec.indicators.push({ sev: "low", pts: 1, group: "ai", title: `AI detektor modeli: noaniq (${pct}%)`, detail: "Model aniq qaror qila olmadi.", src: "ai-model" });
+    if (p < 0.1) rec.indicators.push({ sev: "auth", pts: -1.5, group: "ai", title: `AI detektor modeli: haqiqiy rasmga oʻxshaydi (${pct}% sunʼiy)`, detail: "Neyron tarmoq faylni haqiqiy foto deb baholadi. Sinovda u haqiqiy fotolarning ~98% ini toʻgʻri tanigan, lekin AI rasmlarning ~30% ini ham haqiqiy deb oʻtkazib yuboradi — shuning uchun bu kuchsiz haqiqiylik belgisi.", src: "ai-model" });
+    rec.checks.push({ name: AIM.name, version: AIM.version, status: "ok", summary: `${pct}% sunʼiy · ${Math.round(performance.now() - t)} ms` });
+    if (p < 0.35) rec.limitations.push("AI detektor modeli bu faylni haqiqiyga oʻxshatdi, lekin u AI rasmlarning taxminan 3 tadan 1 tasini oʻtkazib yuboradi (ayniqsa FLUX kabi yangi generatorlarni). Past natija haqiqiylik kafolati emas.");
+  } catch (e) {
+    rec.checks.push({ name: AIM.name, version: AIM.version, status: "failed", summary: "Model yuklanmadi yoki ishlamadi: " + (e && e.message ? e.message : "nomaʼlum xato") + ". Internet aloqasini tekshiring." });
+  }
 }
 
 async function faceCheck(src, rec) {
@@ -1464,13 +1536,14 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
   const W = 256, H = Math.max(8, Math.round(256 * vh / vw));
   const work = document.createElement("canvas"); work.width = W; work.height = H; const wx = work.getContext("2d", { willReadFrequently: true });
   const tw = 112, th = Math.round(112 * vh / vw); const thumb = document.createElement("canvas"); thumb.width = tw; thumb.height = th; const tx = thumb.getContext("2d");
-  const thumbs = [], sharp = [], adj = [], times = [];
+  const thumbs = [], sharp = [], adj = [], times = [], mFrames = [];
   let fails = 0;
   for (let i = 0; i < n; i++) {
     const t = Math.min(dur - 0.1, (i + 0.5) * dur / n);
     try {
       await seekTo(v, Math.max(0, t)); wx.drawImage(v, 0, 0, W, H); const g1 = grayOf(wx, W, H);
       tx.drawImage(v, 0, 0, tw, th); thumbs.push(thumb.toDataURL("image/jpeg", 0.6));
+      if (settings.aiModel && i % Math.max(1, Math.floor(n / 6)) === 0 && mFrames.length < 6) mFrames.push(modelTensor(v));
       sharp.push(lapVar(g1, W, H));
       await seekTo(v, Math.min(dur - 0.01, t + 0.034)); wx.drawImage(v, 0, 0, W, H); const g2 = grayOf(wx, W, H);
       adj.push(meanAbs(g1, g2)); times.push(t);
@@ -1499,6 +1572,10 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
   rec.checks.push({ name: "Vaqt boʻyicha izchillik", version: "tl-temporal 1.0", status: "ok", summary: `Median farq ${medAdj.toFixed(2)}, sakrashlar ${spikes.length}/${adj.length}.` });
   visuals[rec.tmpKey] = { kind: "video", thumbs, adj, sharp, times, dur };
 
+  await step("aimodel");
+  if (mFrames.length) await runDetector(rec, mFrames, "video");
+  else if (!settings.aiModel) rec.limitations.push("AI detektor modeli Sozlamalarda oʻchirilgan.");
+
   await step("model");
   if ("FaceDetector" in window) { try { const img = await createImageBitmap(work); await faceCheck(img, rec); } catch (e) {} }
   rec.limitations.push("Kadrlar oraliq bilan tanlanadi; namunalar orasidagi qisqa oʻzgarishlar koʻrinmasligi mumkin.");
@@ -1519,7 +1596,7 @@ async function analyzeVideo(file, bytes, fmt, rec, step) {
    Overall     = max(AI, Edit). Risk: < 35 low, 35–64 medium, ≥ 65 high.
    The index measures the weight of found signs. It is NOT the probability that the file is fake. */
 const WEIGHT = { info: 0, low: 1, medium: 2, high: 6, auth: -1 };
-const AI_SRC = new Set(["signatures", "png-text", "dimensions", "spectral"]);
+const AI_SRC = new Set(["signatures", "png-text", "dimensions", "spectral", "ai-model"]);
 const toIndex = s => Math.round(100 * (1 - Math.exp(-Math.max(0, s) / 4)));
 function assess(rec) {
   let ai = 0, man = 0, auth = 0;
@@ -1553,8 +1630,8 @@ function recommendations(rec) {
 
 /* ================= Orchestration ================= */
 const STEPS = {
-  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA) va EXIF eskiz"], ["noise", "Shovqin izchilligi xaritasi"], ["clone", "Klonlangan hududlarni qidirish"], ["spectral", "Spektral artefaktlar"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
-  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
+  image: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Metamaʼlumotlar va generator izlari"], ["decode", "Rasmni dekodlash"], ["ela", "Xato darajasi tahlili (ELA) va EXIF eskiz"], ["noise", "Shovqin izchilligi xaritasi"], ["clone", "Klonlangan hududlarni qidirish"], ["spectral", "Spektral artefaktlar"], ["aimodel", "AI detektor modeli"], ["model", "Yuz aniqlash"], ["assess", "Xavfni baholash"]],
+  video: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Konteyner metamaʼlumotlari"], ["decode", "Videoni ochish"], ["frames", "Kadrlarni ajratish"], ["temporal", "Kadrlararo izchillik"], ["aimodel", "AI detektor modeli (kadrlar)"], ["model", "Yakunlash"], ["assess", "Xavfni baholash"]],
   audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["assess", "Xavfni baholash"]]
 };
 
@@ -1690,9 +1767,10 @@ function renderUpload() {
         <div class="type-pills"><span class="chip info">${ICON.image} JPG · PNG · WEBP</span><span class="chip ai">${ICON.video} MP4 · MOV · WEBM</span><span class="chip low">${ICON.audio} WAV · MP3 · OGG · FLAC · M4A</span></div>
       </div>
       <input type="file" id="fileIn" accept="${ACCEPT}" hidden>
+      ${settings.aiModel ? `<div class="notice blue" id="mNote" style="margin-top:14px">Rasm va video AI detektor neyron tarmogʻi bilan ham tekshiriladi. Birinchi tahlilda model (~${AIM.sizeMB} MB) bir marta yuklab olinadi — mobil internetda Wi-Fi tavsiya etiladi. Faylingiz baribir qurilmadan chiqmaydi.</div>` : ""}
       <div id="upErr"></div>
       <div class="grid g3" style="margin-top:20px">
-        <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Rasm uchun: metamaʼlumot va tahrir tarixi, 40+ AI generator izi, EXIF eskiz, ELA, shovqin xaritasi, klonlangan hududlar va spektral artefaktlar.</p></div>
+        <div class="card"><h3>Nima tekshiriladi</h3><p class="muted" style="font-size:14px">Rasm uchun: AI detektor neyron tarmogʻi, metamaʼlumot va tahrir tarixi, 40+ AI generator izi, EXIF eskiz, ELA, shovqin xaritasi, klonlangan hududlar va spektral artefaktlar.</p></div>
         <div class="card"><h3>Nima tekshirilmaydi</h3><p class="muted" style="font-size:14px">Gapirayotgan yoki rasmdagi shaxs aniqlanmaydi. Natija hech kimni aybdor deb koʻrsatmaydi.</p></div>
         <div class="card"><h3>Maxfiylik</h3><p class="muted" style="font-size:14px">Fayl brauzerdan chiqmaydi. Tarixga faqat natija va SHA-256 xesh yoziladi.</p></div>
       </div>`;
@@ -1800,6 +1878,7 @@ function renderResult() {
         </div>
         <div class="meter" aria-hidden="true"><span></span><span></span><span></span></div>
         <p style="color:#CBD5E1">${esc(RISK[r.risk].text)}</p>
+        ${typeof r.modelScore === "number" ? `<div class="idx" style="margin-bottom:-4px">${idxRow("Neyron tarmoq: sunʼiy boʻlish ehtimoli", Math.round(r.modelScore * 100))}</div>` : ""}
         ${typeof r.aiIndex === "number" ? `<div class="idx">
           ${idxRow("AI-generatsiya belgilari", r.aiIndex)}
           ${idxRow("Tahrir / montaj belgilari", r.manipIndex)}
@@ -1942,6 +2021,7 @@ function renderSettings() {
       <div class="set-row"><div><h4>Maksimal fayl hajmi</h4><p>Bundan katta fayllar qabul qilinmaydi.</p></div><select class="input" id="sMax">${[25, 50, 100, 200, 500].map(v => `<option value="${v}" ${settings.maxMB === v ? "selected" : ""}>${v} MB</option>`).join("")}</select></div>
       <div class="set-row"><div><h4>Video kadr namunalari</h4><p>Koʻproq kadr — aniqroq, lekin sekinroq.</p></div><select class="input" id="sFrames">${[8, 16, 32, 48].map(v => `<option value="${v}" ${settings.frames === v ? "selected" : ""}>${v} ta kadr</option>`).join("")}</select></div>
       <div class="set-row"><div><h4>ELA qayta siqish sifati</h4><p>Odatda 90. Past qiymat farqlarni kuchaytiradi.</p></div><select class="input" id="sEla">${[75, 85, 90, 95].map(v => `<option value="${v}" ${settings.elaQ === v ? "selected" : ""}>${v}</option>`).join("")}</select></div>
+      <div class="set-row"><div><h4>AI detektor modeli</h4><p>Neyron tarmoq (~${AIM.sizeMB} MB). Birinchi marta Hugging Face’dan yuklanadi va brauzerda saqlanadi. <span id="mState"></span></p></div><label class="switch"><input type="checkbox" id="sAi" ${settings.aiModel ? "checked" : ""}><span class="sr" style="position:absolute;left:-9999px">AI detektor modeli</span></label></div>
       <div class="set-row"><div><h4>Til</h4><p>Interfeys tili. Inglizcha va ruscha versiyalar ishlab chiqilmoqda.</p></div><select class="input" id="sLang"><option value="uz" selected>Oʻzbekcha</option></select></div>
     </div>
     <div class="card"><h3>Maxfiylik va maʼlumotlar</h3>
@@ -1961,6 +2041,8 @@ function renderSettings() {
   $("#sFrames").addEventListener("change", e => { settings.frames = +e.target.value; save(); });
   $("#sEla").addEventListener("change", e => { settings.elaQ = +e.target.value; save(); });
   $("#sRet").addEventListener("change", e => { settings.retention = +e.target.value; save(); applyRetention(); });
+  $("#sAi").addEventListener("change", e => { settings.aiModel = e.target.checked; save(); });
+  modelCached().then(c => { const el = $("#mState"); if (el) el.innerHTML = c ? 'Holat: <b style="color:#86EFAC">yuklab olingan</b> · <a href="#sozlamalar" id="mDel">keshdan oʻchirish</a>' : "Holat: hali yuklanmagan."; const d = $("#mDel"); if (d) d.addEventListener("click", async ev => { ev.preventDefault(); try { await caches.delete(AIM.cache); } catch (x) {} AIM.session = null; AIM.loading = null; toast("Model keshdan oʻchirildi"); renderSettings(); }); });
   $("#sSave").addEventListener("change", e => { settings.saveHistory = e.target.checked; if (!settings.saveHistory) { try { localStorage.removeItem(LS.hist); } catch (x) {} } else persistHistory(); save(); });
   $("#sExport").addEventListener("click", async () => { const txt = JSON.stringify(history, null, 2); try { await navigator.clipboard.writeText(txt); toast("Tarix JSON sifatida nusxalandi"); } catch (e) { modal({ title: "Tarix (JSON)", text: "Nusxalash ruxsat etilmadi. Matnni qoʻlda nusxalang.", extra: `<textarea readonly aria-label="JSON">${esc(txt)}</textarea>`, buttons: [{ label: "Yopish" }] }); } });
   $("#sWipe").addEventListener("click", () => modal({ title: "Hammasini oʻchirish", text: `${history.length} ta tahlil natijasi, dars natijalari va sozlamalar butunlay oʻchiriladi. Buni qaytarib boʻlmaydi.`, buttons: [{ label: "Bekor qilish", cls: "ghost" }, { label: "Oʻchirish", cls: "danger", onClick: () => { history = []; edu = {}; settings = Object.assign({}, DEF); Object.keys(visuals).forEach(k => delete visuals[k]); try { Object.values(LS).forEach(k => localStorage.removeItem(k)); } catch (e) {} toast("Barcha maʼlumotlar oʻchirildi"); renderSettings(); } }] }));

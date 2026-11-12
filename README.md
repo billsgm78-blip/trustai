@@ -1,4 +1,4 @@
-# TruthLens AI
+# Aslida
 
 Brauzerda ishlaydigan raqamli media skrining vositasi (rasm, video, audio). Barcha tahlil mijoz tomonida bajariladi — fayllar serverga yuborilmaydi.
 

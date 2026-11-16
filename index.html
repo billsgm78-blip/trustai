@@ -1348,25 +1348,36 @@ const AIM = {
   url: "https://huggingface.co/SoldadoXara/ai-image-detector-deploy-ONNX/resolve/main/onnx/model_uint8.onnx",
   ortBase: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/", sizeMB: 190, cache: "tl-model-v1", session: null, loading: null
 };
+const IS_PHONE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
 function loadScript(src) { return new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = () => rej(new Error("Skript yuklanmadi")); document.head.appendChild(el); }); }
 async function modelCached() { try { return !!AIM.session || ("caches" in window && !!(await (await caches.open(AIM.cache)).match(AIM.url))); } catch (e) { return false; } }
 async function getModel(onProgress, M = AIM) {
   if (M.session) return M.session;
   if (!M.loading) M.loading = (async () => {
     if (!window.ort) await loadScript(AIM.ortBase + "ort.min.js");
-    ort.env.wasm.wasmPaths = AIM.ortBase; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
+    ort.env.wasm.wasmPaths = AIM.ortBase; ort.env.wasm.numThreads = self.crossOriginIsolated && !IS_PHONE ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
     let cache = null; try { if ("caches" in window) cache = await caches.open(M.cache); } catch (e) {}
-    let resp = cache ? await cache.match(M.url) : null, buf;
+    let resp = cache ? await cache.match(M.url) : null, buf, fresh = false;
     if (resp) buf = new Uint8Array(await resp.arrayBuffer());
     else {
       let r = await fetch(M.url); if (!r.ok && M.alt) r = await fetch(M.alt); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
-      const total = +r.headers.get("content-length") || M.sizeMB * 1048576, reader = r.body.getReader(), parts = []; let got = 0;
-      for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; onProgress && onProgress(got, total); }
-      buf = new Uint8Array(got); let o = 0; for (const p of parts) { buf.set(p, o); o += p.length; }
-      if (cache) { try { await cache.put(M.url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {} }
+      const len = +r.headers.get("content-length") || 0, total = len || M.sizeMB * 1048576, reader = r.body.getReader();
+      // write straight into one pre-sized buffer (no second copy of a 50–190 MB model on phones)
+      buf = new Uint8Array(len || total * 1.1); let got = 0;
+      for (;;) {
+        const { done, value } = await reader.read(); if (done) break;
+        if (got + value.length > buf.length) { const nb = new Uint8Array(Math.max(buf.length * 1.5, got + value.length)); nb.set(buf.subarray(0, got)); buf = nb; }
+        buf.set(value, got); got += value.length; onProgress && onProgress(got, total);
+      }
+      if (got !== buf.length) buf = buf.slice(0, got);
+      fresh = true;
     }
     onProgress && onProgress(-1);
-    return ort.InferenceSession.create(buf, { executionProviders: ["wasm"] });
+    /* Memory: with ORT's default graph optimisation + weight prepacking the 190 MB image model took ~1.6 GB
+       (whole tab ~2.2 GB), which phones kill silently. Disabling both: ~0.42 GB, same outputs, ~25% slower. */
+    const ses = await ort.InferenceSession.create(buf, { executionProviders: ["wasm"], graphOptimizationLevel: "disabled", enableCpuMemArena: false, enableMemPattern: false, extra: { session: { disable_prepacking: "1" } } });
+    if (fresh && cache) { try { await cache.put(M.url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {} }
+    buf = null; return ses;
   })().catch(e => { M.loading = null; throw e; });
   M.session = await M.loading; return M.session;
 }
@@ -2036,8 +2047,10 @@ const STEPS = {
   audio: [["validate", "Format va hajmni tekshirish"], ["hash", "SHA-256 xeshni hisoblash"], ["meta", "Sarlavha va metamaʼlumot"], ["decode", "Audioni dekodlash"], ["features", "Akustik belgilar"], ["spectrum", "Spektrogramma"], ["aimodel", "AI ovoz detektori"], ["assess", "Xavfni baholash"]]
 };
 
+const RUN_KEY = "tl_running_v1";
 async function runAnalysis(file, bytes, fmt) {
   busy = true;
+  try { sessionStorage.setItem(RUN_KEY, JSON.stringify({ name: file.name, type: fmt.type, t: Date.now() })); } catch (e) {}
   const type = fmt.type;
   const steps = STEPS[type];
   const box = $("#progressBox");
@@ -2088,6 +2101,7 @@ async function runAnalysis(file, bytes, fmt) {
   delete rec.tmpKey; delete rec._progress; delete rec._hasCamera;
   history.unshift(rec);
   persistHistory();
+  try { sessionStorage.removeItem(RUN_KEY); } catch (e) {}
   busy = false;
   pendingFile = null;
   currentId = rec.id;
@@ -2214,7 +2228,7 @@ function renderUpload() {
   $("#startBtn").addEventListener("click", async () => {
     $("#upBtns").style.display = "none";
     try { await runAnalysis(file, pendingFile.bytes, fmt); }
-    catch (e) { busy = false; $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; }
+    catch (e) { busy = false; try { sessionStorage.removeItem(RUN_KEY); } catch (x) {} $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; }
     finally { URL.revokeObjectURL(url); }
   });
 }
@@ -2246,7 +2260,7 @@ function renderTextInput(root) {
     const bytes = new TextEncoder().encode(text);
     const file = new File([bytes], `Matn (${n} soʻz).txt`, { type: "text/plain" });
     try { await runAnalysis(file, bytes, { type: "text", label: "Matn (UTF-8)", mime: "text/plain", exts: ["txt"], text }); }
-    catch (e) { busy = false; $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; ta.readOnly = false; }
+    catch (e) { busy = false; try { sessionStorage.removeItem(RUN_KEY); } catch (x) {} $("#progressBox").innerHTML = `<div class="err">Tahlilni bajarib boʻlmadi: ${esc(e.message)}</div>`; $("#upBtns").style.display = "flex"; ta.readOnly = false; }
   });
 }
 function showUpErr(msg) { const el = $("#upErr"); if (el) el.innerHTML = `<div class="err" role="alert">${msg}</div>`; }
@@ -2507,6 +2521,12 @@ function route() {
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
+/* If the tab was killed mid-analysis (phones run out of memory and reload the page), say so instead of failing silently. */
+(function crashNotice() {
+  let r = null; try { r = JSON.parse(sessionStorage.getItem(RUN_KEY) || "null"); sessionStorage.removeItem(RUN_KEY); } catch (e) {}
+  if (!r || Date.now() - r.t > 30 * 60000) return;
+  setTimeout(() => modal({ title: "Oldingi tahlil tugamadi", text: `“${r.name}” tahlili oxiriga yetmay toʻxtadi. Odatda bunga telefon xotirasi yetmay, brauzer sahifani qayta yuklagani sabab boʻladi.`, extra: `<ul class="plain" style="margin-top:10px"><li>Boshqa ilovalar va brauzer oynalarini yopib, qayta urinib koʻring.</li><li>Iloji boʻlsa, Chrome brauzeridan yoki kompyuterdan foydalaning.</li><li>Davom etmasa, Sozlamalarda AI modelni oʻchirib, faqat texnik tekshiruvlarni bajaring.</li></ul>`, buttons: [{ label: "Sozlamalar", cls: "ghost", onClick: () => { location.hash = "#sozlamalar"; } }, { label: "Tushunarli", cls: "primary" }] }), 400);
+})();
 route();
 </script>
 </body>

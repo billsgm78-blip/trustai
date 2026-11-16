@@ -5,9 +5,9 @@ const sharp = require("sharp");
 const fa = require("react-icons/fa");
 const { applyTheme } = require("/root/.claude/skills/synced/6378ebcf-5099-4f66-82d1-128988cf6763_4c448735-4c0f-40ca-948d-8dbb6a601d9d/pptx/scripts/apply_theme.js");
 
-const OUT = process.argv[2] || "AniqlaAI_taqdimot.pptx";
+const OUT = process.argv[2] || "DIPIXAI_taqdimot.pptx";
 const THEME = {
-  name: "AniqlaAI",
+  name: "DIPIXAI",
   headFontFace: "Arial",
   bodyFontFace: "Arial",
   colors: {
@@ -28,8 +28,8 @@ async function icon(Comp, color, size = 256) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_16x9"; // 10 x 5.625
   pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
-  pres.title = "AniqlaAI — sunʼiy intellekt yaratgan kontentni aniqlash";
-  pres.author = "AniqlaAI";
+  pres.title = "DIPIXAI — Deepfake Identification Platform with Intelligent eXamination";
+  pres.author = "DIPIXAI";
   const C = pres.SchemeColor;
 
   // ---------- layouts ----------
@@ -44,7 +44,7 @@ async function icon(Comp, color, size = 256) {
     margin: [0.4, 0.5, 0.45, 0.5],
     objects: [
       { placeholder: { options: { name: "title", type: "title", x: 0.5, y: 0.3, w: 9.0, h: 0.7, fontSize: 28, bold: true, color: C.text2, valign: "middle", align: "left", margin: 0 }, text: "" } },
-      { text: { text: "AniqlaAI · “Raqamli avlod qizlari” · Tuman bosqichi", options: { x: 0.5, y: 5.2, w: 6.5, h: 0.3, fontSize: 10, color: C.accent6, margin: 0 } } },
+      { text: { text: "DIPIXAI · “Raqamli avlod qizlari” · Tuman bosqichi", options: { x: 0.5, y: 5.2, w: 6.5, h: 0.3, fontSize: 10, color: C.accent6, margin: 0 } } },
     ],
     slideNumber: { x: 9.0, y: 5.2, w: 0.5, h: 0.3, fontSize: 10, color: C.accent6, align: "right" },
   });
@@ -71,12 +71,11 @@ async function icon(Comp, color, size = 256) {
   let s = pres.addSlide({ masterName: "DARK", sectionTitle: "Kirish" });
   badge(s, I.shieldW, 0.6, 0.55, 0.9, C.accent1, "Logo");
   T(s, "“Raqamli avlod qizlari” tanlovi · Tuman bosqichi · 2026", { x: 1.7, y: 0.75, w: 7.5, h: 0.5, fontSize: 14, color: "C9C4FF" });
-  T(s, "AniqlaAI", { x: 0.6, y: 1.65, w: 8.8, h: 1.0, fontSize: 54, bold: true, color: C.background1 });
-  T(s, "Sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlovchi platforma", { x: 0.6, y: 2.65, w: 8.4, h: 0.9, fontSize: 22, color: "E6E3FF" });
+  T(s, [{ text: "DIPIXAI", options: { fontSize: 54, bold: true } }, { text: "  (Deepfake Identification Platform with Intelligent eXamination)", options: { fontSize: 15, bold: false } }], { x: 0.6, y: 1.65, w: 8.9, h: 1.0, color: C.background1, valign: "bottom" });
+  T(s, "Sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlovchi platforma", { x: 0.6, y: 2.85, w: 8.4, h: 0.9, fontSize: 22, color: "E6E3FF" });
   card(s, 0.6, 3.85, 2.9, 0.5, "Direction chip", C.accent1);
   T(s, "Yoʻnalish: Sunʼiy intellekt", { x: 0.6, y: 3.85, w: 2.9, h: 0.5, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle" });
-  T(s, "Muallif: [Ism Familiya] · [Maktab] · [Tuman]", { x: 0.6, y: 4.65, w: 8.8, h: 0.4, fontSize: 14, color: "C9C4FF" });
-  s.addNotes("Assalomu alaykum. Mening loyiham — AniqlaAI. Bu sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlab beradigan platforma. Loyiha “Sunʼiy intellekt” yoʻnalishiga tegishli. (≈15 soniya)");
+  s.addNotes("Assalomu alaykum. Mening loyiham — DIPIXAI, yaʼni “Deepfake Identification Platform with Intelligent eXamination” — sunʼiy intellekt yordamida deepfake’larni aniqlovchi platforma. Bu sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlab beradigan platforma. Loyiha “Sunʼiy intellekt” yoʻnalishiga tegishli. (≈15 soniya)");
 
   // ---------- 2. Problem ----------
   pres.addSection({ title: "Muammo va maqsad" });
@@ -120,7 +119,7 @@ async function icon(Comp, color, size = 256) {
   // ---------- 4. Solution ----------
   pres.addSection({ title: "Yechim" });
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Yechim" });
-  s.addText("Yechim: AniqlaAI — 4 ta tekshiruv bitta joyda", { placeholder: "title" });
+  s.addText("Yechim: DIPIXAI — 4 ta tekshiruv bitta joyda", { placeholder: "title" });
   const mods = [
     [I.image, "Rasm", "AI yaratgan rasm, tahrir va montaj izlari", C.accent1],
     [I.video, "Video", "Kadrlar va video ichidagi ovoz", C.accent2],
@@ -140,7 +139,7 @@ async function icon(Comp, color, size = 256) {
     card(s, x, 4.35, 2.1, 0.55, "Verdict " + t, col);
     T(s, t, { x, y: 4.35, w: 2.1, h: 0.55, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle" });
   });
-  s.addNotes("AniqlaAI to‘rtta bo‘limdan iborat: rasm, video, ovoz va matn. Har biri alohida tekshiriladi. Natija foiz va oddiy xulosa bilan beriladi: “AI yaratgan”, “Ehtimol AI”, “Noaniq” yoki “AI belgisi topilmadi”. (≈20 soniya)");
+  s.addNotes("DIPIXAI to‘rtta bo‘limdan iborat: rasm, video, ovoz va matn. Har biri alohida tekshiriladi. Natija foiz va oddiy xulosa bilan beriladi: “AI yaratgan”, “Ehtimol AI”, “Noaniq” yoki “AI belgisi topilmadi”. (≈20 soniya)");
 
   // ---------- 5. How it works ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Yechim" });
@@ -223,7 +222,7 @@ async function icon(Comp, color, size = 256) {
   const yes = (t) => ({ text: t, options: { color: C.accent5, bold: true } });
   const no = (t) => ({ text: t, options: { color: C.accent3 } });
   const cmp = [
-    [hdr("Xususiyat"), hdr("Xorijiy xizmatlar (koʻpchiligi)"), hdr("AniqlaAI")],
+    [hdr("Xususiyat"), hdr("Xorijiy xizmatlar (koʻpchiligi)"), hdr("DIPIXAI")],
     ["Tekshiriladigan kontent", no("Odatda bitta tur (faqat matn yoki rasm)"), yes("Rasm, video, ovoz, matn")],
     ["Oʻzbek tili", no("Yoʻq"), yes("Interfeys va matn tahlili oʻzbekcha")],
     ["Fayl qayerda tekshiriladi", no("Serverga yuboriladi"), yes("Foydalanuvchi qurilmasida")],
@@ -232,7 +231,7 @@ async function icon(Comp, color, size = 256) {
   ];
   s.addTable(cmp, { x: 0.5, y: 1.2, w: 9.0, colW: [2.6, 3.4, 3.0], fontSize: 14, fontFace: "Arial", color: C.text1, border: { type: "solid", pt: 0.75, color: "D9D6FB" }, fill: { color: C.background1 }, rowH: 0.55, valign: "middle", margin: 0.08 });
   T(s, "Masalan: GPTZero — faqat matn, Hive — asosan rasm va video; ikkalasi ham ingliz tilida va fayl serverga yuboriladi.", { x: 0.5, y: 4.82, w: 9.0, h: 0.3, fontSize: 11, color: C.accent6 });
-  s.addNotes("Xorijda o‘xshash xizmatlar bor, masalan GPTZero va Hive. Lekin ular odatda bitta turdagi kontentni tekshiradi, o‘zbek tilini bilmaydi, faylni serverga yuboradi va ko‘pincha pullik. AniqlaAI to‘rt turni bepul, o‘zbek tilida va qurilmaning o‘zida tekshiradi. (≈25 soniya)");
+  s.addNotes("Xorijda o‘xshash xizmatlar bor, masalan GPTZero va Hive. Lekin ular odatda bitta turdagi kontentni tekshiradi, o‘zbek tilini bilmaydi, faylni serverga yuboradi va ko‘pincha pullik. DIPIXAI to‘rt turni bepul, o‘zbek tilida va qurilmaning o‘zida tekshiradi. (≈25 soniya)");
 
   // ---------- 10. Practical use & expected results ----------
   pres.addSection({ title: "Amaliyot" });
@@ -257,7 +256,7 @@ async function icon(Comp, color, size = 256) {
     { text: "Oʻquvchilarning mustaqil ishi adolatli baholanadi", options: { bullet: true, breakLine: true } },
     { text: "Yoshlarning media savodxonligi oshadi", options: { bullet: true } },
   ], { x: 5.85, y: 1.95, w: 3.45, h: 2.8, fontSize: 14, color: C.background1, paraSpaceAfter: 8 });
-  s.addNotes("AniqlaAI’dan maktablarda o‘qituvchilar, oilalarda ota-onalar va OAVda jurnalistlar foydalana oladi. Natijada odamlar soxta kontentga kamroq ishonadi, firibgarlikdan himoyalanadi va media savodxonligi oshadi. (≈25 soniya)");
+  s.addNotes("DIPIXAI’dan maktablarda o‘qituvchilar, oilalarda ota-onalar va OAVda jurnalistlar foydalana oladi. Natijada odamlar soxta kontentga kamroq ishonadi, firibgarlikdan himoyalanadi va media savodxonligi oshadi. (≈25 soniya)");
 
   // ---------- 11. Economics & roadmap ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Amaliyot" });
@@ -293,10 +292,10 @@ async function icon(Comp, color, size = 256) {
     T(s, h, { x: x + 0.2, y: 1.65, w: 2.35, h: 0.5, fontSize: 18, bold: true, color: "C9C4FF" });
     T(s, d, { x: x + 0.2, y: 2.15, w: 2.35, h: 0.6, fontSize: 14, color: C.background1 });
   });
-  T(s, "AniqlaAI — haqiqatni soxtadan ajratishga yordam beradi", { x: 0.6, y: 3.2, w: 8.8, h: 0.6, fontSize: 22, bold: true, color: C.background1 });
-  T(s, "Sayt: [sayt manzili]   ·   Muallif: [Ism Familiya]", { x: 0.6, y: 3.95, w: 8.8, h: 0.4, fontSize: 14, color: "C9C4FF" });
+  T(s, "DIPIXAI — haqiqatni soxtadan ajratishga yordam beradi", { x: 0.6, y: 3.2, w: 8.8, h: 0.6, fontSize: 22, bold: true, color: C.background1 });
+  T(s, "Sayt: [sayt manzili]", { x: 0.6, y: 3.95, w: 8.8, h: 0.4, fontSize: 14, color: "C9C4FF" });
   T(s, "E’tiboringiz uchun rahmat! Savollaringizga javob beraman.", { x: 0.6, y: 4.6, w: 8.8, h: 0.5, fontSize: 18, color: C.background1 });
-  s.addNotes("Xulosa qilib aytganda, AniqlaAI to‘rt turdagi kontentni o‘zbek tilida, bepul va maxfiy tekshiradi va minglab namunalarda sinovdan o‘tgan. E’tiboringiz uchun rahmat, savollaringizga javob beraman. (≈15 soniya)");
+  s.addNotes("Xulosa qilib aytganda, DIPIXAI to‘rt turdagi kontentni o‘zbek tilida, bepul va maxfiy tekshiradi va minglab namunalarda sinovdan o‘tgan. E’tiboringiz uchun rahmat, savollaringizga javob beraman. (≈15 soniya)");
 
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);

@@ -1159,11 +1159,12 @@ async function analyzeImage(file, bytes, fmt, rec, step) {
   }
 
   await step("aimodel");
-  await runDetector(rec, modelViews(bitmap, bitmap.width, bitmap.height), "image");
-
-  await step("model");
+  // build the 6 small model inputs, then free the full-size photo (12 MP = ~48 MB) before the model loads
+  const views = modelViews(bitmap, bitmap.width, bitmap.height);
   await faceCheck(bitmap, rec);
   if (bitmap.close) bitmap.close();
+  await runDetector(rec, views, "image");
+  await step("model");
 }
 
 /* ---------- Extra image forensics ---------- */
@@ -1343,10 +1344,15 @@ function spectralPeaks(bitmap) {
 /* ---------- AI detector model (SwinV2, ONNX Runtime Web) ----------
    Model: haywoodsloan/ai-image-detector-deploy (Apache-2.0), ONNX export SoldadoXara/ai-image-detector-deploy-ONNX (uint8).
    Benchmarked on OpenFakeTiny test split (2025–26 generators): ~70–74% of AI images detected, 1–2% of real photos flagged. */
+/* 4-bit (MatMulNBits, block 128) re-quantisation of the same model, made from its fp16 export: 108 MB instead of 199 MB,
+   ~260 MB less browser memory (phones were killing the tab). Same 400-image test: AUC 0.946 vs 0.950,
+   real photos flagged 1.0% vs 1.9%, AI caught 66% vs 67%. Split in two parts (GitHub's 100 MB file limit). */
 const AIM = {
-  name: "AI detektor modeli (SwinV2)", version: "haywoodsloan/ai-image-detector-deploy · uint8",
-  url: "https://huggingface.co/SoldadoXara/ai-image-detector-deploy-ONNX/resolve/main/onnx/model_uint8.onnx",
-  ortBase: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/", sizeMB: 190, cache: "tl-model-v1", session: null, loading: null
+  name: "AI detektor modeli (SwinV2)", version: "haywoodsloan/ai-image-detector-deploy · 4-bit",
+  url: "/models/image-swinv2-q4.onnx", parts: ["/models/image-swinv2-q4.part0", "/models/image-swinv2-q4.part1"], partBytes: [54161280, 54161279],
+  altBase: "https://raw.githubusercontent.com/billsgm78-blip/trustai/main",
+  oldUrl: "https://huggingface.co/SoldadoXara/ai-image-detector-deploy-ONNX/resolve/main/onnx/model_uint8.onnx",
+  ortBase: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/", sizeMB: 108, cache: "tl-model-v1", session: null, loading: null
 };
 const IS_PHONE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
 function loadScript(src) { return new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = () => rej(new Error("Skript yuklanmadi")); document.head.appendChild(el); }); }
@@ -1357,9 +1363,19 @@ async function getModel(onProgress, M = AIM) {
     if (!window.ort) await loadScript(AIM.ortBase + "ort.min.js");
     ort.env.wasm.wasmPaths = AIM.ortBase; ort.env.wasm.numThreads = self.crossOriginIsolated && !IS_PHONE ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
     let cache = null; try { if ("caches" in window) cache = await caches.open(M.cache); } catch (e) {}
+    if (cache && M.oldUrl) { try { await cache.delete(M.oldUrl); } catch (e) {} }   // drop the old 199 MB model from phones' storage
     let resp = cache ? await cache.match(M.url) : null, buf, fresh = false;
     if (resp) buf = new Uint8Array(await resp.arrayBuffer());
-    else {
+    else if (M.parts) {
+      const total = M.partBytes.reduce((a, c) => a + c, 0); buf = new Uint8Array(total); let got = 0;
+      for (let k = 0; k < M.parts.length; k++) {
+        let r = await fetch(M.parts[k]); if (!r.ok && M.altBase) r = await fetch(M.altBase + M.parts[k]); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
+        const reader = r.body.getReader();
+        for (;;) { const { done, value } = await reader.read(); if (done) break; if (got + value.length > total) throw new Error("Model fayli buzilgan"); buf.set(value, got); got += value.length; onProgress && onProgress(got, total); }
+      }
+      if (got !== total) throw new Error("Model toʻliq yuklanmadi");
+      fresh = true;
+    } else {
       let r = await fetch(M.url); if (!r.ok && M.alt) r = await fetch(M.alt); if (!r.ok) throw new Error("Model yuklanmadi (HTTP " + r.status + ")");
       const len = +r.headers.get("content-length") || 0, total = len || M.sizeMB * 1048576, reader = r.body.getReader();
       // write straight into one pre-sized buffer (no second copy of a 50–190 MB model on phones)
@@ -2480,7 +2496,7 @@ function renderSettings() {
       <div class="set-row"><div><h4>Maksimal fayl hajmi</h4><p>Bundan katta fayllar qabul qilinmaydi.</p></div><select class="input" id="sMax">${[25, 50, 100, 200, 500].map(v => `<option value="${v}" ${settings.maxMB === v ? "selected" : ""}>${v} MB</option>`).join("")}</select></div>
       <div class="set-row"><div><h4>Video kadr namunalari</h4><p>Koʻproq kadr — aniqroq, lekin sekinroq.</p></div><select class="input" id="sFrames">${[8, 16, 32, 48].map(v => `<option value="${v}" ${settings.frames === v ? "selected" : ""}>${v} ta kadr</option>`).join("")}</select></div>
       <div class="set-row"><div><h4>ELA qayta siqish sifati</h4><p>Odatda 90. Past qiymat farqlarni kuchaytiradi.</p></div><select class="input" id="sEla">${[75, 85, 90, 95].map(v => `<option value="${v}" ${settings.elaQ === v ? "selected" : ""}>${v}</option>`).join("")}</select></div>
-      <div class="set-row"><div><h4>AI detektor modeli</h4><p>Neyron tarmoq (~${AIM.sizeMB} MB). Birinchi marta Hugging Face’dan yuklanadi va brauzerda saqlanadi. <span id="mState"></span></p></div><label class="switch"><input type="checkbox" id="sAi" ${settings.aiModel ? "checked" : ""}><span class="sr" style="position:absolute;left:-9999px">AI detektor modeli</span></label></div>
+      <div class="set-row"><div><h4>AI detektor modeli</h4><p>Neyron tarmoq (~${AIM.sizeMB} MB). Birinchi tahlilda bir marta yuklanadi va brauzerda saqlanadi. <span id="mState"></span></p></div><label class="switch"><input type="checkbox" id="sAi" ${settings.aiModel ? "checked" : ""}><span class="sr" style="position:absolute;left:-9999px">AI detektor modeli</span></label></div>
       <div class="set-row"><div><h4>Til</h4><p>Interfeys tili. Inglizcha va ruscha versiyalar ishlab chiqilmoqda.</p></div><select class="input" id="sLang"><option value="uz" selected>Oʻzbekcha</option></select></div>
     </div>
     <div class="card"><h3>Maxfiylik va maʼlumotlar</h3>

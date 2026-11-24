@@ -1,6 +1,6 @@
-# DIPIXAI
+# DetectAI
 
-**Deepfake Identification Platform with Intelligent eXamination**
+**Sunʼiy intellekt kontentini aniqlovchi platforma**
 
 Sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlovchi, brauzerda ishlaydigan platforma. Barcha tahlil mijoz tomonida bajariladi — fayllar serverga yuborilmaydi.
 

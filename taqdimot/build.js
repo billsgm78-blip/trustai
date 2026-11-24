@@ -5,9 +5,9 @@ const sharp = require("sharp");
 const fa = require("react-icons/fa");
 const { applyTheme } = require("/root/.claude/skills/synced/6378ebcf-5099-4f66-82d1-128988cf6763_4c448735-4c0f-40ca-948d-8dbb6a601d9d/pptx/scripts/apply_theme.js");
 
-const OUT = process.argv[2] || "DIPIXAI_taqdimot.pptx";
+const OUT = process.argv[2] || "DetectAI_taqdimot.pptx";
 const THEME = {
-  name: "DIPIXAI",
+  name: "DetectAI",
   headFontFace: "Arial",
   bodyFontFace: "Arial",
   colors: {
@@ -28,8 +28,8 @@ async function icon(Comp, color, size = 256) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_16x9"; // 10 x 5.625
   pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
-  pres.title = "DIPIXAI — Deepfake Identification Platform with Intelligent eXamination";
-  pres.author = "DIPIXAI";
+  pres.title = "DetectAI — sunʼiy intellekt kontentini aniqlovchi platforma";
+  pres.author = "DetectAI";
   const C = pres.SchemeColor;
 
   // ---------- layouts ----------
@@ -44,7 +44,7 @@ async function icon(Comp, color, size = 256) {
     margin: [0.4, 0.5, 0.45, 0.5],
     objects: [
       { placeholder: { options: { name: "title", type: "title", x: 0.5, y: 0.3, w: 9.0, h: 0.7, fontSize: 28, bold: true, color: C.text2, valign: "middle", align: "left", margin: 0 }, text: "" } },
-      { text: { text: "DIPIXAI · “Raqamli avlod qizlari” · Tuman bosqichi", options: { x: 0.5, y: 5.2, w: 6.5, h: 0.3, fontSize: 10, color: C.accent6, margin: 0 } } },
+      { text: { text: "DetectAI · “Raqamli avlod qizlari” · Tuman bosqichi", options: { x: 0.5, y: 5.2, w: 6.5, h: 0.3, fontSize: 10, color: C.accent6, margin: 0 } } },
     ],
     slideNumber: { x: 9.0, y: 5.2, w: 0.5, h: 0.3, fontSize: 10, color: C.accent6, align: "right" },
   });
@@ -71,11 +71,10 @@ async function icon(Comp, color, size = 256) {
   let s = pres.addSlide({ masterName: "DARK", sectionTitle: "Kirish" });
   badge(s, I.shieldW, 0.6, 0.55, 0.9, C.accent1, "Logo");
   T(s, "“Raqamli avlod qizlari” tanlovi · Tuman bosqichi · 2026", { x: 1.7, y: 0.75, w: 7.5, h: 0.5, fontSize: 14, color: "C9C4FF" });
-  T(s, [{ text: "DIPIXAI", options: { fontSize: 54, bold: true } }, { text: "  (Deepfake Identification Platform with Intelligent eXamination)", options: { fontSize: 15, bold: false } }], { x: 0.6, y: 1.65, w: 8.9, h: 1.0, color: C.background1, valign: "bottom" });
+  T(s, [{ text: "DetectAI", options: { fontSize: 54, bold: true } }, { text: "  — sunʼiy intellektni aniqlovchi", options: { fontSize: 18, bold: false } }], { x: 0.6, y: 1.65, w: 8.9, h: 1.0, color: C.background1, valign: "bottom" });
   T(s, "Sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlovchi platforma", { x: 0.6, y: 2.85, w: 8.4, h: 0.9, fontSize: 22, color: "E6E3FF" });
   card(s, 0.6, 3.85, 2.9, 0.5, "Direction chip", C.accent1);
   T(s, "Yoʻnalish: Sunʼiy intellekt", { x: 0.6, y: 3.85, w: 2.9, h: 0.5, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle" });
-  s.addNotes("Assalomu alaykum. Mening loyiham — DIPIXAI, yaʼni “Deepfake Identification Platform with Intelligent eXamination” — sunʼiy intellekt yordamida deepfake’larni aniqlovchi platforma. Bu sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlab beradigan platforma. Loyiha “Sunʼiy intellekt” yoʻnalishiga tegishli. (≈15 soniya)");
 
   // ---------- 2. Problem ----------
   pres.addSection({ title: "Muammo va maqsad" });
@@ -94,7 +93,6 @@ async function icon(Comp, color, size = 256) {
     T(s, h, { x: x + 1.25, y: y + 0.25, w: 3.0, h: 0.45, fontSize: 16, bold: true, color: C.text2 });
     T(s, d, { x: x + 1.25, y: y + 0.72, w: 3.0, h: 0.7, fontSize: 14, color: C.text1 });
   });
-  s.addNotes("Bugun sunʼiy intellekt bir necha soniyada haqiqiydek rasm, video, ovoz va matn yarata oladi. Natijada soxta yangiliklar, ovoz klonlash orqali firibgarlik va AI yozgan insholar paydo boʻldi. Oʻzbek tilida bularni tekshiradigan qulay vosita esa yoʻq. (≈25 soniya)");
 
   // ---------- 3. Goal & fit ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Muammo va maqsad" });
@@ -114,12 +112,11 @@ async function icon(Comp, color, size = 256) {
     card(s, x, y, 2.05, 0.48, "Audience " + t);
     T(s, t, { x, y, w: 2.05, h: 0.48, fontSize: 14, bold: true, color: C.accent1, align: "center", valign: "middle" });
   });
-  s.addNotes("Maqsadim — har kim bepul va oson foydalana oladigan tekshiruv vositasi yaratish. Loyiha “Sunʼiy intellekt” yoʻnalishiga toʻliq mos: u neyron tarmoqlar yordamida sunʼiy intellekt izlarini topadi. Taʼlim sohasida ham foydali. (≈20 soniya)");
 
   // ---------- 4. Solution ----------
   pres.addSection({ title: "Yechim" });
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Yechim" });
-  s.addText("Yechim: DIPIXAI — 4 ta tekshiruv bitta joyda", { placeholder: "title" });
+  s.addText("Yechim: DetectAI — 4 ta tekshiruv bitta joyda", { placeholder: "title" });
   const mods = [
     [I.image, "Rasm", "AI yaratgan rasm, tahrir va montaj izlari", C.accent1],
     [I.video, "Video", "Kadrlar va video ichidagi ovoz", C.accent2],
@@ -139,7 +136,6 @@ async function icon(Comp, color, size = 256) {
     card(s, x, 4.35, 2.1, 0.55, "Verdict " + t, col);
     T(s, t, { x, y: 4.35, w: 2.1, h: 0.55, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle" });
   });
-  s.addNotes("DIPIXAI to‘rtta bo‘limdan iborat: rasm, video, ovoz va matn. Har biri alohida tekshiriladi. Natija foiz va oddiy xulosa bilan beriladi: “AI yaratgan”, “Ehtimol AI”, “Noaniq” yoki “AI belgisi topilmadi”. (≈20 soniya)");
 
   // ---------- 5. How it works ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Yechim" });
@@ -160,7 +156,6 @@ async function icon(Comp, color, size = 256) {
   card(s, 0.5, 4.0, 9.0, 0.9, "Privacy note");
   badge(s, I.shield, 0.7, 4.1, 0.7, C.background1, "Privacy");
   T(s, "Maxfiylik: barcha tahlil foydalanuvchining oʻz qurilmasida bajariladi. Shaxsiy rasm, ovoz yoki matn hech qayerga yuborilmaydi.", { x: 1.6, y: 4.05, w: 7.7, h: 0.8, fontSize: 14, valign: "middle" });
-  s.addNotes("Foydalanuvchi faylni yuklaydi. Tahlil to‘g‘ridan-to‘g‘ri brauzerda bajariladi, shuning uchun fayl hech qayerga yuborilmaydi — bu shaxsiy maʼlumotlar uchun muhim. Neyron tarmoqlar faylni tekshiradi va natija tushuntirish bilan chiqadi. (≈20 soniya)");
 
   // ---------- 6. Technology ----------
   pres.addSection({ title: "Texnik qism" });
@@ -176,7 +171,6 @@ async function icon(Comp, color, size = 256) {
   ];
   s.addTable(rows, { x: 0.5, y: 1.2, w: 9.0, colW: [1.3, 4.1, 3.6], fontSize: 13, fontFace: "Arial", color: C.text1, border: { type: "solid", pt: 0.75, color: "D9D6FB" }, fill: { color: C.background1 }, rowH: 0.5, valign: "middle", margin: 0.08 });
   T(s, "Platforma: HTML + JavaScript · ONNX Runtime Web (AI brauzerda ishlaydi) · bepul Vercel hosting · kompyuter va telefonda ishlaydi", { x: 0.5, y: 4.35, w: 9.0, h: 0.6, fontSize: 14, color: C.accent1, bold: true });
-  s.addNotes("Har bir bo‘limda alohida neyron tarmoq bor: rasm uchun SwinV2, ovoz uchun WavLM asosidagi o‘zim o‘qitgan model, matn uchun RoBERTa va o‘zbek tili uslub tahlili. Modellar brauzerda ONNX Runtime orqali ishlaydi, sayt kompyuter va telefonda ochiladi. (≈30 soniya)");
 
   // ---------- 7. Innovation ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Texnik qism" });
@@ -193,7 +187,6 @@ async function icon(Comp, color, size = 256) {
     T(s, h, { x: x + 1.05, y: y + 0.05, w: 3.35, h: 0.45, fontSize: 16, bold: true, color: C.text2 });
     T(s, d, { x: x + 1.05, y: y + 0.5, w: 3.35, h: 1.0, fontSize: 14 });
   });
-  s.addNotes("Loyihaning yangiligi: birinchidan, o‘zbek tiliga moslangan. Ikkinchidan, ovoz detektorini o‘zim o‘qitdim — tayyor modellar sinovdan o‘tmadi. Uchinchidan, AI to‘liq brauzerda ishlaydi va fayl yuborilmaydi. To‘rtinchidan, natija tushuntirish bilan beriladi. (≈25 soniya)");
 
   // ---------- 8. Results ----------
   pres.addSection({ title: "Natijalar" });
@@ -214,7 +207,6 @@ async function icon(Comp, color, size = 256) {
     T(s, l, { x: 7.15, y: y + 0.15, w: 2.25, h: 0.5, fontSize: 14, bold: true, color: C.text2 });
     T(s, sub, { x: 7.15, y: y + 0.62, w: 2.25, h: 0.4, fontSize: 11, color: C.accent6 });
   });
-  s.addNotes("Loyihani minglab namunalarda sinadim. Haqiqiy rasmni xato “AI” deyish 11,6 foizdan 0,9 foizgacha kamaydi. Ovoz detektori o‘qitishda ko‘rmagan tizimlarda ham 0,91 aniqlik (AUC) ko‘rsatdi. O‘zbekcha AI matnlarni topish 8 tadan 1 tadan 5 taga oshdi. (≈30 soniya)");
 
   // ---------- 9. Comparison ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Natijalar" });
@@ -222,7 +214,7 @@ async function icon(Comp, color, size = 256) {
   const yes = (t) => ({ text: t, options: { color: C.accent5, bold: true } });
   const no = (t) => ({ text: t, options: { color: C.accent3 } });
   const cmp = [
-    [hdr("Xususiyat"), hdr("Xorijiy xizmatlar (koʻpchiligi)"), hdr("DIPIXAI")],
+    [hdr("Xususiyat"), hdr("Xorijiy xizmatlar (koʻpchiligi)"), hdr("DetectAI")],
     ["Tekshiriladigan kontent", no("Odatda bitta tur (faqat matn yoki rasm)"), yes("Rasm, video, ovoz, matn")],
     ["Oʻzbek tili", no("Yoʻq"), yes("Interfeys va matn tahlili oʻzbekcha")],
     ["Fayl qayerda tekshiriladi", no("Serverga yuboriladi"), yes("Foydalanuvchi qurilmasida")],
@@ -231,7 +223,6 @@ async function icon(Comp, color, size = 256) {
   ];
   s.addTable(cmp, { x: 0.5, y: 1.2, w: 9.0, colW: [2.6, 3.4, 3.0], fontSize: 14, fontFace: "Arial", color: C.text1, border: { type: "solid", pt: 0.75, color: "D9D6FB" }, fill: { color: C.background1 }, rowH: 0.55, valign: "middle", margin: 0.08 });
   T(s, "Masalan: GPTZero — faqat matn, Hive — asosan rasm va video; ikkalasi ham ingliz tilida va fayl serverga yuboriladi.", { x: 0.5, y: 4.82, w: 9.0, h: 0.3, fontSize: 11, color: C.accent6 });
-  s.addNotes("Xorijda o‘xshash xizmatlar bor, masalan GPTZero va Hive. Lekin ular odatda bitta turdagi kontentni tekshiradi, o‘zbek tilini bilmaydi, faylni serverga yuboradi va ko‘pincha pullik. DIPIXAI to‘rt turni bepul, o‘zbek tilida va qurilmaning o‘zida tekshiradi. (≈25 soniya)");
 
   // ---------- 10. Practical use & expected results ----------
   pres.addSection({ title: "Amaliyot" });
@@ -256,7 +247,6 @@ async function icon(Comp, color, size = 256) {
     { text: "Oʻquvchilarning mustaqil ishi adolatli baholanadi", options: { bullet: true, breakLine: true } },
     { text: "Yoshlarning media savodxonligi oshadi", options: { bullet: true } },
   ], { x: 5.85, y: 1.95, w: 3.45, h: 2.8, fontSize: 14, color: C.background1, paraSpaceAfter: 8 });
-  s.addNotes("DIPIXAI’dan maktablarda o‘qituvchilar, oilalarda ota-onalar va OAVda jurnalistlar foydalana oladi. Natijada odamlar soxta kontentga kamroq ishonadi, firibgarlikdan himoyalanadi va media savodxonligi oshadi. (≈25 soniya)");
 
   // ---------- 11. Economics & roadmap ----------
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Amaliyot" });
@@ -279,7 +269,6 @@ async function icon(Comp, color, size = 256) {
     T(s, h, { x: 5.75, y, w: 3.75, h: 0.35, fontSize: 14, bold: true, color: C.accent1 });
     T(s, d, { x: 5.75, y: y + 0.35, w: 3.75, h: 0.5, fontSize: 14 });
   });
-  s.addNotes("Loyiha juda arzon: hosting bepul, AI foydalanuvchi qurilmasida ishlagani uchun server xarajati yo‘q. Rejam: viloyat bosqichigacha Telegram-bot va ko‘proq o‘zbekcha namunalar, keyin mobil ilova va maktablar uchun versiya. (≈25 soniya)");
 
   // ---------- 12. Conclusion ----------
   pres.addSection({ title: "Xulosa" });
@@ -292,10 +281,9 @@ async function icon(Comp, color, size = 256) {
     T(s, h, { x: x + 0.2, y: 1.65, w: 2.35, h: 0.5, fontSize: 18, bold: true, color: "C9C4FF" });
     T(s, d, { x: x + 0.2, y: 2.15, w: 2.35, h: 0.6, fontSize: 14, color: C.background1 });
   });
-  T(s, "DIPIXAI — haqiqatni soxtadan ajratishga yordam beradi", { x: 0.6, y: 3.2, w: 8.8, h: 0.6, fontSize: 22, bold: true, color: C.background1 });
-  T(s, "Sayt: [sayt manzili]", { x: 0.6, y: 3.95, w: 8.8, h: 0.4, fontSize: 14, color: "C9C4FF" });
+  T(s, "DetectAI — haqiqatni soxtadan ajratishga yordam beradi", { x: 0.6, y: 3.2, w: 8.8, h: 0.6, fontSize: 22, bold: true, color: C.background1 });
+  T(s, "Yoʻnalish: Sunʼiy intellekt · “Raqamli avlod qizlari” · Tuman bosqichi", { x: 0.6, y: 3.95, w: 8.8, h: 0.4, fontSize: 14, color: "C9C4FF" });
   T(s, "E’tiboringiz uchun rahmat! Savollaringizga javob beraman.", { x: 0.6, y: 4.6, w: 8.8, h: 0.5, fontSize: 18, color: C.background1 });
-  s.addNotes("Xulosa qilib aytganda, DIPIXAI to‘rt turdagi kontentni o‘zbek tilida, bepul va maxfiy tekshiradi va minglab namunalarda sinovdan o‘tgan. E’tiboringiz uchun rahmat, savollaringizga javob beraman. (≈15 soniya)");
 
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);

@@ -1,6 +1,6 @@
-# DetectAI
+# DIPIX AI
 
-**Sunʼiy intellekt kontentini aniqlovchi platforma**
+**Deepfake va sunʼiy intellekt kontentini aniqlovchi platforma**
 
 Sunʼiy intellekt yaratgan rasm, video, ovoz va matnni aniqlovchi, brauzerda ishlaydigan platforma. Barcha tahlil mijoz tomonida bajariladi — fayllar serverga yuborilmaydi.
 
